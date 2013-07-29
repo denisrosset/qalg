@@ -59,7 +59,7 @@ trait CachedSolver[HR <: HRepr, VR <: VRepr] {
     val hStr = hReprToString(hRepr)
     val hash = sha256(hStr)
     val cacheDir = if (hint == "") polytopeDirectory else new File(polytopeDirectory, sanitizePathElement(hint))
-    if (!cacheDir.mkdirs) sys.error("Could not create cache directory.")
+    if (!cacheDir.isDirectory && !cacheDir.mkdirs) sys.error("Could not create cache directory.")
     val inputFile = new File(cacheDir, hash + hExtension)
     val outputFile = new File(cacheDir, hash + hToVExtension)
     if (!outputFile.exists) {
