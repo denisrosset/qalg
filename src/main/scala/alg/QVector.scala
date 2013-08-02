@@ -137,6 +137,7 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
 
   def canonicalizeCoefficients: (V, Rational) = {
     val cf = commonFactor
+    assert(cf != Rational.zero) // FIXME: see why sometimes commonFactor is zero
     if (cf == Rational.zero)
       (this, cf)
     else
