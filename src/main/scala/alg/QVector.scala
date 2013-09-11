@@ -181,60 +181,6 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
 
   def permutedByInverseOf(pinv: PermElementLike): V = factory.tabulate(length)(i => apply(pinv.image(i)._0))
 
-  def maximalLexicographicForm[F <: FiniteElement[F]](group: Group[F]): V = {
-    // FIXME: more checks for the BSGS
-    val permBSGS = group.bsgs.convertElements(_.explicit)
-    def exploreLevel(set: Set[V], subgroup: BSGSGroup[Perm]): Set[V] = subgroup match {
-      case g: BSGSGroupTerminal[_] => set
-      case g: BSGSGroupNode[_] => {
-        val transversal = subgroup.transversal
-        val allPossibleCoeffs =
-          for {
-            vector <- set.toIterator
-            b <- transversal.keysIterator
-          } yield vector(b._0)
-        val maximum = allPossibleCoeffs.max
-        val newVectors =
-          for {
-            vector <- set
-            b <- transversal.keysIterator
-            if vector(b._0) == maximum
-          } yield vector.permutedByInverseOf(transversal.u(b))
-        exploreLevel(newVectors, subgroup.tail)
-      }
-    }
-    val set = exploreLevel(Set(this), permBSGS)
-    assert(set.size == 1)
-    set.head
-  }
-
-  def maximalLexicographicFormWithPermutation[F <: FiniteElement[F]](group: Group[F]): (V, F) = {
-    // FIXME: more checks for the BSGS
-    val permBSGS = group.bsgs.convertElements(_.explicit)
-    def exploreLevel(permSet: Set[BSGSElement[Perm]],
-      subgroup: BSGSGroup[Perm], level: Int): Set[BSGSElement[Perm]] = subgroup match {
-      case g: BSGSGroupTerminal[_] => permSet
-      case g: BSGSGroupNode[_] => {
-        val transversal = subgroup.transversal
-        val allPossibleCoeffs =
-          for {
-            perm <- permSet.toIterator
-            b <- transversal.keysIterator
-          } yield this(perm.image(b)._0)
-        val maximum = allPossibleCoeffs.max
-        val newPerms =
-          for {
-            perm <- permSet
-            b <- transversal.keysIterator
-            if this(perm.image(b)._0) == maximum
-          } yield permBSGS.transversalElement(level, b) * perm
-        exploreLevel(newPerms, subgroup.tail, level + 1)
-      }
-    }
-    val set = exploreLevel(Set(permBSGS.identity), permBSGS, 0)
-    (permutedByInverseOf(set.head), group.bsgs.fromExplicit(set.head.explicit).get.represents.f)
-  }
-
   // ^^^ Action of permutations
   ///////////////////////
   // vvv Conversions
