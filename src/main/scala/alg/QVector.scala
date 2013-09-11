@@ -137,19 +137,13 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
 
   def canonicalizeCoefficients: (V, Rational) = {
     val cf = commonFactor
-    assert(cf != Rational.zero) // FIXME: see why sometimes commonFactor is zero
-    if (cf == Rational.zero)
+    if (cf == Rational.zero) // cf can be zero if ALL coefficients are zero
       (this, cf)
     else
       (this/cf, cf)
   }
 
-  def uncanonicalizeCoefficients(cf: Rational): V = {
-    if (cf == Rational.zero)
-      this
-    else 
-      this*cf
-  }
+  def uncanonicalizeCoefficients(cf: Rational): V = this*cf
 
   def unary_-(): V = mapElements( (rat: Rational) => -rat )
 
