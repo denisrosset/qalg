@@ -62,16 +62,16 @@ class HRepr(
   * @param aeq   Matrix for equality constraints.
   * @param beq   Coefficient vector for equality constraints such that aeq * x = beq.
   * @param valid Valid point satisfying inequality and equality constraints.
+  * @param sym   Symmetry group acting on rows of a+aeq in that order.
   */
 class SymHRepr(
   override val a: alg.immutable.QMatrix,
   override val b: alg.immutable.QVector,
-  val ineqSym: Group[Perm],
   override val aeq: alg.immutable.QMatrix,
   override val beq: alg.immutable.QVector,
-  val eqSym: Group[Perm],
+  val sym: Group[Perm],
   override val valid: Option[alg.immutable.QVector]) extends HRepr(a, b, aeq, beq, valid) {
-
+  require_(sym.identity.size == a.rows + aeq.rows)
   override def toV(name: String) = Sympol.hToV(this, name)
 }
 
@@ -89,12 +89,12 @@ class VRepr(val e: alg.immutable.QMatrix, val r: alg.immutable.QMatrix) extends 
   * 
   * @param e   Matrix of extremal points, stored as row vectors.
   * @param r   Matrix of rays, stored as row vectors.
+  * @param sym Symmetry group acting on rows of e+r in that order.
   */
 case class SymVRepr(
   override val e: alg.immutable.QMatrix,
-  val eSym: Group[Perm],
   override val r: alg.immutable.QMatrix,
-  val rSym: Group[Perm]) extends VRepr(e, r) {
+  val sym: Group[Perm]) extends VRepr(e, r) {
 
   override def toH(name: String) = Sympol.vToH(this, name)
 }
