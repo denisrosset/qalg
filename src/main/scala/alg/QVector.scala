@@ -3,8 +3,7 @@ package alg
 
 import spire.math.{Rational, SafeLong, lcm, gcd}
 import spire.syntax.cfor._
-import net.alasc.{Dom, Perm, PermElement, FiniteElement, PermElementLike, Group}
-import net.alasc.bsgs.{BSGSGroup, BSGSElement, BSGSGroupNode, BSGSGroupTerminal}
+import net.alasc.{Dom, FiniteElement, PermElementLike, Action}
 
 
 /** Base class for mutable or immutable vectors. */
@@ -174,6 +173,16 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
   }
 
   def permutedByInverseOf(pinv: PermElementLike): V = factory.tabulate(length)(i => apply(pinv.image(i)._0))
+
+  def permutedBy[F <: FiniteElement[F]](f: F, action: Action[F]): V = {
+    val newData = new Array[Rational](length)
+    for (i <- 0 until length)
+      newData(action(f, i)._0) = this(i)
+    factory.build(newData)
+  }
+
+  def permutedByInverseOf[F <: FiniteElement[F]](finv: F, action: Action[F]): V = factory.tabulate(length)(i => apply(action(finv, i)._0))
+
 
   // ^^^ Action of permutations
   ///////////////////////
