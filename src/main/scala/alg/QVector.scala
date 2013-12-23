@@ -219,6 +219,22 @@ abstract class VectorFactory[V <: alg.QVector] {
   /////////////////////////
   // vvv Constructor variants
 
+// TODO: change immutable.QVector implementation to an array of BigInt/Long/Int and
+// denominator to avoid this hack
+  val smallIntegerCache = collection.mutable.Map.empty[Int, Rational]
+
+  def apply(intArray: Array[Int]) = {
+    val coeffArray = intArray.map {
+      case i if i >= -300 && i <= 300 && smallIntegerCache.isDefinedAt(i) =>
+        smallIntegerCache(i)
+      case i if i >= -300 && i <= 300 =>
+        val r = Rational(i)
+        smallIntegerCache(i) = r
+        r
+      case i => Rational(i)
+    }
+    unsafeBuild(coeffArray)
+  }
   def apply[R : RationalMaker](data: R*): V =
     build(data.map(r => implicitly[RationalMaker[R]].toRational(r)).toArray)
 
