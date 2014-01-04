@@ -269,6 +269,17 @@ abstract class VectorFactory[V <: alg.QVector] {
   // ^^^ Matlab-like vector constructors
   ///////////////////////////////////////
 
+  object LexicographicOrdering extends Ordering[V] {
+    def compare(u: V, v: V): Int = {
+      assert(u.length == v.length)
+      for(i <- 0 until u.length) {
+        val compareValue = spire.math.Rational.RationalAlgebra.compare(u(i), v(i))
+        if (compareValue != 0)
+          return compareValue
+      }
+      0
+    }
+  }
 }
 
 object QVector extends VectorFactory[alg.QVector] {
