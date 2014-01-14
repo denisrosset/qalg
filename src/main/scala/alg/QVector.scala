@@ -222,7 +222,7 @@ abstract class VectorFactory[V <: alg.QVector] {
 // TODO: change immutable.QVector implementation to an array of BigInt/Long/Int and
 // denominator to avoid this hack
   val smallIntegerCache = collection.mutable.Map.empty[Int, Rational]
-
+  // TODO: remove
   def apply(intArray: Array[Int]) = {
     val coeffArray = intArray.map {
       case i if i >= -300 && i <= 300 && smallIntegerCache.isDefinedAt(i) =>
