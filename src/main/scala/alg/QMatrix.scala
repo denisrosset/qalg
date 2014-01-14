@@ -501,6 +501,8 @@ trait QMatrixLike[M <: alg.QMatrixLike[M, V], V <: alg.QVectorLike[V, M]] extend
     factory.unsafeBuild(res)
   }
 
+  def compact = factory.build(rows, cols, elements.map(alg.QVector.cacheRational(_)).toArray)
+
   // ^^^ Helper mathematical methods
   //////////////////////////////////
 }
@@ -528,6 +530,8 @@ abstract class MatrixFactory[M <: alg.QMatrix] {
   def rowMajor[R : RationalMaker](size: (Int, Int), transposedData: R*): M = tabulate(size._1, size._2)( (r, c) => implicitly[RationalMaker[R]].toRational(transposedData(c + r * size._2)) )
 
   def apply[R : RationalMaker](size: (Int, Int), data: R*): M = colMajor(size, data:_*)
+
+  def apply(rows: Int, cols: Int, data: Array[Int]): M = build(rows, cols, data.map(alg.QVector.cacheRational(_)))
 
   def apply(rows: Int, cols: Int, data: Array[Rational]): M = build(rows, cols, data)
 
