@@ -199,6 +199,9 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
 
   def usingIntegers: V
   def usingCoprimeIntegers: V
+
+
+  def compact = factory.tabulate(length)( ind => alg.QVector.cacheRational(apply(ind)) )
 }
 
 abstract class VectorFactory[V <: alg.QVector] {
@@ -219,22 +222,8 @@ abstract class VectorFactory[V <: alg.QVector] {
   /////////////////////////
   // vvv Constructor variants
 
-// TODO: change immutable.QVector implementation to an array of BigInt/Long/Int and
-// denominator to avoid this hack
-  val smallIntegerCache = collection.mutable.Map.empty[Int, Rational]
-  // TODO: remove
-  def apply(intArray: Array[Int]) = {
-    val coeffArray = intArray.map {
-      case i if i >= -300 && i <= 300 && smallIntegerCache.isDefinedAt(i) =>
-        smallIntegerCache(i)
-      case i if i >= -300 && i <= 300 =>
-        val r = Rational(i)
-        smallIntegerCache(i) = r
-        r
-      case i => Rational(i)
-    }
-    unsafeBuild(coeffArray)
-  }
+  def apply(intArray: Array[Int]): V = apply(intArray.map(QVector.cacheRational(_)))
+
   def apply[R : RationalMaker](data: R*): V =
     build(data.map(r => implicitly[RationalMaker[R]].toRational(r)).toArray)
 
@@ -287,4 +276,21 @@ object QVector extends VectorFactory[alg.QVector] {
   def build(data: Array[Rational]) = alg.mutable.QVector.build(data)
   protected[alg] def unsafeBuild(vec: alg.QVector) = vec
   protected[alg] def unsafeBuild(data: Array[Rational]) = alg.mutable.QVector.unsafeBuild(data)
+  val rationalCache = collection.mutable.HashMap.empty[(Int, Int), Rational]
+  var cacheMaxAbsValue = 100
+  def cacheRational(r: Rational): Rational = {
+    if (r.numerator.abs <= cacheMaxAbsValue && r.denominator <= cacheMaxAbsValue) {
+      val n = r.numerator.toInt
+      val d = r.denominator.toInt
+      rationalCache.get( ((n, d)) ) match {
+        case None =>
+          rationalCache += (((n, d)) -> r)
+          r
+        case Some(cached) =>
+          cached
+      }
+    }
+    else
+      r
+  }
 }
