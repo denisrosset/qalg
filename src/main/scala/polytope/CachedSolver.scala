@@ -19,8 +19,7 @@ trait CachedSolver[HR <: HRepr, VR <: VRepr] {
   def hToVExtension: String
 
   val baseDirectory = new File(".")
-  val dataDirectory = new File(baseDirectory.getCanonicalPath(), "data")
-  val polytopeDirectory = new File(dataDirectory.getCanonicalPath(), "polytope")
+  val polytopeDirectory = new File(baseDirectory.getCanonicalPath(), "polytope-cache")
 
   def sha256(str: String): String = {
     import java.security.MessageDigest
