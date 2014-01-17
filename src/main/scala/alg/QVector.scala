@@ -45,9 +45,14 @@ abstract class QVector {
   /////////////////////////////
   // vvv Mathematical methods
 
-  def commonFactor = {
+  def factors: (BigInt, BigInt) = {
     val lcmDenominator = elements.map(_.denominator).fold(BigInt(1))(lcm)
     val gcdNumerator = elements.map(_.numerator).fold(BigInt(0))(gcd)
+    ((lcmDenominator, gcdNumerator))
+  }
+
+  def commonFactor: Rational = {
+    val (lcmDenominator, gcdNumerator) = factors
     Rational(gcdNumerator, lcmDenominator)
   }
 
