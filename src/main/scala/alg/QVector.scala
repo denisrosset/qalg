@@ -3,7 +3,7 @@ package alg
 
 import spire.math.{Rational, SafeLong, lcm, gcd}
 import spire.syntax.cfor._
-import net.alasc.{Dom, FiniteElement, PermElementLike, Action}
+import net.alasc.{Dom, Finite, GenPermuting, Action}
 
 
 /** Base class for mutable or immutable vectors. */
@@ -170,23 +170,23 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
 
   import Dom.ZeroBased._
 
-  def permutedBy(p: PermElementLike): V = {
+  def permutedBy(p: GenPermuting): V = {
     val newData = new Array[Rational](length)
     for (i <- 0 until length)
       newData(p.image(i)._0) = this(i)
     factory.build(newData)
   }
 
-  def permutedByInverseOf(pinv: PermElementLike): V = factory.tabulate(length)(i => apply(pinv.image(i)._0))
+  def permutedByInverseOf(pinv: GenPermuting): V = factory.tabulate(length)(i => apply(pinv.image(i)._0))
 
-  def permutedBy[F <: FiniteElement[F]](f: F, action: Action[F]): V = {
+  def permutedBy[F <: Finite[F]](f: F, action: Action[F]): V = {
     val newData = new Array[Rational](length)
     for (i <- 0 until length)
       newData(action(f, i)._0) = this(i)
     factory.build(newData)
   }
 
-  def permutedByInverseOf[F <: FiniteElement[F]](finv: F, action: Action[F]): V = factory.tabulate(length)(i => apply(action(finv, i)._0))
+  def permutedByInverseOf[F <: Finite[F]](finv: F, action: Action[F]): V = factory.tabulate(length)(i => apply(action(finv, i)._0))
 
 
   // ^^^ Action of permutations
