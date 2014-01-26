@@ -139,15 +139,27 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
   ////////////////////////
   // vvv Vector arithmetic
 
-  def canonicalizeCoefficients: (V, Rational) = {
-    val cf = commonFactor
-    if (cf == Rational.zero) // cf can be zero if ALL coefficients are zero
-      (this, cf)
-    else
-      (this/cf, cf)
+/*
+Returns a sequence of Int whose relative order is the same as the elements
+of this QVector.
+*/
+  def coefficientsOrdering: Seq[Int] = {
+    val coeffMap = elements.distinct.sortBy(identity).zipWithIndex.toMap
+    elements.map(coeffMap(_))
   }
 
-  def uncanonicalizeCoefficients(cf: Rational): V = this*cf
+/*
+Returns a `QVector` with prime integer coefficients and a multiplicative factor,
+such that the returned `QVector` * this factor is equal to the original `QVector`.
+*/
+  def extractingFactor: (V, Rational) = {
+    if (elements.forall(_ == 0))
+      (this, Rational.one)
+    else {
+      val cf = commonFactor
+      (this/cf, cf)
+    }
+  }
 
   def unary_-(): V = mapElements( (rat: Rational) => -rat )
 
