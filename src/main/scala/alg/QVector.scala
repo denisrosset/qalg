@@ -123,17 +123,17 @@ trait QVectorLike[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]] extend
   //////////////////////////
   // vvv Scalar arithmetic
 
-  def :+[R : RationalMaker](rhs: R): V =
-    mapElements((rat: Rational) => rat + implicitly[RationalMaker[R]].toRational(rhs))
+  def :+(rhs: Rational): V =
+    mapElements((rat: Rational) => rat + rhs)
 
-  def :-[R : RationalMaker](rhs: R): V =
-    mapElements((rat: Rational) => rat - implicitly[RationalMaker[R]].toRational(rhs))
+  def :-(rhs: Rational): V =
+    mapElements((rat: Rational) => rat - rhs)
 
-  def *[R : RationalMaker](rhs: R): V =
-    mapElements((rat: Rational) => rat * implicitly[RationalMaker[R]].toRational(rhs))
+  def *(rhs: Rational): V =
+    mapElements((rat: Rational) => rat * rhs)
 
-  def /[R : RationalMaker](rhs: R): V =
-    mapElements((rat: Rational) => rat / implicitly[RationalMaker[R]].toRational(rhs))
+  def /(rhs: Rational): V =
+    mapElements((rat: Rational) => rat / rhs)
 
   // ^^^ Scalar arithmetic
   ////////////////////////
@@ -241,8 +241,8 @@ abstract class VectorFactory[V <: alg.QVector] {
 
   def apply(intArray: Array[Int]): V = apply(intArray.map(QVector.cacheRational(_)))
 
-  def apply[R : RationalMaker](data: R*): V =
-    build(data.map(r => implicitly[RationalMaker[R]].toRational(r)).toArray)
+  def apply[R <% Rational](data: R*): V =
+    build(data.map(r => (r: Rational)).toArray)
 
   def apply(data: Array[Rational]): V = build(data)
 

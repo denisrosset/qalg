@@ -192,17 +192,17 @@ trait QMatrixLike[M <: alg.QMatrixLike[M, V], V <: alg.QVectorLike[V, M]] extend
   //////////////////////////
   // vvv Scalar arithmetic
 
-  def :+[R : RationalMaker](rhs: R): M =
-    mapElements((rat: Rational) => rat + implicitly[RationalMaker[R]].toRational(rhs))
+  def :+(rhs: Rational): M =
+    mapElements((rat: Rational) => rat + rhs)
 
-  def :-[R : RationalMaker](rhs: R): M =
-    mapElements((rat: Rational) => rat - implicitly[RationalMaker[R]].toRational(rhs))
+  def :-(rhs: Rational): M =
+    mapElements((rat: Rational) => rat - rhs)
 
-  def *[R : RationalMaker](rhs: R): M =
-    mapElements((rat: Rational) => rat * implicitly[RationalMaker[R]].toRational(rhs))
+  def *(rhs: Rational): M =
+    mapElements((rat: Rational) => rat * rhs)
 
-  def /[R : RationalMaker](rhs: R): M = 
-    mapElements((rat: Rational) => rat / implicitly[RationalMaker[R]].toRational(rhs))
+  def /(rhs: Rational): M = 
+    mapElements((rat: Rational) => rat / rhs)
 
   // ^^^ Scalar arithmetic
   ////////////////////////
@@ -495,7 +495,7 @@ trait QMatrixLike[M <: alg.QMatrixLike[M, V], V <: alg.QVectorLike[V, M]] extend
       val v = res(i, ::).toQVector
       for (j <- i+1 until rows) {
         val r = res(j, ::).toQVector
-        res(j, ::) = ( (v.dot(v))*r - (v.dot(r))*v ).usingCoprimeIntegers
+        res(j, ::) = ( r*(v.dot(v)) - v*(v.dot(r)) ).usingCoprimeIntegers
       }
     }
     factory.unsafeBuild(res)
@@ -525,11 +525,11 @@ abstract class MatrixFactory[M <: alg.QMatrix] {
   /////////////////////////
   // vvv Constructor variants 
 
-  def colMajor[R : RationalMaker](size: (Int, Int), data: R*): M = build(size._1, size._2, data.map(r => implicitly[RationalMaker[R]].toRational(r)).toArray)
+  def colMajor[R <% Rational](size: (Int, Int), data: R*): M = build(size._1, size._2, data.map(r => (r: Rational)).toArray)
 
-  def rowMajor[R : RationalMaker](size: (Int, Int), transposedData: R*): M = tabulate(size._1, size._2)( (r, c) => implicitly[RationalMaker[R]].toRational(transposedData(c + r * size._2)) )
+  def rowMajor[R <% Rational](size: (Int, Int), transposedData: R*): M = tabulate(size._1, size._2)( (r, c) => ((transposedData(c + r * size._2)): Rational) )
 
-  def apply[R : RationalMaker](size: (Int, Int), data: R*): M = colMajor(size, data:_*)
+  def apply[R <% Rational](size: (Int, Int), data: R*): M = colMajor(size, data:_*)
 
   def apply(rows: Int, cols: Int, data: Array[Int]): M = build(rows, cols, data.map(alg.QVector.cacheRational(_)))
 

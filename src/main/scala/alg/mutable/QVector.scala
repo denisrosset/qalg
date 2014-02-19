@@ -62,17 +62,17 @@ abstract class QVector extends alg.QVector with alg.QVectorLike[alg.mutable.QVec
   def +=(rhs: alg.QVector) { updateWithIndex( (i: Int, v: Rational) => v + rhs(i) ) }
   def -=(rhs: alg.QVector) { updateWithIndex( (i: Int, v: Rational) => v - rhs(i) ) }
 
-  def *=[R : RationalMaker](rhs: R) {
-    updateElements((rat: Rational) => rat * implicitly[RationalMaker[R]].toRational(rhs))
+  def *=(rhs: Rational) {
+    updateElements((rat: Rational) => rat * rhs)
   }
-  def /=[R : RationalMaker](rhs: R) {
-    updateElements((rat: Rational) => rat / implicitly[RationalMaker[R]].toRational(rhs))
+  def /=(rhs: Rational) {
+    updateElements((rat: Rational) => rat / rhs)
   }
-  def :+=[R : RationalMaker](rhs: R) {
-    updateElements((rat: Rational) => rat + implicitly[RationalMaker[R]].toRational(rhs))
+  def :+=(rhs: Rational) {
+    updateElements((rat: Rational) => rat + rhs)
   }
-  def :-=[R : RationalMaker](rhs: R) {
-    updateElements((rat: Rational) => rat - implicitly[RationalMaker[R]].toRational(rhs))
+  def :-=(rhs: Rational) {
+    updateElements((rat: Rational) => rat - rhs)
   }
 
   // ^^^ Arithmetic update

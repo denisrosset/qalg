@@ -52,36 +52,6 @@ package object alg {
 
   def parseCoefficients(S: String): Array[Int] = S.split("\\s+").map(_.toInt)
 
-  class LinearOps(val r: Rational) extends AnyVal {
-    def *[M <: alg.QMatrixLike[M, _]](m: alg.QMatrix with M): M = m * r
-    def *[V <: alg.QVectorLike[V, _]](v: alg.QVector with V): V = v * r
-  }
-
-  implicit def rationalToLinearOps(r: Rational) : LinearOps = new LinearOps(r)
-  implicit def intToLinearOps(r: Int) : LinearOps = new LinearOps(Rational(r))
-  implicit def safeLongToLinearOps(r: SafeLong) : LinearOps = new LinearOps(Rational(r))
-  implicit def bigIntToLinearOps(r: BigInt) : LinearOps = new LinearOps(Rational(r))
-
-  trait RationalMaker[R] {
-    def toRational(r: R): Rational
-  }
-
-  implicit object rationalRationalMaker extends RationalMaker[Rational] {
-    def toRational(r: Rational) = r
-  }
-
-  implicit object intRationalMaker extends RationalMaker[Int] {
-    def toRational(r: Int) = Rational(r)
-  }
-
-  implicit object safeLongRationalMaker extends RationalMaker[SafeLong] {
-    def toRational(r: SafeLong) = Rational(r)
-  }
-
-  implicit object bigIntRationalMaker extends RationalMaker[BigInt] {
-    def toRational(r: BigInt) = Rational(r)
-  }
-
   ///////////////////////////////////////
   // vvv Matlab-like mathematical functions
   /**
@@ -91,7 +61,7 @@ package object alg {
   def kronAB[M <: alg.QMatrixLike[M, _]](a: alg.QMatrix with M, b: alg.QMatrix with M): alg.QMatrix with M = {
     val res = alg.mutable.QMatrix.zeros(a.rows * b.rows, a.cols * b.cols)
     for (r <- 0 until a.rows; c <- 0 until a.cols; av = a(r, c))
-      res((r * b.rows) until ((r+1) * b.rows), (c * b.cols) until ((c+1) * b.cols)) = av * b
+      res((r * b.rows) until ((r+1) * b.rows), (c * b.cols) until ((c+1) * b.cols)) = b * av
     a.factory.unsafeBuild(res)
   }
 
@@ -102,7 +72,7 @@ package object alg {
   def kronAB[V <: alg.QVectorLike[V, _]](a: alg.QVector with V, b: alg.QVector with V): alg.QVector with V = {
     val res = alg.mutable.QVector.zeros(a.length * b.length)
     for (i <- 0 until a.length; av = a(i))
-      res(i * b.length until (i+1) * b.length) = av * b
+      res(i * b.length until (i+1) * b.length) = b * av
     a.factory.unsafeBuild(res)
   }
 
