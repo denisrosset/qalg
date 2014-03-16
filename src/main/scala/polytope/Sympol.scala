@@ -38,7 +38,7 @@ object Sympol extends CachedSolver[SymHRepr, SymVRepr] {
     assert(vRepr.r.rows == 0) // FIXME: allow rays
     val vpol = new StringBuilder()
     val eGroupDesc = vRepr.sym.generators.map(g => {
-      g.cycles.filter(_.size>1).map(cycle => cycle.map(_._1).mkString(" ")).mkString(",")
+      g.cycles.seq.filter(_.seq.size>1).map(cycle => cycle.seq.map(_._1).mkString(" ")).mkString(",")
     }).toList
     vpol ++= "V-representation\n"
     vpol ++= "begin\n"
@@ -58,7 +58,8 @@ object Sympol extends CachedSolver[SymHRepr, SymVRepr] {
 
     val hpol = new StringBuilder()
     val ineqGroupDesc = hRepr.sym.generators.map(gel => {
-      gel.cycles.filter(_.size>1).map(cycle => cycle.map(_._1).mkString(" ")).mkString(",")
+      gel.cycles.seq.filter(_.seq.size>1)
+        .map(cycle => cycle.seq.map(_._1).mkString(" ")).mkString(",")
     }).toList
     hpol ++= "H-representation\n"
     hpol ++= "begin\n"
