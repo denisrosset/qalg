@@ -2,6 +2,7 @@ package com.faacets.alg
 
 import mutable.{QVector => QVec, QMatrix => QMat}
 import org.scalatest.FunSuite
+import spire.math.Rational
 
 /** Examples and tests taken from Lipschutz-Lipson 2004.
   * 
@@ -14,9 +15,9 @@ class SchaumSuite extends FunSuite {
     val u = QVec(2, 4, -5)
     val v = QVec(1, -6, 9)
     assert(u + v === QVec(3, -2, 4))
-    assert(7*u === QVec(14,28,-35))
+    assert(u*7 === QVec(14,28,-35))
     assert(-v === QVec(-1, 6, -9))
-    assert(3*u - 5*v === QVec(1, 42, -60))
+    assert(u*3 - v*5 === QVec(1, 42, -60))
   }
   test("Example 1.3a") {
     val u = QVec(1,-2,3)
@@ -41,10 +42,10 @@ class SchaumSuite extends FunSuite {
     assert(a + b === QMat.colMajor((2, 3),
       5, 4, 11,
       1, 1, -2))
-    assert(3*a === QMat.colMajor((2, 3),
+    assert(a*3 === QMat.colMajor((2, 3),
       3, -6, 9,
       0, 12, 15))
-    assert(2*a - 3*b === QMat.colMajor((2, 3),
+    assert(a*2 - b*3 === QMat.colMajor((2, 3),
       -10, -22, -18,
       -3, 17, 31))
   }
