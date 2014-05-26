@@ -144,6 +144,16 @@ trait QMatrixLike[M <: alg.QMatrixLike[M, V], V <: alg.QVectorLike[V, M]] extend
 
   def t: M = factory.tabulate(cols, rows)( (c,r) => this(r,c) )
 
+  def rowVectors: IndexedSeq[V] = new IndexedSeq[V] {
+    def length = rows
+    def apply(r: Int): V = vectorFactory.tabulate(cols)(c => lhs.apply(r, c))
+  }
+
+  def colVectors: IndexedSeq[V] = new IndexedSeq[V] {
+    def length = cols
+    def apply(c: Int): V = vectorFactory.tabulate(rows)(r => lhs.apply(r, c))
+  }
+
   // ^^^ Element indexing
   //////////////////////
   // vvv Apply variants
@@ -524,6 +534,10 @@ abstract class MatrixFactory[M <: alg.QMatrix] {
   // ^^^ Abstract methods
   /////////////////////////
   // vvv Constructor variants 
+
+  def fromColVectors(vectors: QVector*): M = tabulate(vectors.head.length, vectors.length)( (r, c) => vectors(c)(r) )
+
+  def fromRowVectors(vectors: QVector*): M = tabulate(vectors.length, vectors.head.length)( (r, c) => vectors(r)(c) )
 
   def colMajor[R <% Rational](size: (Int, Int), data: R*): M = build(size._1, size._2, data.map(r => (r: Rational)).toArray)
 
