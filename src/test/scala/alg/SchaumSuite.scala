@@ -4,6 +4,7 @@ import mutable.{QVector => QVec, QMatrix => QMat}
 import org.scalatest.FunSuite
 import spire.math.Rational
 import spire.syntax.innerProductSpace._
+import all._
 
 /** Examples and tests taken from Lipschutz-Lipson 2004.
   * 
@@ -43,10 +44,10 @@ class SchaumSuite extends FunSuite {
     assert(a + b === QMat.colMajor((2, 3),
       5, 4, 11,
       1, 1, -2))
-    assert(a*3 === QMat.colMajor((2, 3),
+    assert(a:*3 === QMat.colMajor((2, 3),
       3, -6, 9,
       0, 12, 15))
-    assert(a*2 - b*3 === QMat.colMajor((2, 3),
+    assert((a:*2) - (b:*3) === QMat.colMajor((2, 3),
       -10, -22, -18,
       -3, 17, 31))
   }

@@ -162,7 +162,6 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
     */
   def rref: (M, List[Int]) = {
     val a = toMutable
-    implicit val ev: VectorSpace[mutable.QMatrix, Rational] = all.mutableQMatrixAlgebra
     var used = List.empty[Int]
     var r = 0
     for (c <- 0 until cols) {
@@ -176,11 +175,13 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
           a(pivot, c until cols) = a(r, c until cols)
           a(r, c until cols) = tmp
           // normalize pivot row
-          a(r, c until cols) /= a(r, c)
+          val f = a(r, c)
+          for (c1 <- c until cols)
+            a(r, c1) = a(r, c1) / f
           // eliminate current column
           for (ridx <- 0 until rows) {
             if (ridx != r)
-              a(ridx, c until cols) = (a(ridx, c until cols) - a(r, c until cols)) :* a(ridx, c)
+              a(ridx, c until cols) = a(ridx, c until cols) - (a(r, c until cols) :* a(ridx, c))
           }
           r += 1
         }
