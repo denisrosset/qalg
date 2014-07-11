@@ -87,4 +87,31 @@ class LinearAlgebraSuite extends FunSuite {
     ))
     assert(k2.sorted == List(0,1))
   }
+  test("Kron of [1, 2] and [3, 5]") {
+    import all._
+    import spire.implicits._
+    val a = QVec(1, 2)
+    val b = QVec(3, 5)
+    assert((a |+| b) == QVec(3, 5, 6, 10))
+    assert(vecKron(a, b) == QVec(3, 5, 6, 10))
+    assert(vecReverseKron(b, a) == QVec(3, 5, 6, 10))
+  }
+  test("Kron of [1, 2; 3 5] and [1, 0; 0, 1]") {
+    import all._
+    import spire.implicits._
+    val a = QMat.rowMajor((2, 2),
+      1, 2,
+      3, 5)
+    val b = QMat.rowMajor((2, 2),
+      1, 0,
+      0, 1);
+    val k = QMat.rowMajor((4, 4),
+      1, 0, 2, 0,
+      0, 1, 0, 2,
+      3, 0, 5, 0,
+      0, 3, 0, 5)
+    assert((a |+| b) == k)
+    assert(kron(a, b) == k)
+    assert(reverseKron(b, a) == k)
+  }
 }

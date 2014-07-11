@@ -59,26 +59,16 @@ package object alg {
   }
 
   def parseCoefficients(S: String): Array[Int] = S.split("\\s+").map(_.toInt)
-/*
-  ///////////////////////////////////////
-  // vvv Matlab-like mathematical functions
-  /**
-   * Returns the Kronecker product of the two matrices a and b,
-   * usually denoted a ⊗ b.
-   */
-  def kronAB[M <: alg.QMatrixLike[M, _]](a: alg.QMatrix with M, b: alg.QMatrix with M): alg.QMatrix with M = {
-  }
 
-  def kron[M <: alg.QMatrixLike[M, _]](matrices: alg.QMatrix with M*): alg.QMatrix with M = matrices.tail.foldLeft(matrices.head)(kronAB[M])
+  def kron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: QMatrixBaseKron[M]): M =
+    matrices.tail.foldLeft(matrices.head)(_ |+| _)
 
-  def reverseKron[M <: alg.QMatrixLike[M, _]](matrices: alg.QMatrix with M*): alg.QMatrix with M = kron[M](matrices.reverse:_*)
+  def reverseKron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: QMatrixBaseKron[M]): M = 
+    kron[M](matrices.reverse:_*)
 
+  def vecKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: QVectorBaseKron[V]): V = 
+    vectors.tail.foldLeft(vectors.head)(_ |+| _)
 
-  def vecKron[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](vectors: V*): V = vectors.tail.foldLeft(vectors.head)(kronAB[V, M])
-
-  def vecReverseKron[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](vectors: V*): V = kron[V, M](vectors.reverse:_*)
-*/
-
-  // ^^^ Matlab-like mathematical functions
-  /////////////////////////////////////////
+  def vecReverseKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: QVectorBaseKron[V]): V = 
+    vecKron[V](vectors.reverse:_*)
 }
