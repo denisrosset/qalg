@@ -338,7 +338,7 @@ class QMatrixAlgebra[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M]) extends
   }
 }
 
-class QMatrixKron[M <: QMatrixBase[M, _]](implicit factory: QMatrixFactory[M], ms: VectorSpace[M, Rational]) extends Monoid[M] {
+class QMatrixBaseKron[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M])(implicit ms: VectorSpace[M, Rational]) extends Monoid[M] {
   def id = factory.fill(1, 1)(Rational.one)
 
   def op(a: M, b: M): M = {

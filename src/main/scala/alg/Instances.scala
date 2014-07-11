@@ -2,7 +2,7 @@ package com.faacets
 package alg
 
 import spire.math.Rational
-import net.alasc.Index
+import net.alasc.{Finite, Index, Permuting, PRepr}
 
 trait QTensorInstances {
   implicit object QTensorIndex extends Index[Rational, GenQTensor] {
@@ -11,25 +11,34 @@ trait QTensorInstances {
   }
 }
 
+
 trait QVectorInstances {
-/*
-  implicit def QVectorOrder[V <: alg.QVectorLike[V, _]] = new QVectorOrder[V]
-  implicit def QVectorKron[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](implicit factory: QVectorFactory[V], vs: VectorSpace[V, Rational]) = new QVectorKron[V, M]
-  implicit def QVectorVectorSpace[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](implicit factory: QVectorFactory[V]) = new QVectorVectorSpace[V, M]
-  implicit def QVectorPermutingAction[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V], P <: Permuting[P]] =
-    new QVectorPermutingAction[V, M, P]
-  implicit def QVectorPReprAction[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V], F <: Finite[F]](implicit prepr: PRepr[F]) =
-    new QVectorPReprAction[V, M, F]*/
+  implicit val genQVectorIndex = new GenQVectorIndex
+  implicit val genQVectorOrder = new GenQVectorOrder
 
   implicit val mutableQVectorInnerProductSpace = 
     new QVectorBaseInnerProductSpace[mutable.QVector](mutable.QVector)
+  implicit val mutableQVectorKron = new QVectorBaseKron[mutable.QVector](mutable.QVector)
+  implicit def mutableQVectorPermutingAction[P <: Permuting[P]] = 
+    new QVectorBasePermutingAction[mutable.QVector, P](mutable.QVector)
+  implicit def mutableQVectorPReprAction[F <: Finite[F]](implicit prepr: PRepr[F]) = 
+    new QVectorBasePReprAction[mutable.QVector, F](mutable.QVector)
+
   implicit val immutableQVectorInnerProductSpace = 
     new QVectorBaseInnerProductSpace[immutable.QVector](immutable.QVector)
+  implicit val immutableQVectorKron = new QVectorBaseKron[immutable.QVector](immutable.QVector)
+  implicit def immutableQVectorPermutingAction[P <: Permuting[P]] = 
+    new QVectorBasePermutingAction[immutable.QVector, P](immutable.QVector)
+  implicit def immutableQVectorPReprAction[F <: Finite[F]](implicit prepr: PRepr[F]) = 
+    new QVectorBasePReprAction[immutable.QVector, F](immutable.QVector)
 }
 
 trait QMatrixInstances {
-  implicit val immutableQMatrixAlgebra = new QMatrixAlgebra[immutable.QMatrix](immutable.QMatrix)
   implicit val mutableQMatrixAlgebra = new QMatrixAlgebra[mutable.QMatrix](mutable.QMatrix)
+  implicit val mutableQMatrixKron = new QMatrixBaseKron[mutable.QMatrix](mutable.QMatrix)
+
+  implicit val immutableQMatrixAlgebra = new QMatrixAlgebra[immutable.QMatrix](immutable.QMatrix)
+  implicit val immutableQMatrixKron = new QMatrixBaseKron[immutable.QMatrix](immutable.QMatrix)
 }
 
 trait AllInstances extends

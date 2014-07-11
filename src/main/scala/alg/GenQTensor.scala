@@ -49,6 +49,12 @@ trait GenQTensor {
   protected[alg] def unsafeToArray: Array[Rational]
 
   def commonFactor: Rational = {
+    val (gcdNum, lcmDen) = factors1
+    Rational(gcdNum, lcmDen)
+  }
+
+  // TODO: rename back, temp rename because return values have been switched
+  def factors1: (BigInt, BigInt) = {
     var lcmDen = SafeLong.one
     var gcdNum = SafeLong.zero
     var i = 0
@@ -57,34 +63,6 @@ trait GenQTensor {
       gcdNum = gcd(gcdNum, apply(i).numerator)
       i += 1
     }
-    Rational(gcdNum, lcmDen)
+    (gcdNum.toBigInt, lcmDen.toBigInt)
   }
-
-/*
-  def factors: (BigInt, BigInt) = {
-    val lcmDenominator = elements.map(_.denominator).fold(BigInt(1))(lcm)
-    val gcdNumerator = elements.map(_.numerator).fold(BigInt(0))(gcd)
-    ((lcmDenominator.abs, gcdNumerator.abs))
-  }
-
-  def commonFactor: Rational = {
-    val (lcmDenominator, gcdNumerator) = factors
-    Rational(gcdNumerator, lcmDenominator)
-  }
-
-  def integerCoefficients: (Array[BigInt], BigInt) = {
-    val commonDenominator = elements.map(_.denominator).fold(BigInt(1))(lcm)
-    val coeffsArray = elements.map( r => r.numerator * (commonDenominator/r.denominator) ).toArray
-    (coeffsArray, commonDenominator)
-  }
-
-  def longCoefficients: (Array[Long], Long) = {
-    val (coeffsArray, commonDenominator) = integerCoefficients
-    if (coeffsArray.exists(!_.isValidLong))
-      throw new IllegalArgumentException("Coefficients do not fit into a long.")
-    if (!commonDenominator.isValidLong)
-      throw new IllegalArgumentException("Denominator does not fit into a long.")
-    (coeffsArray.map(_.longValue), commonDenominator.longValue)
-  }
-*/
 }

@@ -35,9 +35,25 @@ abstract class QVectorBase[V <: QVectorBase[V, M], M <: QMatrixBase[M, V]] exten
 
   /** Transpose of that vector, i.e. vector as row matrix. */
   def t: M = toRowQMatrix
+
+  def integerCoefficients: (Array[BigInt], BigInt) = {
+    val array = toArray
+    val commonDenominator = (BigInt(1) /: array)( (lSoFar, el) => spire.math.lcm(lSoFar, el.denominator) )
+    val coeffsArray = array.map( r => r.numerator * (commonDenominator/r.denominator) )
+    (coeffsArray, commonDenominator)
+  }
+
+  def longCoefficients: (Array[Long], Long) = {
+    val (coeffsArray, commonDenominator) = integerCoefficients
+    if (coeffsArray.exists(!_.isValidLong))
+      throw new IllegalArgumentException("Coefficients do not fit into a long.")
+    if (!commonDenominator.isValidLong)
+      throw new IllegalArgumentException("Denominator does not fit into a long.")
+    (coeffsArray.map(_.longValue), commonDenominator.longValue)
+  }
 }
 
-class QVectorPermutingAction[V <: QVectorBase[V, _], P <: Permuting[P]](implicit factory: QVectorFactory[V]) extends Action[V, P] {
+class QVectorBasePermutingAction[V <: QVectorBase[V, _], P <: Permuting[P]](factory: QVectorFactory[V]) extends Action[V, P] {
   import Dom.ZeroBased._
   def actr(v: V, p: P): V = {
     val newData = new Array[Rational](v.length)
@@ -48,8 +64,7 @@ class QVectorPermutingAction[V <: QVectorBase[V, _], P <: Permuting[P]](implicit
   def actrinv(v: V, pinv: P): V = factory.tabulate(v.length)(i => v.apply(pinv.image(i)))
 }
 
-class QVectorPReprAction[V <: QVectorBase[V, _], F <: Finite[F]](
-  implicit factory: QVectorFactory[V], prepr: PRepr[F])
+class QVectorBasePReprAction[V <: QVectorBase[V, _], F <: Finite[F]](factory: QVectorFactory[V])(implicit prepr: PRepr[F])
     extends Action[V, F] {
   import Dom.ZeroBased._
 
@@ -89,14 +104,15 @@ class QVectorBaseInnerProductSpace[V <: QVectorBase[V, _]](factory: QVectorFacto
   }
 }
 
-class QVectorKron[V <: QVectorBase[V, _]](implicit factory: QVectorFactory[V], vs: VectorSpace[V, Rational]) extends Monoid[V] {
+class QVectorBaseKron[V <: QVectorBase[V, _]](factory: QVectorFactory[V])(implicit ev: VectorSpace[V, Rational]) extends Monoid[V] {
   def id = factory.fill(1)(Rational.one)
 
   def op(a: V, b: V): V = {
+    import qVectorInstances._
     val res = alg.mutable.QVector.zeros(a.length * b.length)
     // TODO cfor
     for (i <- 0 until a.length; av = a(i)) {
-      val prod: V = vs.timesl(av, b)
+      val prod: V = ev.timesl(av, b)
       res(i * b.length until (i+1) * b.length) = prod
     }
     factory.unsafeBuild(res)

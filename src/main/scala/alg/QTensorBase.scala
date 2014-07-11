@@ -12,7 +12,8 @@ trait QTensorBase[T <: QTensorBase[T]] extends GenQTensor {
 
   /** Returns a deep copy of this if mutable, or directly this if immutable. */
   def copy: T
-/** Returns a vector/matrix with prime integer coefficients and a multiplicative factor,
+
+  /** Returns a vector/matrix with prime integer coefficients and a multiplicative factor,
   * such that the returned vector/matrix * factor is equal to the original vector/matrix. */
   def withPrimes: (T, Rational) = {
     val cf = commonFactor

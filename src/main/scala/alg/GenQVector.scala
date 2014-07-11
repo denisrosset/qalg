@@ -16,21 +16,19 @@ abstract class GenQVector extends GenQTensor {
   override def toString = MatrixPrinting.print(immutable.QMatrix(1, length, unsafeToArray))
 }
 
-trait GenQVectorInstances {
-  implicit object GenQVectorIndex extends Index[Rational, GenQVector] {
-    def indexElement(v: GenQVector, i: Int) = v(i)
-    def indexLength(v: GenQVector) = v.length
-  }
+class GenQVectorIndex extends Index[Rational, GenQVector] {
+  def indexElement(v: GenQVector, i: Int) = v(i)
+  def indexLength(v: GenQVector) = v.length
+}
 
-  implicit object GenQVectorOrder extends Order[GenQVector] {
-    def compare(u: GenQVector, v: GenQVector): Int = {
-      assert(u.length == v.length)
-      for(i <- 0 until u.length) {
-        val compareValue = Rational.RationalAlgebra.compare(u(i), v(i))
-        if (compareValue != 0)
-          return compareValue
-      }
-      0
+class GenQVectorOrder extends Order[GenQVector] {
+  def compare(u: GenQVector, v: GenQVector): Int = {
+    assert(u.length == v.length)
+    for(i <- 0 until u.length) {
+      val compareValue = Rational.RationalAlgebra.compare(u(i), v(i))
+      if (compareValue != 0)
+        return compareValue
     }
+    0
   }
 }
