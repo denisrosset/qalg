@@ -2,10 +2,18 @@ package com.faacets
 
 import scala.annotation.tailrec
 import scala.math.abs
+import spire.algebra.VectorSpace
 import spire.math.{Rational, SafeLong, lcm}
 import language.implicitConversions
+import spire.implicits._
 
 package object alg {
+  object qTensorInstances extends QTensorInstances
+  object qVectorInstances extends QVectorInstances
+  object qMatrixInstances extends QMatrixInstances
+  object allInstances extends AllInstances
+  object all extends AllInstances
+
   // factorizes integer n
   def factor(n: Int): List[Int] = {
     // finds a divisor for n greater or equal to k
@@ -51,7 +59,7 @@ package object alg {
   }
 
   def parseCoefficients(S: String): Array[Int] = S.split("\\s+").map(_.toInt)
-
+/*
   ///////////////////////////////////////
   // vvv Matlab-like mathematical functions
   /**
@@ -59,26 +67,17 @@ package object alg {
    * usually denoted a ⊗ b.
    */
   def kronAB[M <: alg.QMatrixLike[M, _]](a: alg.QMatrix with M, b: alg.QMatrix with M): alg.QMatrix with M = {
-    val res = alg.mutable.QMatrix.zeros(a.rows * b.rows, a.cols * b.cols)
-    for (r <- 0 until a.rows; c <- 0 until a.cols; av = a(r, c))
-      res((r * b.rows) until ((r+1) * b.rows), (c * b.cols) until ((c+1) * b.cols)) = b * av
-    a.factory.unsafeBuild(res)
   }
 
   def kron[M <: alg.QMatrixLike[M, _]](matrices: alg.QMatrix with M*): alg.QMatrix with M = matrices.tail.foldLeft(matrices.head)(kronAB[M])
 
   def reverseKron[M <: alg.QMatrixLike[M, _]](matrices: alg.QMatrix with M*): alg.QMatrix with M = kron[M](matrices.reverse:_*)
 
-  def kronAB[V <: alg.QVectorLike[V, _]](a: alg.QVector with V, b: alg.QVector with V): alg.QVector with V = {
-    val res = alg.mutable.QVector.zeros(a.length * b.length)
-    for (i <- 0 until a.length; av = a(i))
-      res(i * b.length until (i+1) * b.length) = b * av
-    a.factory.unsafeBuild(res)
-  }
 
-  def kron[V <: alg.QVectorLike[V, _]](vectors: alg.QVector with V*): alg.QVector with V = vectors.tail.foldLeft(vectors.head)(kronAB[V])
+  def vecKron[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](vectors: V*): V = vectors.tail.foldLeft(vectors.head)(kronAB[V, M])
 
-  def reverseKron[V <: alg.QVectorLike[V, _]](vectors: alg.QVector with V*): alg.QVector with V = kron[V](vectors.reverse:_*)
+  def vecReverseKron[V <: alg.QVectorLike[V, M], M <: alg.QMatrixLike[M, V]](vectors: V*): V = kron[V, M](vectors.reverse:_*)
+*/
 
   // ^^^ Matlab-like mathematical functions
   /////////////////////////////////////////

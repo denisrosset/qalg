@@ -4,6 +4,8 @@ package polytope
 import alg._
 import scala.util.parsing.combinator._
 import spire.math.Rational
+import net.alasc.indexSyntax._
+import alg.all._
 
 trait PortaFileFormat extends PolytopeFileFormat {
   override val whiteSpace = """([ \t])+""".r
@@ -143,11 +145,11 @@ object IEQFormat extends PortaFileFormat {
       } ).mkString("\n")
     }
     p.valid match {
-      case Some(v) => {
-      str ++= "VALID\n"
-      str ++= v.elements.mkString(" ") + "\n"
-      }
-      case None => { }
+      case Some(v) =>
+        str ++= "VALID\n"
+        import net.alasc._
+        str ++= (v: GenQTensor).indexToIndexedSeq.mkString(" ") + "\n"
+      case None =>
     }
     str ++= "INEQUALITIES_SECTION\n"
     str ++= printLinear(p.a, p.b, "<=") + "\n"

@@ -1,8 +1,10 @@
 name := "Polyta"
 
-version := "0.1"
+organization := "com.faacets"
 
-scalaVersion := "2.10.4"
+version := "0.21"
+
+scalaVersion := "2.11.1"
 
 resolvers ++= Seq(
   "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
@@ -10,9 +12,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalacheck" %% "scalacheck" % "1.11.1" % "test",
-  "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
-  "org.spire-math" %% "spire" % "0.7.3"
+  "net.alasc" %% "alasc" % "0.91",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1",
+  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
+  "org.scalatest" %% "scalatest" % "2.1.6" % "test",
+  "org.spire-math" %% "spire" % "0.7.6-SNAPSHOT"
 )
 
 scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation") 
