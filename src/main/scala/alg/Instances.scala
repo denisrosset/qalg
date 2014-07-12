@@ -13,9 +13,8 @@ trait QTensorInstances {
 
 
 trait QVectorInstances {
-  implicit val genQVectorIndex = new GenQVectorIndex
-  implicit val genQVectorOrder = new GenQVectorOrder
-
+  implicit val mutableQVectorIndex = new QTensorBaseIndex[mutable.QVector]
+  implicit val mutableQVectorOrder = new QVectorBaseOrder[mutable.QVector]
   implicit val mutableQVectorInnerProductSpace = 
     new QVectorBaseInnerProductSpace[mutable.QVector](mutable.QVector)
   implicit val mutableQVectorKron = new QVectorBaseKron[mutable.QVector](mutable.QVector)
@@ -24,6 +23,8 @@ trait QVectorInstances {
   implicit def mutableQVectorPReprAction[F <: Finite[F]](implicit prepr: PRepr[F]) = 
     new QVectorBasePReprAction[mutable.QVector, F](mutable.QVector)
 
+  implicit val immutableQVectorIndex = new QTensorBaseIndex[immutable.QVector]
+  implicit val immutableQVectorOrder = new QVectorBaseOrder[immutable.QVector]
   implicit val immutableQVectorInnerProductSpace = 
     new QVectorBaseInnerProductSpace[immutable.QVector](immutable.QVector)
   implicit val immutableQVectorKron = new QVectorBaseKron[immutable.QVector](immutable.QVector)
@@ -34,9 +35,11 @@ trait QVectorInstances {
 }
 
 trait QMatrixInstances {
+  implicit val mutableQMatrixIndex = new QTensorBaseIndex[mutable.QMatrix]
   implicit val mutableQMatrixAlgebra = new QMatrixAlgebra[mutable.QMatrix](mutable.QMatrix)
   implicit val mutableQMatrixKron = new QMatrixBaseKron[mutable.QMatrix](mutable.QMatrix)
 
+  implicit val immutableQMatrixIndex = new QTensorBaseIndex[immutable.QMatrix]
   implicit val immutableQMatrixAlgebra = new QMatrixAlgebra[immutable.QMatrix](immutable.QMatrix)
   implicit val immutableQMatrixKron = new QMatrixBaseKron[immutable.QMatrix](immutable.QMatrix)
 }

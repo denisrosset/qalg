@@ -116,3 +116,15 @@ class QVectorBaseKron[V <: QVectorBase[V, _]](factory: QVectorFactory[V])(implic
     factory.unsafeBuild(res)
   }
 }
+
+class QVectorBaseOrder[V <: QVectorBase[V, _]] extends Order[V] {
+  def compare(u: V, v: V): Int = {
+    assert(u.length == v.length)
+    for(i <- 0 until u.length) {
+      val compareValue = Rational.RationalAlgebra.compare(u(i), v(i))
+      if (compareValue != 0)
+        return compareValue
+    }
+    0
+  }
+}
