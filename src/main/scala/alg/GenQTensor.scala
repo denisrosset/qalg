@@ -50,7 +50,10 @@ trait GenQTensor {
 
   def commonFactor: Rational = {
     val (gcdNum, lcmDen) = factors1
-    Rational(gcdNum, lcmDen)
+    if (gcdNum == 0)
+      Rational.one
+    else
+      Rational(gcdNum, lcmDen)
   }
 
   // TODO: rename back, temp rename because return values have been switched

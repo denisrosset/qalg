@@ -18,10 +18,7 @@ trait QTensorBase[T <: QTensorBase[T]] extends GenQTensor {
   * such that the returned vector/matrix * factor is equal to the original vector/matrix. */
   def withPrimes: (T, Rational) = {
     val cf = commonFactor
-    if (cf === Rational.zero)
-      (this, Rational.one)
-    else
-      (mapElements(_ / cf), cf)
+    (mapElements(_ / cf), cf)
   }
 }
 
