@@ -4,14 +4,6 @@ package alg
 import spire.math.Rational
 import net.alasc.{Finite, Index, Permuting, PRepr}
 
-trait QTensorInstances {
-  implicit object QTensorIndex extends Index[Rational, GenQTensor] {
-    def indexLength(t: GenQTensor) = t.length
-    def indexElement(t: GenQTensor, i: Int) = t(i)
-  }
-}
-
-
 trait QVectorInstances {
   implicit val mutableQVectorIndex = new QTensorBaseIndex[mutable.QVector]
   implicit val mutableQVectorOrder = new QVectorBaseOrder[mutable.QVector]
@@ -45,6 +37,5 @@ trait QMatrixInstances {
 }
 
 trait AllInstances extends
-    QTensorInstances with
     QVectorInstances with
     QMatrixInstances

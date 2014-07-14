@@ -148,7 +148,7 @@ object IEQFormat extends PortaFileFormat {
       case Some(v) =>
         str ++= "VALID\n"
         import net.alasc._
-        str ++= (v: GenQTensor).indexToIndexedSeq.mkString(" ") + "\n"
+        str ++= v.indexToIndexedSeq.mkString(" ") + "\n"
       case None =>
     }
     str ++= "INEQUALITIES_SECTION\n"

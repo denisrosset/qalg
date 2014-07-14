@@ -8,7 +8,6 @@ import language.implicitConversions
 import spire.implicits._
 
 package object alg {
-  object qTensorInstances extends QTensorInstances
   object qVectorInstances extends QVectorInstances
   object qMatrixInstances extends QMatrixInstances
   object allInstances extends AllInstances

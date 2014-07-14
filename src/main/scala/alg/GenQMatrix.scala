@@ -25,11 +25,6 @@ abstract class GenQMatrix extends GenQTensor {
 }
 
 trait GenQMatrixInstances {
-  implicit object GenQMatrixIndex extends Index[Rational, GenQMatrix] {
-    def indexElement(m: GenQMatrix, i: Int) = m(i)
-    def indexLength(m: GenQMatrix) = m.length
-  }
-
   implicit object GenQMatrixEq extends Eq[GenQMatrix] {
     def eqv(a: GenQMatrix, b: GenQMatrix): Boolean = {
       if (a.rows == b.rows && a.cols == b.cols) {

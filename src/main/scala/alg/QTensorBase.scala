@@ -25,7 +25,7 @@ trait QTensorBase[T <: QTensorBase[T]] extends GenQTensor {
   }
 }
 
-class QTensorBaseIndex[T <: QTensorBase[T]] extends Index[Rational, T] {
+class QTensorBaseIndex[T <: QTensorBase[T]] extends Index[T, Rational] {
   def indexLength(t: T) = t.length
   def indexElement(t: T, i: Int) = t(i)
 }
