@@ -1,4 +1,4 @@
-polyta
-======
+QALG
+====
 
-Polyta - library for rational linear algebra and polytope manipulation
+A Scala library for linear algebra on rational numbers.

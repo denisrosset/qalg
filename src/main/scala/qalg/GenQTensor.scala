@@ -3,7 +3,6 @@ package qalg
 
 import spire.math.{SafeLong, Rational, lcm, gcd}
 import spire.syntax.eq._
-import net.alasc.Index
 
 object GenQTensor {
   def seed = 0x3EED4E43

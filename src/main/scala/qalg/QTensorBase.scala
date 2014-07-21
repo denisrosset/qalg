@@ -3,7 +3,6 @@ package qalg
 
 import spire.math.Rational
 import spire.syntax.eq._
-import net.alasc.Index
 
 trait QTensorBase[T <: QTensorBase[T]] extends GenQTensor {
   self: T =>
@@ -20,9 +19,4 @@ trait QTensorBase[T <: QTensorBase[T]] extends GenQTensor {
     val cf = commonFactor
     (mapElements(_ / cf), cf)
   }
-}
-
-class QTensorBaseIndex[T <: QTensorBase[T]] extends Index[T, Rational] {
-  def indexLength(t: T) = t.length
-  def indexElement(t: T, i: Int) = t(i)
 }

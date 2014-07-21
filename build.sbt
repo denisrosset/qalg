@@ -2,7 +2,7 @@ name := "qalg"
 
 organization := "com.faacets"
 
-version := "0.22"
+version := "0.23"
 
 scalaVersion := "2.11.1"
 
@@ -12,7 +12,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "net.alasc" %% "alasc" % "0.91",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1",
   "org.scalacheck" %% "scalacheck" % "1.11.4" % "test",
   "org.scalatest" %% "scalatest" % "2.1.6" % "test",

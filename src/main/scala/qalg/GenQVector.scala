@@ -3,7 +3,6 @@ package qalg
 
 import spire.algebra.Order
 import spire.math.Rational
-import net.alasc.Index
 
 /** Base class for mutable or immutable vectors. */
 abstract class GenQVector extends GenQTensor {

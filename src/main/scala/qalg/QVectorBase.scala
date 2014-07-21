@@ -3,7 +3,6 @@ package qalg
 
 import spire.algebra.{Field, Order, InnerProductSpace, VectorSpace, Monoid, GroupAction}
 import spire.math.{Rational, SafeLong, lcm, gcd}
-import net.alasc._
 import spire.implicits._
 
 /** Base trait for mutable or immutable vectors. */
@@ -46,34 +45,6 @@ abstract class QVectorBase[V <: QVectorBase[V, M], M <: QMatrixBase[M, V]] exten
       throw new IllegalArgumentException("Denominator does not fit into a long.")
     (coeffsArray.map(_.longValue), commonDenominator.longValue)
   }
-}
-
-class QVectorBasePermutingAction[V <: QVectorBase[V, _], P <: Permuting[P]](factory: QVectorFactory[V]) extends GroupAction[V, P] {
-  import Dom.ZeroBased._
-  implicit def scalar = net.alasc.all.FiniteSemigroup[P]
-
-  def actr(v: V, p: P): V = {
-    val newData = new Array[Rational](v.length)
-    for (i <- 0 until v.length)
-      newData(p.image(i)) = v(i)
-    factory.build(newData)
-  }
-  def actl(pinv: P, v: V): V = factory.tabulate(v.length)(i => v.apply(pinv.image(i)))
-}
-
-class QVectorBasePReprAction[V <: QVectorBase[V, _], F <: Finite[F]](factory: QVectorFactory[V])(implicit prepr: PRepr[F])
-    extends GroupAction[V, F] {
-  import Dom.ZeroBased._
-  implicit def scalar = net.alasc.all.FiniteSemigroup[F]
-
-  def actr(v: V, f: F): V = {
-    val newData = new Array[Rational](v.length)
-    for (i <- 0 until v.length)
-      newData(i <|+| f) = v(i)
-    factory.build(newData)
-  }
-
-  def actl(finv: F, v: V): V = factory.tabulate(v.length)(i => v(i <|+| finv))
 }
 
 class QVectorBaseInnerProductSpace[V <: QVectorBase[V, _]](factory: QVectorFactory[V]) extends InnerProductSpace[V, Rational] {

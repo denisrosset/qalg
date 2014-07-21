@@ -1,7 +1,6 @@
 package com.faacets
 package qalg
 
-import net.alasc.Index
 import spire.algebra.Eq
 import spire.math.Rational
 import spire.syntax.eq._
