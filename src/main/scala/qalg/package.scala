@@ -7,7 +7,7 @@ import spire.math.{Rational, SafeLong, lcm}
 import language.implicitConversions
 import spire.implicits._
 
-package object alg {
+package object qalg {
   object qVectorInstances extends QVectorInstances
   object qMatrixInstances extends QMatrixInstances
   object allInstances extends AllInstances

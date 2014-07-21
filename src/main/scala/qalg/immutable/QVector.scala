@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 package immutable
 
 import spire.math.Rational
@@ -14,9 +14,9 @@ class RationalVector(val data: Array[Rational]) extends QVector {
   def length = data.length
   def apply(k: Int) = data(k)
   def toArray = data.clone
-  protected[alg] def unsafeToArray = data
+  protected[qalg] def unsafeToArray = data
 }
 
 object QVector extends QVectorFactory[QVector] {
-  protected[alg] def unsafeBuild(data: Array[Rational]) = new RationalVector(data)
+  protected[qalg] def unsafeBuild(data: Array[Rational]) = new RationalVector(data)
 }

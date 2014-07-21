@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.algebra.{Field, Monoid, Ring, VectorSpace}
 import spire.math.Rational
@@ -59,7 +59,7 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
   def apply(rs: Seq[Int], cs: Seq[Int]): M = factory.tabulate(rs.length, cs.length)( (i, j) => this(rs(i), cs(j)))
 
   def *(rhs: V): V = {
-    val res = alg.mutable.QVector.zeros(lhs.rows)
+    val res = mutable.QVector.zeros(lhs.rows)
     require(lhs.cols == rhs.length)
     cfor(0)(_ < lhs.rows, _ + 1) { r =>
       cfor(0)(_ < lhs.cols, _ + 1) { c =>
@@ -137,7 +137,7 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
     val (lu, order, flag) = luDecomposition
     var n = rows
     // rearrange the elements of the b vector, hold them into x
-    val x = alg.mutable.QVector.tabulate(n)( i => b(order(i)) )
+    val x = mutable.QVector.tabulate(n)( i => b(order(i)) )
     if( (0 until n).exists( i => lu(i,i) == 0 ) )
       throw new IllegalArgumentException("Coefficient matrix is singular")
     // do forward substitution, replacing x vector
@@ -292,11 +292,12 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
   /** Performs the Gram-Schmidt process to orthogonalize the rows of matrix
     * M. */
   def integerOrthogonalized: M = {
-    val res = alg.mutable.QMatrix(this)
+    val res = mutable.QMatrix(this)
     for (i <- 0 until rows-1) {
       val v = res(i, ::).toQVector
       for (j <- i+1 until rows) {
-        implicit val vs: spire.algebra.InnerProductSpace[alg.mutable.QVector, Rational] = mutableQVectorInnerProductSpace
+        implicit val vs: spire.algebra.InnerProductSpace[mutable.QVector, Rational] =
+          mutableQVectorInnerProductSpace
         val r = res(j, ::).toQVector
         res(j, ::) = ( ((v dot v) *: r) - ((v dot r) *: v) ).withPrimes._1
       }
@@ -320,7 +321,7 @@ class QMatrixAlgebra[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M]) extends
   }
   def timesl(s: Rational, m: M): M = factory.tabulate(m.rows, m.cols)( (r, c) => s * m(r, c) )
   def times(lhs: M, rhs: M): M = {
-    val res = alg.mutable.QMatrix.zeros(lhs.rows, rhs.cols)
+    val res = mutable.QMatrix.zeros(lhs.rows, rhs.cols)
     require(lhs.cols == rhs.rows)
     cfor(0)(_ < lhs.cols, _ + 1) { c =>
       cfor(0)(_ < lhs.rows, _ + 1) { r =>

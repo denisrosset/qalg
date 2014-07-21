@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 /** Cache for unique objects `UniquenessCache`
   * 

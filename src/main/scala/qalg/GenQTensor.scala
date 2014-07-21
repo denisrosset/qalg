@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.math.{SafeLong, Rational, lcm, gcd}
 import spire.syntax.eq._
@@ -46,7 +46,7 @@ trait GenQTensor {
   }
 
   def toArray: Array[Rational]
-  protected[alg] def unsafeToArray: Array[Rational]
+  protected[qalg] def unsafeToArray: Array[Rational]
 
   def commonFactor: Rational = {
     val (gcdNum, lcmDen) = factors1

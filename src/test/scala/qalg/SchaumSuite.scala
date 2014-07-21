@@ -1,4 +1,4 @@
-package com.faacets.alg
+package com.faacets.qalg
 
 import mutable.{QVector => QVec, QMatrix => QMat}
 import org.scalatest.FunSuite

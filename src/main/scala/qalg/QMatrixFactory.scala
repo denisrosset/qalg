@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.math.Rational
 import spire.syntax.cfor._
@@ -11,9 +11,9 @@ abstract class QMatrixFactory[M <: QMatrixBase[M, _]] {
   /** Constructs a copy of a matrix. */
   def build(mat: GenQMatrix): M = unsafeBuild(mat.rows, mat.cols, mat.toArray)
 
-  protected[alg] def unsafeBuild(rows: Int, cols: Int, data: Array[Rational]): M
+  protected[qalg] def unsafeBuild(rows: Int, cols: Int, data: Array[Rational]): M
 
-  protected[alg] def unsafeBuild(mat: GenQMatrix): M = unsafeBuild(mat.rows, mat.cols, mat.unsafeToArray)
+  protected[qalg] def unsafeBuild(mat: GenQMatrix): M = unsafeBuild(mat.rows, mat.cols, mat.unsafeToArray)
 
   def fromColVectors(vectors: GenQVector*): M = tabulate(vectors.head.length, vectors.length)( (r, c) => vectors(c)(r) )
 

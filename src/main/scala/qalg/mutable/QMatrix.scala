@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 package mutable
 
 import spire.math.Rational
@@ -67,14 +67,14 @@ abstract class QMatrix extends QMatrixBase[QMatrix, QVector] with QTensor[QMatri
 }
 
 
-class RationalMatrix(val rows: Int, val cols: Int, val data: Array[Rational]) extends alg.mutable.QMatrix {
+class RationalMatrix(val rows: Int, val cols: Int, val data: Array[Rational]) extends mutable.QMatrix {
   def toArray = data.clone
-  protected[alg] def unsafeToArray = data
+  protected[qalg] def unsafeToArray = data
   def copy: RationalMatrix = new RationalMatrix(rows, cols, data.clone)
   override def apply(i: Int) = data(i)
   def update(i: Int, v: Rational) { data(i) = v }
 }
 
 object QMatrix extends QMatrixFactory[QMatrix] {
-  protected[alg] def unsafeBuild(rows: Int, cols: Int, data: Array[Rational]) = new RationalMatrix(rows, cols, data)
+  protected[qalg] def unsafeBuild(rows: Int, cols: Int, data: Array[Rational]) = new RationalMatrix(rows, cols, data)
 }

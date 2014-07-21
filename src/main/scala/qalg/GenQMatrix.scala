@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import net.alasc.Index
 import spire.algebra.Eq

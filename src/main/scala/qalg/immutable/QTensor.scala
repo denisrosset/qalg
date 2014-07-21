@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 package immutable
 
 import spire.math.Rational

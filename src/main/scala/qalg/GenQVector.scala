@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.algebra.Order
 import spire.math.Rational

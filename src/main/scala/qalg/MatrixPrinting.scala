@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 object MatrixPrinting {
   var maxToStringWidth = 80

@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.algebra.{Field, Order, InnerProductSpace, VectorSpace, Monoid, GroupAction}
 import spire.math.{Rational, SafeLong, lcm, gcd}
@@ -107,7 +107,7 @@ class QVectorBaseKron[V <: QVectorBase[V, _]](factory: QVectorFactory[V])(implic
 
   def op(a: V, b: V): V = {
     import qVectorInstances._
-    val res = alg.mutable.QVector.zeros(a.length * b.length)
+    val res = mutable.QVector.zeros(a.length * b.length)
     // TODO cfor
     for (i <- 0 until a.length; av = a(i)) {
       val prod: V = ev.timesl(av, b)

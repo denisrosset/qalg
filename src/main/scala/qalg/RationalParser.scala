@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import scala.util.parsing.combinator._
 import spire.math.Rational

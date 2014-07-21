@@ -1,5 +1,5 @@
 package com.faacets
-package alg
+package qalg
 
 import spire.math.Rational
 import spire.syntax.cfor._
@@ -12,10 +12,10 @@ abstract class QVectorFactory[V <: QVectorBase[V, _]] {
   def build(vec: GenQVector): V = unsafeBuild(vec.toArray)
 
   /** Constructs a vector using the given data array, which should be used only once here. */
-  protected[alg] def unsafeBuild(data: Array[Rational]): V
+  protected[qalg] def unsafeBuild(data: Array[Rational]): V
 
   /** Constructs a vector stealing the data array of the given vector. */
-  protected[alg] def unsafeBuild(vec: GenQVector): V = unsafeBuild(vec.unsafeToArray)
+  protected[qalg] def unsafeBuild(vec: GenQVector): V = unsafeBuild(vec.unsafeToArray)
 
   def apply(intArray: Array[Int]): V = unsafeBuild(intArray.map(RationalCache(_, 1)))
 
