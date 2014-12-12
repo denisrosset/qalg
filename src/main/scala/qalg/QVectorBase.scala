@@ -1,7 +1,7 @@
 package com.faacets
 package qalg
 
-import spire.algebra.{Field, Order, InnerProductSpace, VectorSpace, Monoid, GroupAction}
+import spire.algebra.{Field, Order, InnerProductSpace, VectorSpace, Monoid}
 import spire.math.{Rational, SafeLong, lcm, gcd}
 import spire.implicits._
 
