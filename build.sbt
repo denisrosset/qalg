@@ -14,7 +14,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.11.6" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-  "org.spire-math" %% "spire" % "0.8.3-SNAPSHOT"
+  "org.spire-math" %% "spire" % "0.9.1-SNAPSHOT"
 )
 
 scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation") 
