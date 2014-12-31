@@ -13,4 +13,9 @@ abstract class GenQVector extends GenQTensor {
   def apply(i: Int): Rational
 
   override def toString = MatrixPrinting.print(immutable.QMatrix(1, length, unsafeToArray))
+
+  def toIndexedSeq: IndexedSeq[Rational] = new IndexedSeq[Rational] {
+    def length: Int = GenQVector.this.length
+    def apply(i: Int): Rational = GenQVector.this.apply(i)
+  }
 }
