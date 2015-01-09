@@ -73,11 +73,10 @@ class QVectorBaseInnerProductSpace[V <: QVectorBase[V, _]](factory: QVectorFacto
   }
 }
 
-class QVectorBaseKron[V <: QVectorBase[V, _]](factory: QVectorFactory[V])(implicit ev: VectorSpace[V, Rational]) extends Monoid[V] {
+class QVectorBaseKronMonoid[V <: QVectorBase[V, _]](factory: QVectorFactory[V])(implicit ev: VectorSpace[V, Rational]) extends Monoid[V] {
   def id = factory.fill(1)(Rational.one)
 
   def op(a: V, b: V): V = {
-    import qVectorInstances._
     val res = mutable.QVector.zeros(a.length * b.length)
     // TODO cfor
     for (i <- 0 until a.length; av = a(i)) {

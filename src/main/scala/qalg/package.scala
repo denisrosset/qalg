@@ -2,16 +2,12 @@ package com.faacets
 
 import scala.annotation.tailrec
 import scala.math.abs
-import spire.algebra.VectorSpace
+import spire.algebra.{Monoid, VectorSpace}
 import spire.math.{Rational, SafeLong, lcm}
 import language.implicitConversions
 import spire.implicits._
 
 package object qalg {
-  object qVectorInstances extends QVectorInstances
-  object qMatrixInstances extends QMatrixInstances
-  object allInstances extends AllInstances
-  object all extends AllInstances
 
   // factorizes integer n
   def factor(n: Int): List[Int] = {
@@ -59,15 +55,15 @@ package object qalg {
 
   def parseCoefficients(S: String): Array[Int] = S.split("\\s+").map(_.toInt)
 
-  def kron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: QMatrixBaseKron[M]): M =
+  def kron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: Monoid[M]): M =
     matrices.tail.foldLeft(matrices.head)(_ |+| _)
 
-  def reverseKron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: QMatrixBaseKron[M]): M = 
+  def reverseKron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: Monoid[M]): M = 
     kron[M](matrices.reverse:_*)
 
-  def vecKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: QVectorBaseKron[V]): V = 
+  def vecKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: Monoid[V]): V = 
     vectors.tail.foldLeft(vectors.head)(_ |+| _)
 
-  def vecReverseKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: QVectorBaseKron[V]): V = 
+  def vecReverseKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: Monoid[V]): V = 
     vecKron[V](vectors.reverse:_*)
 }

@@ -5,7 +5,6 @@ import spire.algebra.{Field, Monoid, Ring, VectorSpace}
 import spire.math.Rational
 import spire.syntax.cfor._
 import spire.syntax.innerProductSpace._
-import all._
 
 /** Base trait for mutable or immutable matrices. */
 abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] extends GenQMatrix with QTensorBase[M] {
@@ -296,8 +295,6 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
     for (i <- 0 until rows-1) {
       val v = res(i, ::).toQVector
       for (j <- i+1 until rows) {
-        implicit val vs: spire.algebra.InnerProductSpace[mutable.QVector, Rational] =
-          mutableQVectorInnerProductSpace
         val r = res(j, ::).toQVector
         res(j, ::) = ( ((v dot v) *: r) - ((v dot r) *: v) ).withPrimes._1
       }
@@ -339,7 +336,7 @@ class QMatrixAlgebra[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M]) extends
   }
 }
 
-class QMatrixBaseKron[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M])(implicit ms: VectorSpace[M, Rational]) extends Monoid[M] {
+class QMatrixBaseKronMonoid[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M])(implicit ms: VectorSpace[M, Rational]) extends Monoid[M] {
   def id = factory.fill(1, 1)(Rational.one)
 
   def op(a: M, b: M): M = {

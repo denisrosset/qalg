@@ -1,13 +1,16 @@
 package com.faacets.qalg
 
 import mutable.{QVector => QVec, QMatrix => QMat}
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, NonImplicitAssertions}
 import spire.math.Rational
+import spire.syntax.all._
+import spire.std.seq._
+import spire.std.int._
 
 /** LU examples taken from
   * http://www.johnloomis.org/ece538/notes/Matrix/ludcmp.html
   */
-class LinearAlgebraSuite extends FunSuite {
+class LinearAlgebraSuite extends FunSuite with NonImplicitAssertions {
   test("Example 1") {
     val a = QMat.rowMajor( (3,3),
        4, -2, 1,
@@ -88,8 +91,6 @@ class LinearAlgebraSuite extends FunSuite {
     assert(k2.sorted == List(0,1))
   }
   test("Kron of [1, 2] and [3, 5]") {
-    import all._
-    import spire.implicits._
     val a = QVec(1, 2)
     val b = QVec(3, 5)
     assert((a |+| b) == QVec(3, 5, 6, 10))
@@ -97,8 +98,6 @@ class LinearAlgebraSuite extends FunSuite {
     assert(vecReverseKron(b, a) == QVec(3, 5, 6, 10))
   }
   test("Kron of [1, 2; 3 5] and [1, 0; 0, 1]") {
-    import all._
-    import spire.implicits._
     val a = QMat.rowMajor((2, 2),
       1, 2,
       3, 5)

@@ -1,10 +1,14 @@
 package com.faacets
 package qalg
 
+import spire.algebra.{Eq, Monoid}
 import spire.math.Rational
 import spire.syntax.cfor._
 
-abstract class QMatrixFactory[M <: QMatrixBase[M, _]] {
+trait QMatrixFactory[M <: QMatrixBase[M, _]] { self =>
+  implicit val Algebra: QMatrixAlgebra[M] = new QMatrixAlgebra[M](self)
+  implicit val Monoid: Monoid[M] = new QMatrixBaseKronMonoid[M](self)(self.Algebra)
+  implicit val Eq: Eq[M] = spire.optional.genericEq.generic[M] // TODO: move equals to Eq
   /** Constructs a matrix from rows/cols and a column-major data array. */
   def build(rows: Int, cols: Int, data: Array[Rational]): M = unsafeBuild(rows, cols, data.clone)
 

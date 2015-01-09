@@ -1,10 +1,15 @@
 package com.faacets
 package qalg
 
+import spire.algebra.{InnerProductSpace, Monoid, Order}
 import spire.math.Rational
 import spire.syntax.cfor._
 
-abstract class QVectorFactory[V <: QVectorBase[V, _]] {
+trait QVectorFactory[V <: QVectorBase[V, _]] { self =>
+  implicit val Order: Order[V] = new QVectorBaseOrder[V]
+  implicit val InnerProductSpace: InnerProductSpace[V, Rational] = new QVectorBaseInnerProductSpace[V](self)
+  implicit val Monoid: Monoid[V] = new QVectorBaseKronMonoid[V](self)(self.InnerProductSpace)
+
   /** Constructs a vector from a copy of a data array. */
   def build(data: Array[Rational]): V = unsafeBuild(data.clone)
 
