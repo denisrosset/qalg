@@ -14,9 +14,10 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.1" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-  "org.spire-math" %% "spire" % "0.9.1"
+  "org.spire-math" %% "spire" % "0.9.1",
+  "org.jscience" % "jscience" % "4.3.1"
 )
 
 scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation") 
 
-initialCommands in console := """import com.faacets.qalg._; import algebra._; import math._; import spire.implicits._; import spire.math._; import syntax.all._"""
+initialCommands in console := """import com.faacets.qalg._; import algebra._; import math._; import spire.implicits._; import spire.math._; import syntax.all._; import std.any._"""
