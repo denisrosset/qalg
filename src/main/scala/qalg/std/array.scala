@@ -1,4 +1,5 @@
 package com.faacets.qalg
+package std
 
 import scala.language.higherKinds
 
@@ -23,6 +24,15 @@ object ArraySupport {
     while (i < x.length) { z(i) = x(i); i += 1 }
     while (i < y.length) { z(i) = y(i); i += 1 }
     z
+  }
+  def negate[@sp(Double, Long) A: ClassTag: AdditiveGroup](x: Array[A]): Array[A] = {
+    val y = new Array[A](x.length)
+    var i = 0
+    while (i < x.length) {
+      y(i) = -x(i)
+      i += 1
+    }
+    y
   }
   def minus[@sp(Double, Long) A: ClassTag: AdditiveGroup](x: Array[A], y: Array[A]): Array[A] = {
     val z = new Array[A](spire.math.max(x.length, y.length))
@@ -50,12 +60,11 @@ final class ArrayVec[@sp(Double, Long) A: ClassTag](implicit
 
 final class ArrayVecModule[@sp(Double, Long) A: ClassTag](implicit
   val scalar: Ring[A],
-  val eqA: Eq[A]) extends VecModule[Array[A], A] {
+  val eqA: Eq[A]) extends VecInRing[Array[A], A] {
   def apply(v: Array[A], k: Int): A = v(k)
   def length(v: Array[A]): Int = v.length
   def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
-  def negate(v: Array[A]): Array[A] = Array.tabulate(v.length)(k => -v(k))
-  def zero: Array[A] = new Array[A](0)
+  def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
   def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
   override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
   def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
@@ -63,12 +72,11 @@ final class ArrayVecModule[@sp(Double, Long) A: ClassTag](implicit
 
 final class ArrayVecVectorSpace[@sp(Double, Long) A: ClassTag](implicit
   val scalar: Field[A],
-  val eqA: Eq[A]) extends VecVectorSpace[Array[A], A] {
+  val eqA: Eq[A]) extends VecInField[Array[A], A] {
   def apply(v: Array[A], k: Int): A = v(k)
   def length(v: Array[A]): Int = v.length
   def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
-  def negate(v: Array[A]): Array[A] = Array.tabulate(v.length)(k => -v(k))
-  def zero: Array[A] = new Array[A](0)
+  def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
   def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
   override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
   def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)

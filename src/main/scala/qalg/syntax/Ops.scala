@@ -53,3 +53,11 @@ final class MatMutableOps[MA, A](lhs: MA)(implicit ev: MatMutable[MA, A]) {
   def update(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)
   def updateAt(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)
 }
+
+final class MatAlgOps[MA, A](lhs: MA)(implicit ev: MatAlg[MA, A]) {
+  def rank: Int = ev.rank(lhs)
+  def rref: MA = ev.rref(lhs)
+  def det: A = ev.det(lhs)
+  def trace: A = ev.trace(lhs)
+  def inverse: MA = ev.inverse(lhs)
+}

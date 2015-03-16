@@ -25,6 +25,17 @@ trait FunV[@sp(Double, Long) A] extends Any {
   }
 }
 
+object FunV {
+  def empty[@sp(Double, Long) A]: FunV[A] = new FunV[A] {
+    def len = 0
+    def f(k: Int) = sys.error("Cannot get element of empty vector.")
+  }
+  def fill[@sp(Double, Long) A](n: Int)(a: A): FunV[A] = new FunV[A] {
+    def len = n
+    def f(k: Int) = a
+  }
+}
+
 class FunVec[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eqA: Eq[A]) extends VecBuilder[FunV[A], A] {
   def length(v: FunV[A]): Int = v.len
   def apply(v: FunV[A], k: Int): A = v.f(k)

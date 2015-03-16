@@ -1,4 +1,5 @@
 package com.faacets.qalg
+package std
 
 import scala.language.higherKinds
 
@@ -142,7 +143,6 @@ final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
   // TODO optimize
   def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
-  def zero: Array[Array[A]] = Array(new Array[A](0))
   def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
   def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
   def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
@@ -161,7 +161,6 @@ final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
   // TODO optimize
   def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
-  def zero: Array[Array[A]] = Array(new Array[A](0))
   def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
   def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
   def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)

@@ -12,6 +12,7 @@ import spire.std.double._
 import org.jlinalg.{Vector => JVector, Matrix => JMatrix, IRingElement, IRingElementFactory}
 import org.jlinalg.rational.{Rational => JRational}
 import org.jlinalg.doublewrapper.DoubleWrapper
+import org.jlinalg.operator.MonadicOperator
 
 import algebra._
 
@@ -23,25 +24,45 @@ trait JLinAlgBase[@sp(Double, Long) A, J <: IRingElement[J]] extends Any {
   def fromJ(j: J): A
 }
 
+class NegateOperator[RE <: IRingElement[RE]] extends MonadicOperator[RE] {
+  def apply(re: RE): RE = re.negate
+}
+
 trait JLinAlgVec[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
     with JLinAlgBase[A, J]
-    with VecBuilder[JVector[J], A]
+    with VecInField[JVector[J], A]
     with VecMutable[JVector[J], A] {
-  def apply(v: JVector[J], k: Int): A = fromJ(v.getEntry(k))
-  def update(v: JVector[J], k: Int, a: A): Unit = { v.set(k, toJ(a)) }
+  def apply(v: JVector[J], k: Int): A = fromJ(v.getEntry(k + 1))
+  def update(v: JVector[J], k: Int, a: A): Unit = { v.set(k + 1, toJ(a)) }
   def length(v: JVector[J]): Int = v.length
   def from(v: FunV[A]): JVector[J] = new JVector[J](Array.tabulate[J](v.len)(k => toJ(v.f(k))))
+  def plus(x: JVector[J], y: JVector[J]): JVector[J] = x.add(y)
+  override def minus(x: JVector[J], y: JVector[J]): JVector[J] = x.subtract(y)
+  def negate(v: JVector[J]): JVector[J] = v.apply(new NegateOperator[J])
+  def timesl(a: A, v: JVector[J]): JVector[J] = v.multiply(toJ(a))
 }
 
 trait JLinAlgMat[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
     with JLinAlgBase[A, J]
-    with MatBuilder[JMatrix[J], A]
-    with MatMutable[JMatrix[J], A] {
+    with MatInField[JMatrix[J], A]
+    with MatMutable[JMatrix[J], A]
+    with MatAlg[JMatrix[J], A] {
   def nRows(m: JMatrix[J]): Int = m.getRows
   def nCols(m: JMatrix[J]): Int = m.getCols
-  def apply(m: JMatrix[J], r: Int, c: Int): A = fromJ(m.get(r, c))
-  def update(m: JMatrix[J], r: Int, c: Int, a: A): Unit = { m.set(r, c, toJ(a)) }
+  def apply(m: JMatrix[J], r: Int, c: Int): A = fromJ(m.get(r + 1, c + 1))
+  def update(m: JMatrix[J], r: Int, c: Int, a: A): Unit = { m.set(r + 1, c + 1, toJ(a)) }
   def from(m: FunM[A]): JMatrix[J] = new JMatrix[J](Array.tabulate[J](m.nR, m.nC)( (r, c) => toJ(m.f(r, c))))
+  def plus(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.add(y)
+  override def minus(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.subtract(y)
+  def negate(m: JMatrix[J]): JMatrix[J] = m.apply(new NegateOperator[J])
+  def timesl(a: A, m: JMatrix[J]): JMatrix[J] = m.multiply(toJ(a))
+  def times(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.multiply(y)
+  def rank(m: JMatrix[J]): Int = m.rank
+  def rref(m: JMatrix[J]): JMatrix[J] = m.gaussjord
+  def det(m: JMatrix[J]): A = fromJ(m.det)
+  def trace(m: JMatrix[J]): A = fromJ(m.trace)
+  def inverse(m: JMatrix[J]): JMatrix[J] = m.inverse
+  override def t(m: JMatrix[J]): JMatrix[J] = m.transpose
 }
 
 trait JLinAlgRational extends JLinAlgBase[Rational, JRational] {

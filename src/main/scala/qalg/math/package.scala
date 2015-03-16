@@ -9,41 +9,19 @@ import spire.algebra._
 import algebra._
 
 package object math {
-  def zeros[M[A], @sp(Double, Long) A](rows: Int, cols: Int)(implicit M: MatBuilder[M[A], A], A: AdditiveMonoid[A]): M[A] = M.from(new FunM[A] {
-    def nR = rows
-    def nC = cols
-    def f(r: Int, c: Int) = A.zero
-  })
-  def ones[M[_], @sp(Double, Long) A](rows: Int, cols: Int)(implicit M: MatBuilder[M[A], A], A: MultiplicativeMonoid[A]): M[A] = M.from(new FunM[A] {
-    def nR = rows
-    def nC = cols
-    def f(r: Int, c: Int) = A.one
-  })
-  def eye[M[_], @sp(Double, Long) A](rows: Int, cols: Int)(implicit M: MatBuilder[M[A], A], A: Ring[A]): M[A] =
-    M.from(new FunM[A] {
-      def nR = rows
-      def nC = cols
-      def f(r: Int, c: Int) = if (r == c) A.one else A.zero
-    })
-  def eye[M[_], @sp(Double, Long) A](n: Int)(implicit M: MatBuilder[M[A], A], A: Ring[A]): M[A] =
-    M.from(new FunM[A] {
-      def nR = n
-      def nC = n
-      def f(r: Int, c: Int) = if (r == c) A.one else A.zero
-    })
-  /*
-   def zeros[V[_], @sp(Double, Long) A](length: Int)(implicit V: VecBuilder[V, A], A: AdditiveMonoid[A]): V[A] = {
-    import V.FunVA
-    V.fromVec[FunV](new FunV[A] {
-      def len = length
-      def f(k: Int): A = A.zero
-    })
+  implicit class MatTemplate[MA, @sp(Double, Long) A](val lhs: MatBuilder[MA, A]) {
+    def zeros(nRows: Int, nCols: Int)(implicit A: AdditiveMonoid[A]): MA =
+      lhs.from(FunM.fill(nRows, nCols)(A.zero))
+    def ones(nRows: Int, nCols: Int)(implicit A: MultiplicativeMonoid[A]): MA =
+      lhs.from(FunM.fill(nRows, nCols)(A.one))
+    def eye(nRows: Int, nCols: Int)(implicit A: Ring[A]): MA =
+      lhs.from(FunM.fillDiag(nRows, nCols)(A.one, A.zero))
+    def eye(n: Int)(implicit A: Ring[A]): MA = eye(n, n)
   }
-  def ones[V[_], @sp(Double, Long) A](length: Int)(implicit V: VecBuilder[V, A], A: MultiplicativeMonoid[A]): V[A] = {
-    import V.FunVA
-    V.fromVec[FunV](new FunV[A] {
-      def len = length
-      def f(k: Int): A = A.one
-    })
-  }*/
+  implicit class VecTemplate[VA, @sp(Double, Long) A](val lhs: VecBuilder[VA, A]) {
+    def zeros(n: Int)(implicit A: AdditiveMonoid[A]): VA =
+      lhs.from(FunV.fill(n)(A.zero))
+    def ones(n: Int)(implicit A: MultiplicativeMonoid[A]): VA =
+      lhs.from(FunV.fill(n)(A.one))
+  }
 }
