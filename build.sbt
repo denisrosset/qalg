@@ -2,9 +2,9 @@ name := "qalg"
 
 organization := "com.faacets"
 
-version := "0.1.0-SNAPSHOT"
+version := "0.9.1-SNAPSHOT"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 resolvers ++= Seq(
   "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
@@ -12,9 +12,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalacheck" %% "scalacheck" % "1.11.6" % "test",
+  "org.scalacheck" %% "scalacheck" % "1.12.1" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test",
-  "org.spire-math" %% "spire" % "0.9.1-SNAPSHOT"
+  "org.spire-math" %% "spire" % "0.9.1"
 )
 
 scalacOptions ++= Seq("-unchecked", "-feature", "-deprecation") 
+
+initialCommands in console := """import com.faacets.qalg._; import algebra._; import math._; import spire.implicits._; import spire.math._; import syntax.all._"""
