@@ -84,7 +84,40 @@ final class MatVecProductOps[MA, A](m: MA)(implicit ev: Mat[MA, A]) {
 
 final class MatMutableOps[MA, A](lhs: MA)(implicit ev: MatMutable[MA, A]) {
   def update(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)
-//  def updateAt(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a) TODO aliases
+  def update[VA1](rows: At1, c: Int, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, rows, c, va1)
+  def update[VA1](r: Int, cols: At1, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, r, cols, va1)
+  def update[VA1](rows: ::.type, c: Int, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, rows, c, va1)
+  def update[VA1](r: Int, cols: ::.type, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, r, cols, va1)
+  def update(rows: At1, c: Int, a: A): Unit = ev.update(lhs, rows, c, a)
+  def update(r: Int, cols: At1, a: A): Unit = ev.update(lhs, r, cols, a)
+  def update(rows: ::.type, c: Int, a: A): Unit = ev.update(lhs, rows, c, a)
+  def update(r: Int, cols: ::.type, a: A): Unit = ev.update(lhs, r, cols, a)
+  def update[MA1](rows: At1, cols: At1, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def update[MA1](rows: ::.type, cols: ::.type, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def update[MA1](rows: ::.type, cols: At1, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def update[MA1](rows: At1, cols: ::.type, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def update(rows: At1, cols: At1, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def update(rows: ::.type, cols: ::.type, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def update(rows: ::.type, cols: At1, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def update(rows: At1, cols: ::.type, a: A): Unit = ev.update(lhs, rows, cols, a)
+
+  def updateAt(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)
+  def updateAt[VA1](rows: At1, c: Int, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, rows, c, va1)
+  def updateAt[VA1](r: Int, cols: At1, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, r, cols, va1)
+  def updateAt[VA1](rows: ::.type, c: Int, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, rows, c, va1)
+  def updateAt[VA1](r: Int, cols: ::.type, va1: VA1)(implicit ev1: Vec[VA1, A]): Unit = ev.update(lhs, r, cols, va1)
+  def updateAt(rows: At1, c: Int, a: A): Unit = ev.update(lhs, rows, c, a)
+  def updateAt(r: Int, cols: At1, a: A): Unit = ev.update(lhs, r, cols, a)
+  def updateAt(rows: ::.type, c: Int, a: A): Unit = ev.update(lhs, rows, c, a)
+  def updateAt(r: Int, cols: ::.type, a: A): Unit = ev.update(lhs, r, cols, a)
+  def updateAt[MA1](rows: At1, cols: At1, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def updateAt[MA1](rows: ::.type, cols: ::.type, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def updateAt[MA1](rows: ::.type, cols: At1, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def updateAt[MA1](rows: At1, cols: ::.type, ma1: MA1)(implicit ev1: Mat[MA1, A]): Unit = ev.update(lhs, rows, cols, ma1)
+  def updateAt(rows: At1, cols: At1, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def updateAt(rows: ::.type, cols: ::.type, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def updateAt(rows: ::.type, cols: At1, a: A): Unit = ev.update(lhs, rows, cols, a)
+  def updateAt(rows: At1, cols: ::.type, a: A): Unit = ev.update(lhs, rows, cols, a)
 }
 
 final class MatAlgOps[MA, A](lhs: MA)(implicit ev: MatAlg[MA, A]) {
