@@ -143,14 +143,14 @@ final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
   def nRows(m: Array[Array[A]]): Int = m.length
   def nCols(m: Array[Array[A]]): Int = m(0).length
   def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
-  def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
+  override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
   // TODO optimize
-  def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
-  def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
-  def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
-  def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
-  def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
+  override def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
+  override def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
+  override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
+  override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
+  override def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
   def update(m: Array[Array[A]], r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
 }
 
@@ -165,14 +165,14 @@ final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
   def nRows(m: Array[Array[A]]): Int = m.length
   def nCols(m: Array[Array[A]]): Int = m(0).length
   def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
-  def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
+  override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
   // TODO optimize
-  def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
-  def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
-  def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
-  def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
-  def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
+  override def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
+  override def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
+  override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
+  override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
+  override def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
   def update(m: Array[Array[A]], r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
 }
 

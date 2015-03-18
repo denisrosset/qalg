@@ -27,6 +27,18 @@ trait DMatMat[@sp(Double, Long) A] extends Any
   def nCols(m: DMat[A]): Int = m.nC
 }
 
+/*
+  def kron(x: MA, y: MA): MA = {
+     val res = mutable.QMatrix.zeros(a.rows * b.rows, a.cols * b.cols)
+     // TODO cfor
+     for (r <- 0 until a.rows; c <- 0 until a.cols; av = a(r, c))
+     res((r * b.rows) until ((r+1) * b.rows), (c * b.cols) until ((c+1) * b.cols)) = ms.timesl(av, b)
+     a.factory.unsafeBuild(res)
+     }
+    ???
+  }
+ */
+
 trait DMatMatInRing[@sp(Double, Long) A] extends Any with DMatMat[A] with MatInRing[DMat[A], A] {
   def from(m: FunM[A]): DMat[A] = {
     val nR = m.nR
@@ -45,8 +57,8 @@ trait DMatMatInRing[@sp(Double, Long) A] extends Any with DMatMat[A] with MatInR
     }
     new DMat(nR, nC, array)
   }
-  def negate(m: DMat[A]): DMat[A] = new DMat(m.nR, m.nC, std.ArraySupport.negate(m.array))
-  def plus(x: DMat[A], y: DMat[A]): DMat[A] = {
+  override def negate(m: DMat[A]): DMat[A] = new DMat(m.nR, m.nC, std.ArraySupport.negate(m.array))
+  override def plus(x: DMat[A], y: DMat[A]): DMat[A] = {
     require(x.nR == y.nR && x.nC == y.nC)
     new DMat(x.nR, x.nC, std.ArraySupport.plus(x.array, y.array))
   }
@@ -54,9 +66,9 @@ trait DMatMatInRing[@sp(Double, Long) A] extends Any with DMatMat[A] with MatInR
     require(x.nR == y.nR && x.nC == y.nC)
     new DMat(x.nR, x.nC, std.ArraySupport.minus(x.array, y.array))
   }
-  def timesl(x: A, y: DMat[A]): DMat[A] =
+  override def timesl(x: A, y: DMat[A]): DMat[A] =
     new DMat(y.nR, y.nC, std.ArraySupport.timesl(x, y.array))
-  def times(x: DMat[A], y: DMat[A]): DMat[A] = {
+  override def times(x: DMat[A], y: DMat[A]): DMat[A] = {
     val xR = x.nR
     val yR = y.nR
     val xC = x.nC

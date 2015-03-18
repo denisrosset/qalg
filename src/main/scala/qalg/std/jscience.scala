@@ -68,20 +68,20 @@ trait JScienceMat[@sp(Double, Long) A, J <: JField[J], JM <: JMatrix[J]] extends
 }
 
 final class JScienceFloat64MatrixMat extends JScienceMat[Double, Float64, Float64Matrix] with JScienceDouble {
-  def plus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.plus(y)
+  override def plus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.plus(y)
   override def minus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.minus(y)
-  def negate(v: Float64Matrix): Float64Matrix = v.opposite
-  def timesl(a: Double, v: Float64Matrix): Float64Matrix = v.times(toJ(a))
+  override def negate(v: Float64Matrix): Float64Matrix = v.opposite
+  override def timesl(a: Double, v: Float64Matrix): Float64Matrix = v.times(toJ(a))
   // TODO: optimize conversion
   def from(m: FunM[Double]): Float64Matrix = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c)))
-  def times(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.times(y)
+  override def times(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.times(y)
 }
 
 final class JScienceFloat64VectorVec extends JScienceVec[Double, Float64, Float64Vector] with JScienceDouble {
-  def plus(x: Float64Vector, y: Float64Vector): Float64Vector = x.plus(y)
+  override def plus(x: Float64Vector, y: Float64Vector): Float64Vector = x.plus(y)
   override def minus(x: Float64Vector, y: Float64Vector): Float64Vector = x.minus(y)
-  def negate(v: Float64Vector): Float64Vector = v.opposite
-  def timesl(a: Double, v: Float64Vector): Float64Vector = v.times(toJ(a))
+  override def negate(v: Float64Vector): Float64Vector = v.opposite
+  override def timesl(a: Double, v: Float64Vector): Float64Vector = v.times(toJ(a))
   def from(v: FunV[Double]): Float64Vector = Float64Vector.valueOf(new java.util.AbstractList[Float64] {
     def get(k: Int) = toJ(v.f(k))
     def size = v.len
@@ -90,10 +90,10 @@ final class JScienceFloat64VectorVec extends JScienceVec[Double, Float64, Float6
 
 trait JScienceDenseVectorVec[@sp(Double, Long) A, J <: JField[J]] extends Any
     with JScienceVec[A, J, JDenseVector[J]] {
-  def plus(x: JDenseVector[J], y: JDenseVector[J]): JDenseVector[J] = x.plus(y)
+  override def plus(x: JDenseVector[J], y: JDenseVector[J]): JDenseVector[J] = x.plus(y)
   override def minus(x: JDenseVector[J], y: JDenseVector[J]): JDenseVector[J] = x.minus(y)
-  def negate(v: JDenseVector[J]): JDenseVector[J] = v.opposite
-  def timesl(a: A, v: JDenseVector[J]): JDenseVector[J] = v.times(toJ(a))
+  override def negate(v: JDenseVector[J]): JDenseVector[J] = v.opposite
+  override def timesl(a: A, v: JDenseVector[J]): JDenseVector[J] = v.times(toJ(a))
   def from(v: FunV[A]): JDenseVector[J] = JDenseVector.valueOf(new java.util.AbstractList[J] {
     def get(k: Int) = toJ(v.f(k))
     def size = v.len
@@ -102,11 +102,11 @@ trait JScienceDenseVectorVec[@sp(Double, Long) A, J <: JField[J]] extends Any
 
 trait JScienceDenseMatrixVec[@sp(Double, Long) A, J <: JField[J]] extends Any
     with JScienceMat[A, J, JDenseMatrix[J]] {
-  def plus(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.plus(y)
+  override def plus(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.plus(y)
   override def minus(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.minus(y)
-  def negate(m: JDenseMatrix[J]): JDenseMatrix[J] = m.opposite
-  def timesl(a: A, m: JDenseMatrix[J]): JDenseMatrix[J] = m.times(toJ(a))
-  def times(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.times(y)
+  override def negate(m: JDenseMatrix[J]): JDenseMatrix[J] = m.opposite
+  override def timesl(a: A, m: JDenseMatrix[J]): JDenseMatrix[J] = m.times(toJ(a))
+  override def times(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.times(y)
   override def t(m: JDenseMatrix[J]): JDenseMatrix[J] = m.transpose
   def from(m: FunM[A]): JDenseMatrix[J] = JDenseMatrix.valueOf(Array.tabulate[J](m.nR, m.nC)( (r, c) => toJ(m.f(r, c))))
 }

@@ -36,10 +36,10 @@ trait JLinAlgVec[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
   def update(v: JVector[J], k: Int, a: A): Unit = { v.set(k + 1, toJ(a)) }
   def length(v: JVector[J]): Int = v.length
   def from(v: FunV[A]): JVector[J] = new JVector[J](Array.tabulate[J](v.len)(k => toJ(v.f(k))))
-  def plus(x: JVector[J], y: JVector[J]): JVector[J] = x.add(y)
+  override def plus(x: JVector[J], y: JVector[J]): JVector[J] = x.add(y)
   override def minus(x: JVector[J], y: JVector[J]): JVector[J] = x.subtract(y)
-  def negate(v: JVector[J]): JVector[J] = v.apply(new NegateOperator[J])
-  def timesl(a: A, v: JVector[J]): JVector[J] = v.multiply(toJ(a))
+  override def negate(v: JVector[J]): JVector[J] = v.apply(new NegateOperator[J])
+  override def timesl(a: A, v: JVector[J]): JVector[J] = v.multiply(toJ(a))
 }
 
 trait JLinAlgMat[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
@@ -52,11 +52,11 @@ trait JLinAlgMat[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
   def apply(m: JMatrix[J], r: Int, c: Int): A = fromJ(m.get(r + 1, c + 1))
   def update(m: JMatrix[J], r: Int, c: Int, a: A): Unit = { m.set(r + 1, c + 1, toJ(a)) }
   def from(m: FunM[A]): JMatrix[J] = new JMatrix[J](Array.tabulate[J](m.nR, m.nC)( (r, c) => toJ(m.f(r, c))))
-  def plus(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.add(y)
+  override def plus(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.add(y)
   override def minus(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.subtract(y)
-  def negate(m: JMatrix[J]): JMatrix[J] = m.apply(new NegateOperator[J])
-  def timesl(a: A, m: JMatrix[J]): JMatrix[J] = m.multiply(toJ(a))
-  def times(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.multiply(y)
+  override def negate(m: JMatrix[J]): JMatrix[J] = m.apply(new NegateOperator[J])
+  override def timesl(a: A, m: JMatrix[J]): JMatrix[J] = m.multiply(toJ(a))
+  override def times(x: JMatrix[J], y: JMatrix[J]): JMatrix[J] = x.multiply(y)
   def rank(m: JMatrix[J]): Int = m.rank
   def rref(m: JMatrix[J]): JMatrix[J] = m.gaussjord
   def det(m: JMatrix[J]): A = fromJ(m.det)

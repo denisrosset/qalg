@@ -28,12 +28,12 @@ trait DVecVec[@sp(Double, Long) A] extends Any
 
 trait DVecVecInRing[@sp(Double, Long) A] extends Any with DVecVec[A] with VecInRing[DVec[A], A] {
   def from(v: FunV[A]): DVec[A] = new DVec(v.len, Array.tabulate(v.len)(k => v.f(k)))
-  def negate(v: DVec[A]): DVec[A] = fromArray(std.ArraySupport.negate(v.array))
-  def plus(x: DVec[A], y: DVec[A]): DVec[A] =
+  override def negate(v: DVec[A]): DVec[A] = fromArray(std.ArraySupport.negate(v.array))
+  override def plus(x: DVec[A], y: DVec[A]): DVec[A] =
     fromArray(std.ArraySupport.plus(x.array, y.array))
   override def minus(x: DVec[A], y: DVec[A]): DVec[A] =
     fromArray(std.ArraySupport.minus(x.array, y.array))
-  def timesl(x: A, y: DVec[A]): DVec[A] =
+  override def timesl(x: A, y: DVec[A]): DVec[A] =
     fromArray(std.ArraySupport.timesl(x, y.array))
 }
 

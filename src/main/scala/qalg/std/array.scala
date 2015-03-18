@@ -64,10 +64,10 @@ final class ArrayVecModule[@sp(Double, Long) A: ClassTag](implicit
   def apply(v: Array[A], k: Int): A = v(k)
   def length(v: Array[A]): Int = v.length
   def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
-  def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
-  def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
+  override def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
+  override def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
   override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
-  def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
+  override def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
 }
 
 final class ArrayVecVectorSpace[@sp(Double, Long) A: ClassTag](implicit
@@ -76,10 +76,10 @@ final class ArrayVecVectorSpace[@sp(Double, Long) A: ClassTag](implicit
   def apply(v: Array[A], k: Int): A = v(k)
   def length(v: Array[A]): Int = v.length
   def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
-  def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
-  def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
+  override def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
+  override def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
   override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
-  def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
+  override def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
 }
 
 trait ArrayInstances {
