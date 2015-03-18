@@ -10,9 +10,8 @@ import spire.syntax.cfor._
 import util._
 
 trait Vec[VA, @sp(Double, Long) A] extends Any with Eq[VA] { self =>
-    implicit def eqA: Eq[A]
-  def length(v: VA): Int
-  def apply(v: VA, k: Int): A
+  implicit def eqA: Eq[A]
+
   def eqv(x: VA, y: VA): Boolean =
     (length(x) == length(y)) && {
       var i = 0
@@ -22,6 +21,9 @@ trait Vec[VA, @sp(Double, Long) A] extends Any with Eq[VA] { self =>
       }
       i == n
     }
+
+  def length(v: VA): Int
+  def apply(v: VA, k: Int): A
   def toIndexedSeq(v: VA): IndexedSeq[A] = new IndexedSeq[A] {
     def length: Int = self.length(v)
     def apply(k: Int): A = self.apply(v, k)
@@ -36,26 +38,4 @@ trait Vec[VA, @sp(Double, Long) A] extends Any with Eq[VA] { self =>
     def nC: Int = 1
     def f(r: Int, c: Int): A = self.apply(v, r)
   })
-}
-
-trait VecBuilder[VA, @sp(Double, Long) A] extends Any with Vec[VA, A] { self =>
-  implicit def scalar: AdditiveMonoid[A]
-  def from(v: FunV[A]): VA
-  def apply(v: VA, at: At1): VA = from(new FunV[A] {
-    def len: Int = at.length
-    def f(k: Int): A = self.apply(v, at(k))
-  })
-}
-
-trait VecMutable[VA, @sp(Double, Long) A] extends Any { self =>
-  def update(v: VA, k: Int, a: A): Unit
-}
-
-trait VecInRing[VA, @sp(Double, Long) A] extends Any with VecBuilder[VA, A] with Module[VA, A] {
-  implicit def scalar: Ring[A]
-  def zero: VA = from(FunV.empty[A])
-}
-
-trait VecInField[VA, @sp(Double, Long) A] extends Any with VecInRing[VA, A] with VectorSpace[VA, A] {
-  implicit def scalar: Field[A]
 }

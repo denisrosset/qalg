@@ -89,6 +89,11 @@ trait DMatMatInRing[@sp(Double, Long) A] extends Any with DMatMat[A] with MatInR
 
 trait DMatMatInField[@sp(Double, Long) A] extends Any with DMatMatInRing[A] with MatInField[DMat[A], A]
 
+/*
+trait DMatVecBuilder[@sp(Double, Long) A] extends Any with MatVecBuilder[DMat[A], DVec[A], A] {
+
+ }*/
+
 object DMat {
   implicit val DMatDouble = new DMatMatInField[Double] {
     def classTag = scala.reflect.classTag[Double]
@@ -100,4 +105,13 @@ object DMat {
     def scalar = Field[Rational]
     def eqA = Eq[Rational]
   }
+  /*
+  implicit val DMatVecBuilderDouble = new DMatVecBuilder[Double] {
+    def MA = DMatDouble
+    def VA = DVec.DVecDouble
+    def apply(m: DMat[Double], r: Int, cols: At1): DVec[Double] = VA.from(new FunV[Double] {
+      def len: Int = cols.length
+      def f(c: Int): Double = MA.apply(m, r, cols(c))
+    })
+  }*/
 }

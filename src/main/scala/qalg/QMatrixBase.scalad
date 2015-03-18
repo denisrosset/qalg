@@ -41,37 +41,6 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
 
   def t: M = factory.tabulate(cols, rows)( (c,r) => this(r,c) )
 
-  def apply(r: ::.type, c: ::.type): M = copy
-
-  def apply(r: Int, all: ::.type): M = apply(r, 0 until cols)
-
-  def apply(all: ::.type, c: Int): M = apply(0 until rows, c)
-
-  def apply(rs: Seq[Int], all: ::.type): M = apply(rs, 0 until cols)
-
-  def apply(all: ::.type, cs: Seq[Int]): M = apply(0 until rows, cs)
-
-  def apply(rs: Seq[Int], c: Int): M = factory.tabulate(rs.length, 1)( (i, j) => this(rs(i), c))
-
-  def apply(r: Int, cs: Seq[Int]): M = factory.tabulate(1, cs.length)( (i, j) => this(r, cs(j)))
-
-  def apply(rs: Seq[Int], cs: Seq[Int]): M = factory.tabulate(rs.length, cs.length)( (i, j) => this(rs(i), cs(j)))
-
-  def *(rhs: V): V = {
-    val res = mutable.QVector.zeros(lhs.rows)
-    require(lhs.cols == rhs.length)
-    cfor(0)(_ < lhs.rows, _ + 1) { r =>
-      cfor(0)(_ < lhs.cols, _ + 1) { c =>
-        val v = lhs(r, c)
-        val w = rhs(c)
-        if (v != Rational.zero && w != Rational.zero) {
-          res(r) += v * w
-        }
-      }
-    }
-    vectorFactory.unsafeBuild(res)
-  }
-
   def circShift(rowShift: Int, colShift: Int) = {
     val res = toMutable
     rowShift.signum match {
@@ -303,47 +272,3 @@ abstract class QMatrixBase[M <: QMatrixBase[M, V], V <: QVectorBase[V, M]] exten
   }
 }
 
-class QMatrixAlgebra[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M]) extends Ring[M] with VectorSpace[M, Rational] {
-  implicit def scalar = Rational.RationalAlgebra
-  def negate(m: M): M = factory.tabulate(m.rows, m.cols)(-m(_, _))
-  def zero: M = factory.fill(0, 0)(Rational.zero)
-  def one: M = factory.fill(0, 0)(Rational.zero)
-  def plus(x: M, y: M): M = {
-    require(x.sameDimensions(y))
-    factory.tabulate(x.rows, x.cols)( (r, c) => x(r, c) + y(r, c))
-  }
-  override def minus(x: M, y: M): M = {
-    require(x.sameDimensions(y))
-    factory.tabulate(x.rows, x.cols)( (r, c) => x(r, c) - y(r, c))
-  }
-  def timesl(s: Rational, m: M): M = factory.tabulate(m.rows, m.cols)( (r, c) => s * m(r, c) )
-  def times(lhs: M, rhs: M): M = {
-    val res = mutable.QMatrix.zeros(lhs.rows, rhs.cols)
-    require(lhs.cols == rhs.rows)
-    cfor(0)(_ < lhs.cols, _ + 1) { c =>
-      cfor(0)(_ < lhs.rows, _ + 1) { r =>
-        val v = lhs(r, c)
-        if (v != Rational.zero) {
-          cfor(0)(_ < rhs.cols, _ + 1) { j =>
-            val w = rhs(c, j)
-            if (w != Rational.zero)
-              res(r, j) += v * w
-          }
-        }
-      }
-    }
-    factory.unsafeBuild(res)
-  }
-}
-
-class QMatrixBaseKronMonoid[M <: QMatrixBase[M, _]](factory: QMatrixFactory[M])(implicit ms: VectorSpace[M, Rational]) extends Monoid[M] {
-  def id = factory.fill(1, 1)(Rational.one)
-
-  def op(a: M, b: M): M = {
-    val res = mutable.QMatrix.zeros(a.rows * b.rows, a.cols * b.cols)
-    // TODO cfor
-    for (r <- 0 until a.rows; c <- 0 until a.cols; av = a(r, c))
-      res((r * b.rows) until ((r+1) * b.rows), (c * b.cols) until ((c+1) * b.cols)) = ms.timesl(av, b)
-    a.factory.unsafeBuild(res)
-  }
-}

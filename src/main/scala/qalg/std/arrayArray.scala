@@ -133,8 +133,12 @@ final class ArrayMat[@sp(Double, Long) A: ClassTag](implicit
 }
 
 final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
+  val VA: VecBuilder[Array[A], A],
   val scalar: Ring[A],
-  val eqA: Eq[A]) extends MatInRing[Array[Array[A]], A] with MatVec[Array[Array[A]], Array[A], A] with MatMutable[Array[Array[A]], A] {
+  val eqA: Eq[A])
+    extends MatInRing[Array[Array[A]], A]
+    with MatVecProduct[Array[Array[A]], Array[A], A]
+    with MatMutable[Array[Array[A]], A] {
   def from(m: FunM[A]): Array[Array[A]] = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
   def nRows(m: Array[Array[A]]): Int = m.length
   def nCols(m: Array[Array[A]]): Int = m(0).length
@@ -151,8 +155,12 @@ final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
 }
 
 final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
+  val VA: VecBuilder[Array[A], A],
   val scalar: Field[A],
-  val eqA: Eq[A]) extends MatInField[Array[Array[A]], A] with MatVec[Array[Array[A]], Array[A], A] with MatMutable[Array[Array[A]], A] {
+  val eqA: Eq[A])
+    extends MatInField[Array[Array[A]], A]
+    with MatVecProduct[Array[Array[A]], Array[A], A]
+    with MatMutable[Array[Array[A]], A] {
   def from(m: FunM[A]): Array[Array[A]] = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
   def nRows(m: Array[Array[A]]): Int = m.length
   def nCols(m: Array[Array[A]]): Int = m(0).length
@@ -169,6 +177,7 @@ final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
 }
 
 trait ArrayArrayInstances {
+  import array._
   implicit val ArrayMatDouble = new ArrayMatInField[Double]
   implicit val ArrayMatRational = new ArrayMatInField[Rational]
   implicit val ArrayMatLong = new ArrayMatInRing[Long]

@@ -12,7 +12,7 @@ package object qalg {
   // factorizes integer n
   def factor(n: Int): List[Int] = {
     // finds a divisor for n greater or equal to k
-    @tailrec def ldf(k : Int, n : Int) : Int = {
+    @tailrec def ldf(k: Int, n: Int): Int = {
       if (n % k == 0) k
       else if ((k*k) > n) n // divisor must be <= sqrt(n)
       else ldf((k+1), n) // try next divisor
@@ -26,6 +26,8 @@ package object qalg {
       }
     }
   }
+
+  /*
 
   def asSafeLongs(array: Array[Rational]): Array[SafeLong] = {
     val factor = array.map(_.denominator).fold(BigInt(1))(lcm)
@@ -65,5 +67,5 @@ package object qalg {
     vectors.tail.foldLeft(vectors.head)(_ |+| _)
 
   def vecReverseKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: Monoid[V]): V = 
-    vecKron[V](vectors.reverse:_*)
+    vecKron[V](vectors.reverse:_*)*/
 }

@@ -14,7 +14,7 @@ trait VecSyntax {
 trait MatSyntax {
   implicit def matSyntax[MA, A](m: MA)(implicit ev: Mat[MA, A]): MatOps[MA, A] = new MatOps(m)
   implicit def matBuilderSyntax[MA, A](m: MA)(implicit ev: MatBuilder[MA, A]): MatBuilderOps[MA, A] = new MatBuilderOps(m)
-  implicit def matVecSyntax[MA, A](m: MA)(implicit ev: Mat[MA, A]): MatVecOps[MA, A] = new MatVecOps(m)
+  implicit def matVecSyntax[MA, A](m: MA)(implicit ev: Mat[MA, A]): MatVecProductOps[MA, A] = new MatVecProductOps(m)
   implicit def matMutableSyntax[MA, A](m: MA)(implicit ev: MatMutable[MA, A]): MatMutableOps[MA, A] = new MatMutableOps(m)
   implicit def matAlgSyntax[MA, A](m: MA)(implicit ev: MatAlg[MA, A]): MatAlgOps[MA, A] = new MatAlgOps[MA, A](m)
 }
