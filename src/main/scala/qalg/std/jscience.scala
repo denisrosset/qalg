@@ -1,8 +1,6 @@
 package com.faacets.qalg
 package std
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
 
 import scala.reflect.{classTag, ClassTag}
@@ -15,6 +13,7 @@ import org.jscience.mathematics.number.{Rational => JRational}
 import org.jscience.mathematics.number.{Float64, LargeInteger}
 import org.jscience.mathematics.vector.{Matrix => JMatrix, Vector => JVector, Float64Vector, DenseVector => JDenseVector, DenseMatrix => JDenseMatrix, Float64Matrix}
 import org.jscience.mathematics.structure.{Field => JField}
+
 import algebra._
 
 trait JScienceBase[@sp(Double, Long) A, J <: JField[J]] extends Any {
@@ -34,7 +33,7 @@ object JScienceConv {
   }
 }
 
-trait JScienceRational extends JScienceBase[Rational, JRational] {
+trait JScienceRational extends Any with JScienceBase[Rational, JRational] {
   import JScienceConv._
   def jClassTag: ClassTag[JRational] = implicitly[ClassTag[JRational]]
   def eqA: Eq[Rational] = implicitly[Eq[Rational]]
@@ -43,7 +42,7 @@ trait JScienceRational extends JScienceBase[Rational, JRational] {
   def toJ(a: Rational): JRational = JRational.valueOf(a.numerator.toLargeInteger, a.denominator.toLargeInteger)
 }
 
-trait JScienceDouble extends JScienceBase[Double, Float64] {
+trait JScienceDouble extends Any with JScienceBase[Double, Float64] {
   def jClassTag: ClassTag[Float64] = implicitly[ClassTag[Float64]]
   def eqA: Eq[Double] = implicitly[Eq[Double]]
   def scalar: Field[Double] = implicitly[Field[Double]]
@@ -61,13 +60,23 @@ trait JScienceVec[@sp(Double, Long) A, J <: JField[J], JV <: JVector[J]] extends
 
 trait JScienceMat[@sp(Double, Long) A, J <: JField[J], JM <: JMatrix[J]] extends Any
     with JScienceBase[A, J]
-    with MatInField[JM, A] {
+    with MatInField[JM, A]
+    with MatInFieldAlg[JM, A] {
+  def fromGenMatrix(m: JMatrix[J]): JM
   def apply(m: JM, r: Int, c: Int): A = fromJ(m.get(r, c))
   def nRows(m: JM): Int = m.getNumberOfRows
   def nCols(m: JM): Int = m.getNumberOfColumns
+  def pinv(m: JM): JM = fromGenMatrix(m.pseudoInverse)
+  def inv(m: JM): JM = fromGenMatrix(m.inverse)
+  def det(m: JM): A = fromJ(m.determinant)
+  def trace(m: JM): A = fromJ(m.trace)
+  override def op(x: JM, y: JM): JM = fromGenMatrix(x.tensor(y))
+  def rref(m: JM): JM = throw new UnsupportedOperationException("rref not implemented")
+  def rank(m: JM): Int = throw new UnsupportedOperationException("rank not implemented")
 }
 
 final class JScienceFloat64MatrixMat extends JScienceMat[Double, Float64, Float64Matrix] with JScienceDouble {
+  def fromGenMatrix(m: JMatrix[Float64]): Float64Matrix = Float64Matrix.valueOf(m)
   override def plus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.plus(y)
   override def minus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.minus(y)
   override def negate(v: Float64Matrix): Float64Matrix = v.opposite
@@ -75,6 +84,7 @@ final class JScienceFloat64MatrixMat extends JScienceMat[Double, Float64, Float6
   // TODO: optimize conversion
   def from(m: FunM[Double]): Float64Matrix = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c)))
   override def times(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.times(y)
+  override def inv(m: Float64Matrix): Float64Matrix = m.inverse
 }
 
 final class JScienceFloat64VectorVec extends JScienceVec[Double, Float64, Float64Vector] with JScienceDouble {
@@ -100,8 +110,10 @@ trait JScienceDenseVectorVec[@sp(Double, Long) A, J <: JField[J]] extends Any
   })
 }
 
-trait JScienceDenseMatrixVec[@sp(Double, Long) A, J <: JField[J]] extends Any
+trait JScienceDenseMatrixMat[@sp(Double, Long) A, J <: JField[J]] extends Any
     with JScienceMat[A, J, JDenseMatrix[J]] {
+  def fromGenMatrix(m: JMatrix[J]): JDenseMatrix[J] = JDenseMatrix.valueOf(m)
+
   override def plus(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.plus(y)
   override def minus(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.minus(y)
   override def negate(m: JDenseMatrix[J]): JDenseMatrix[J] = m.opposite
@@ -109,11 +121,12 @@ trait JScienceDenseMatrixVec[@sp(Double, Long) A, J <: JField[J]] extends Any
   override def times(x: JDenseMatrix[J], y: JDenseMatrix[J]): JDenseMatrix[J] = x.times(y)
   override def t(m: JDenseMatrix[J]): JDenseMatrix[J] = m.transpose
   def from(m: FunM[A]): JDenseMatrix[J] = JDenseMatrix.valueOf(Array.tabulate[J](m.nR, m.nC)( (r, c) => toJ(m.f(r, c))))
+  override def inv(m: JDenseMatrix[J]): JDenseMatrix[J] = m.inverse
 }
 
 final class JScienceDenseVectorRationalVec extends JScienceDenseVectorVec[Rational, JRational] with JScienceRational
 
-final class JScienceDenseMatrixRationalMat extends JScienceDenseMatrixVec[Rational, JRational] with JScienceRational
+final class JScienceDenseMatrixRationalMat extends JScienceDenseMatrixMat[Rational, JRational] with JScienceRational
 
 trait JScienceInstances {
   implicit val JScienceFloat64Vector: JScienceFloat64VectorVec = new JScienceFloat64VectorVec

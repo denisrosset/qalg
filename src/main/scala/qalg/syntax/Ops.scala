@@ -69,6 +69,8 @@ final class MatOps[MA, A](lhs: MA)(implicit ev: Mat[MA, A]) {
   def at[VA](r: Int, cols: ::.type)(implicit ev1: MatVecSlice[MA, VA, A]): VA = ev1(lhs, r, cols)
   def at[VA](rows: At1, c: Int)(implicit ev1: MatVecSlice[MA, VA, A]): VA = ev1(lhs, rows, c)
   def at[VA](rows: ::.type, c: Int)(implicit ev1: MatVecSlice[MA, VA, A]): VA = ev1(lhs, rows, c)
+  // ToMatrix
+  def toMatrix[M2](implicit T: ToMatrix[MA, M2]): M2 = T.toMatrix(lhs)
 }
 
 final class MatBuilderOps[MA, A](lhs: MA)(implicit ev: MatBuilder[MA, A]) {
@@ -120,10 +122,14 @@ final class MatMutableOps[MA, A](lhs: MA)(implicit ev: MatMutable[MA, A]) {
   def updateAt(rows: At1, cols: ::.type, a: A): Unit = ev.update(lhs, rows, cols, a)
 }
 
-final class MatAlgOps[MA, A](lhs: MA)(implicit ev: MatAlg[MA, A]) {
-  def rank: Int = ev.rank(lhs)
-  def rref: MA = ev.rref(lhs)
+final class MatInRingAlgOps[MA, A](lhs: MA)(implicit ev: MatInRingAlg[MA, A]) {
   def det: A = ev.det(lhs)
   def trace: A = ev.trace(lhs)
-  def inverse: MA = ev.inverse(lhs)
+}
+
+final class MatInFieldAlgOps[MA, A](lhs: MA)(implicit ev: MatInFieldAlg[MA, A]) {
+  def rank: Int = ev.rank(lhs)
+  def rref: MA = ev.rref(lhs)
+  def inv: MA = ev.inv(lhs)
+  def pinv: MA = ev.pinv(lhs)
 }

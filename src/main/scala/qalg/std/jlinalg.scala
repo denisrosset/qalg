@@ -46,7 +46,7 @@ trait JLinAlgMat[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
     with JLinAlgBase[A, J]
     with MatInField[JMatrix[J], A]
     with MatMutable[JMatrix[J], A]
-    with MatAlg[JMatrix[J], A] {
+    with MatInFieldAlg[JMatrix[J], A] {
   def nRows(m: JMatrix[J]): Int = m.getRows
   def nCols(m: JMatrix[J]): Int = m.getCols
   def apply(m: JMatrix[J], r: Int, c: Int): A = fromJ(m.get(r + 1, c + 1))
@@ -61,7 +61,8 @@ trait JLinAlgMat[@sp(Double, Long) A, J <: IRingElement[J]] extends Any
   def rref(m: JMatrix[J]): JMatrix[J] = m.gaussjord
   def det(m: JMatrix[J]): A = fromJ(m.det)
   def trace(m: JMatrix[J]): A = fromJ(m.trace)
-  def inverse(m: JMatrix[J]): JMatrix[J] = m.inverse
+  def inv(m: JMatrix[J]): JMatrix[J] = m.inverse
+  def pinv(m: JMatrix[J]): JMatrix[J] = throw new UnsupportedOperationException("pinv not implemented")
   override def t(m: JMatrix[J]): JMatrix[J] = m.transpose
 }
 

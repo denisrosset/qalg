@@ -84,6 +84,24 @@ object ArrayArraySupport {
     }
     z
   }
+  def negate[@sp(Double, Long) A: ClassTag: AdditiveGroup](x: Array[Array[A]]): Array[Array[A]] = {
+    val nR = x.length
+    val nC = x(0).length
+    val y = new Array[Array[A]](nR)
+    var r = 0
+    while (r < nR) {
+      val origRow = y(r)
+      val newRow = new Array[A](nC)
+      var c = 0
+      while (c < nC) {
+        newRow(c) = - origRow(c)
+        c += 1
+      }
+      y(r) = newRow
+      r += 1
+    }
+    y
+  }
   def timesl2[@sp(Double, Long) A: ClassTag: Ring](x: Array[A], y: Array[Array[A]]): Array[A] = {
     val nC = y(0).length
     val nK = x.length
@@ -145,8 +163,7 @@ final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
   def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
   override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
-  // TODO optimize
-  override def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
+  override def negate(m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.negate(m)
   override def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
   override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
   override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
@@ -167,8 +184,7 @@ final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
   def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
   override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
-  // TODO optimize
-  override def negate(m: Array[Array[A]]): Array[Array[A]] = m.map(_.map(-_))
+  override def negate(m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.negate(m)
   override def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
   override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
   override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
@@ -178,7 +194,7 @@ final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
 
 trait ArrayArrayInstances {
   import array._
-  implicit val ArrayMatDouble = new ArrayMatInField[Double]
+  implicit val ArrayMatDouble = new ArrayMatInField[Double] // TODO: field
   implicit val ArrayMatRational = new ArrayMatInField[Rational]
   implicit val ArrayMatLong = new ArrayMatInRing[Long]
   implicit def ArrayMat[A: ClassTag: AdditiveMonoid: Eq]: MatBuilder[Array[Array[A]], A] = new ArrayMat[A]

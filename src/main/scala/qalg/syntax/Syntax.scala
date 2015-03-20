@@ -16,7 +16,8 @@ trait MatSyntax {
   implicit def matBuilderSyntax[MA, A](m: MA)(implicit ev: MatBuilder[MA, A]): MatBuilderOps[MA, A] = new MatBuilderOps(m)
   implicit def matVecSyntax[MA, A](m: MA)(implicit ev: Mat[MA, A]): MatVecProductOps[MA, A] = new MatVecProductOps(m)
   implicit def matMutableSyntax[MA, A](m: MA)(implicit ev: MatMutable[MA, A]): MatMutableOps[MA, A] = new MatMutableOps(m)
-  implicit def matAlgSyntax[MA, A](m: MA)(implicit ev: MatAlg[MA, A]): MatAlgOps[MA, A] = new MatAlgOps[MA, A](m)
+  implicit def matInRingAlgSyntax[MA, A](m: MA)(implicit ev: MatInRingAlg[MA, A]): MatInRingAlgOps[MA, A] = new MatInRingAlgOps[MA, A](m)
+  implicit def matInFieldAlgSyntax[MA, A](m: MA)(implicit ev: MatInFieldAlg[MA, A]): MatInFieldAlgOps[MA, A] = new MatInFieldAlgOps[MA, A](m)
 }
 
 trait AllSyntax
