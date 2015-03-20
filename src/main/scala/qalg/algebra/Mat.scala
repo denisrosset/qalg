@@ -1,8 +1,6 @@
 package com.faacets.qalg
 package algebra
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
 
 import spire.algebra._
@@ -10,24 +8,15 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait Mat[MA, @sp(Double, Long) A] extends Any with Eq[MA] { self =>
-  implicit def eqA: Eq[A]
-  def eqv(x: MA, y: MA): Boolean =
-    (nRows(x) == nRows(y)) && (nCols(x) == nCols(y)) && {
-      val nR = nRows(x)
-      val nC = nCols(x)
-      var r = 0
-      var c = nC
-      while (r < nR && c == nC) {
-        c = 0
-        while (c < nC && apply(x, r, c) === apply(y, r, c)) {
-          c += 1
-        }
-        r += 1
-      }
-      r == nR
-    }
-
+trait Mat[MA, @sp(Double, Long) A] extends Any with Lin[MA, A] { self =>
+  def sameShape(x: MA, y: MA): Boolean = (nRows(x) == nRows(y)) && (nCols(x) == nCols(y))
+  def linearLength(m: MA): Int = nRows(m) * nCols(m)
+  def linearApply(m: MA, k: Int): A = {
+    val nC = nCols(m)
+    val r = k / nC
+    val c = k % nC
+    apply(m, r, c)
+  }
   def size(m: MA): IntInt = IntInt(nRows(m), nCols(m))
   def nRows(m: MA): Int
   def nCols(m: MA): Int

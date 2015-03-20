@@ -8,7 +8,6 @@ import language.implicitConversions
 import spire.implicits._
 
 package object qalg {
-
   // factorizes integer n
   def factor(n: Int): List[Int] = {
     // finds a divisor for n greater or equal to k
@@ -56,16 +55,5 @@ package object qalg {
   }
 
   def parseCoefficients(S: String): Array[Int] = S.split("\\s+").map(_.toInt)
-
-  def kron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: Monoid[M]): M =
-    matrices.tail.foldLeft(matrices.head)(_ |+| _)
-
-  def reverseKron[M <: QMatrixBase[M, _]](matrices: M*)(implicit ev: Monoid[M]): M = 
-    kron[M](matrices.reverse:_*)
-
-  def vecKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: Monoid[V]): V = 
-    vectors.tail.foldLeft(vectors.head)(_ |+| _)
-
-  def vecReverseKron[V <: QVectorBase[V, _]](vectors: V*)(implicit ev: Monoid[V]): V = 
-    vecKron[V](vectors.reverse:_*)*/
+*/
 }

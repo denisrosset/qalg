@@ -1,8 +1,6 @@
 package com.faacets.qalg
 package algebra
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
 import spire.algebra._
 import spire.syntax.eq._
@@ -58,4 +56,8 @@ trait VecInRing[VA, @sp(Double, Long) A] extends Any with VecBuilder[VA, A] with
      */
     ???
   }
+}
+
+object VecInRing {
+  implicit def fromMatVecInRing[M, V, @sp(Double, Long) A](implicit MV: MatVecInRing[M, V, A]): Vec[V, A] = MV.V
 }

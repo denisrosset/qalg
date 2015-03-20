@@ -11,7 +11,8 @@ import spire.syntax.innerProductSpace._
   * 
   * Lipschutz-Lipson, Schaum's Outline of Theory and Problems of Linear Algebra, 3rd Edition, McGraw-Hill, 2004
   */
-class SchaumSuite extends FunSuite {
+trait SchaumSuite[M] extends FunSuite {
+  implicit def M: MatInField[Rational, M]
   test("Example 1.2") {
     val u = QVec(2, 4, -5)
     val v = QVec(1, -6, 9)

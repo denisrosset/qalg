@@ -1,8 +1,6 @@
 package com.faacets.qalg
 package algebra
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
 
 import spire.algebra._

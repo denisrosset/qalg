@@ -49,7 +49,7 @@ object ArraySupport {
     y
   }
 }
-
+/*
 final class ArrayVec[@sp(Double, Long) A: ClassTag](implicit
   val scalar: AdditiveMonoid[A],
   val eqA: Eq[A]) extends VecBuilder[Array[A], A] {
@@ -88,3 +88,4 @@ trait ArrayInstances {
   implicit val ArrayVecLong = new ArrayVecModule[Long]
   implicit def ArrayVec[A: ClassTag: AdditiveMonoid: Eq]: VecBuilder[Array[A], A] = new ArrayVec[A]
 }
+ */

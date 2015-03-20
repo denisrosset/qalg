@@ -1,8 +1,6 @@
 package com.faacets.qalg
 package algebra
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
 
 import spire.algebra._
@@ -10,19 +8,19 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait MatBuilder[MA, @sp(Double, Long) A] extends Any with Mat[MA, A] { self =>
+trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
   implicit def scalar: AdditiveMonoid[A]
 
-  def from(m: FunM[A]): MA
+  def from(m: FunM[A]): M
 
-  def apply(m: MA, rows: At1, cols: At1): MA = from(view(m, rows, cols))
-  def apply(m: MA, rows: ::.type, cols: ::.type): MA = m
-  def apply(m: MA, rows: ::.type, cols: At1): MA = from(view(m, rows, cols))
-  def apply(m: MA, rows: At1, cols: ::.type): MA = from(view(m, rows, cols))
+  def apply(m: M, rows: At1, cols: At1): M = from(view(m, rows, cols))
+  def apply(m: M, rows: ::.type, cols: ::.type): M = m
+  def apply(m: M, rows: ::.type, cols: At1): M = from(view(m, rows, cols))
+  def apply(m: M, rows: At1, cols: ::.type): M = from(view(m, rows, cols))
 
-  def t(m: MA): MA = from(viewT(m))
+  def t(m: M): M = from(viewT(m))
 }
 
 object MatBuilder {
-  def apply[MA, @sp(Double, Long) A](implicit MB: MatBuilder[MA, A]): MatBuilder[MA, A] = MB
+  def apply[M, @sp(Double, Long) A](implicit M: MatBuilder[M, A]): MatBuilder[M, A] = M
 }
