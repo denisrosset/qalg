@@ -16,6 +16,95 @@ import org.jscience.mathematics.structure.{Field => JField}
 
 import algebra._
 
+final class JScienceFloat64Field extends Field[Float64] with Order[Float64] {
+  // Order
+  override def eqv(x: Float64, y: Float64): Boolean = (x == y)
+  def compare(x: Float64, y: Float64): Int = x.compareTo(y)
+
+  // AdditiveGroup
+  def zero: Float64 = Float64.ZERO
+  def plus(x: Float64, y: Float64): Float64 = x.plus(y)
+  override def minus(x: Float64, y: Float64): Float64 = x.minus(y)
+  def negate(x: Float64): Float64 = x.opposite
+
+  // MultiplicativeGroup
+  def one: Float64 = Float64.ONE
+  def times(x: Float64, y: Float64): Float64 = x.times(y)
+  override def reciprocal(x: Float64): Float64 = x.inverse
+  def div(x: Float64, y: Float64): Float64 = x.divide(y)
+
+  // Ring
+  override def fromInt(n: Int): Float64 = Float64.valueOf(n)
+
+  // EuclideanRing
+
+  def gcd(x: Float64, y: Float64): Float64 =
+    Float64.valueOf(Field[Double].gcd(x.doubleValue, y.doubleValue))
+  def mod(x: Float64, y: Float64): Float64 =
+    Float64.valueOf(Field[Double].mod(x.doubleValue, y.doubleValue))
+  def quot(x: Float64, y: Float64): Float64 =
+    Float64.valueOf(Field[Double].mod(x.doubleValue, y.doubleValue))
+}
+
+final class JScienceRationalField extends RationalField[JRational] {
+  // Order
+  override def eqv(x: JRational, y: JRational): Boolean = (x == y)
+  def compare(x: JRational, y: JRational): Int = x.compareTo(y)
+
+  // AdditiveGroup
+  def zero: JRational = JRational.ZERO
+  def plus(x: JRational, y: JRational): JRational = x.plus(y)
+  override def minus(x: JRational, y: JRational): JRational = x.minus(y)
+  def negate(x: JRational): JRational = x.opposite
+
+  // MultiplicativeGroup
+  def one: JRational = JRational.ONE
+  def times(x: JRational, y: JRational): JRational = x.times(y)
+  override def reciprocal(x: JRational): JRational = x.inverse
+  def div(x: JRational, y: JRational): JRational = x.divide(y)
+
+  // Ring
+  override def fromInt(n: Int): JRational = JRational.valueOf(n, 1L)
+
+  import jScience._
+  import JScienceLargeIntegerRing.{toBigInt, fromBigInt}
+
+  def numerator(x: JRational): BigInt = toBigInt(x.getDividend)
+  def denominator(x: JRational): BigInt = toBigInt(x.getDivisor)
+  def ratio(numerator: BigInt, denominator: BigInt): JRational =
+    JRational.valueOf(fromBigInt(numerator), fromBigInt(denominator))
+}
+
+final class JScienceLargeIntegerRing extends EuclideanRing[LargeInteger] with Order[LargeInteger] {
+  def toBigInt(x: LargeInteger): BigInt = {
+    val nBits = x.bitLength
+    val bytes = new Array[Byte]((nBits + 7) / 8)
+    val written = x.toByteArray(bytes, 0)
+    BigInt(new java.math.BigInteger(bytes))
+  }
+  def fromBigInt(x: BigInt): LargeInteger = LargeInteger.valueOf(x.bigInteger)
+
+  override def eqv(x: LargeInteger, y: LargeInteger): Boolean = (x == y)
+  def compare(x: LargeInteger, y: LargeInteger): Int = x.compareTo(y)
+
+  // AdditiveGroup
+  def zero: LargeInteger = LargeInteger.ZERO
+  def plus(x: LargeInteger, y: LargeInteger): LargeInteger = x.plus(y)
+  override def minus(x: LargeInteger, y: LargeInteger): LargeInteger = x.minus(y)
+  def negate(x: LargeInteger): LargeInteger = x.opposite
+
+  // MultiplicativeGroup
+  def one: LargeInteger = LargeInteger.ONE
+  def times(x: LargeInteger, y: LargeInteger): LargeInteger = x.times(y)
+
+  // Ring
+  override def fromInt(n: Int): LargeInteger = LargeInteger.valueOf(n)
+
+  // EuclideanRIng
+  def gcd(a: LargeInteger, b: LargeInteger): LargeInteger = a.gcd(b)
+  def mod(a: LargeInteger, b: LargeInteger): LargeInteger = a.mod(b)
+  def quot(a: LargeInteger, b: LargeInteger): LargeInteger = a.divide(b)
+}
 
 /*
 object JScienceConv {
@@ -122,8 +211,9 @@ final class JScienceDenseVectorRationalVec extends JScienceDenseVectorVec[Ration
 
 final class JScienceDenseMatrixRationalMat extends JScienceDenseMatrixMat[Rational, JRational] with JScienceRational
 
-trait JScienceInstances {
-  implicit val JScienceFloat64Vector: JScienceFloat64VectorVec = new JScienceFloat64VectorVec
-  implicit val JScienceDenseVectorRational: JScienceDenseVectorRationalVec = new JScienceDenseVectorRationalVec
-}
 */
+trait JScienceInstances {
+  implicit val JScienceFloat64Field = new JScienceFloat64Field
+  implicit val JScienceLargeIntegerRing = new JScienceLargeIntegerRing
+  implicit val JScienceRationalField = new JScienceRationalField
+}

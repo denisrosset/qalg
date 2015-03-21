@@ -62,6 +62,8 @@ final class JLinAlgDoubleWrapperField extends Field[DoubleWrapper] with Order[Do
   // Ring
   override def fromInt(n: Int): DoubleWrapper = DoubleWrapper.FACTORY.get(n)
 
+  // EuclideanRing
+  
   def gcd(x: DoubleWrapper, y: DoubleWrapper): DoubleWrapper =
     DoubleWrapper.FACTORY.get(Field[Double].gcd(x.getValue, y.getValue))
   def mod(x: DoubleWrapper, y: DoubleWrapper): DoubleWrapper =

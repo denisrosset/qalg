@@ -5,5 +5,5 @@ trait AnyInstances
     extends ArrayInstances
     with ArrayArrayInstances
     with CommonsInstances
-/*    with JLinAlgInstances
-    with JScienceInstances*/
+    with JLinAlgInstances
+    with JScienceInstances
