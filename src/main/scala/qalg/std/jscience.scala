@@ -16,14 +16,8 @@ import org.jscience.mathematics.structure.{Field => JField}
 
 import algebra._
 
-trait JScienceBase[@sp(Double, Long) A, J <: JField[J]] extends Any {
-  implicit def jClassTag: ClassTag[J]
-  implicit def eqA: Eq[A]
-  implicit def scalar: AdditiveMonoid[A]
-  def toJ(a: A): J
-  def fromJ(j: J): A
-}
 
+/*
 object JScienceConv {
   implicit class LargeIntegerConv(val lhs: LargeInteger) extends AnyVal {
     def toBigInt: BigInt = ???
@@ -132,3 +126,4 @@ trait JScienceInstances {
   implicit val JScienceFloat64Vector: JScienceFloat64VectorVec = new JScienceFloat64VectorVec
   implicit val JScienceDenseVectorRational: JScienceDenseVectorRationalVec = new JScienceDenseVectorRationalVec
 }
+*/

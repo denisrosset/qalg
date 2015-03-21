@@ -10,28 +10,59 @@ import spire.math.Rational
 import spire.std.double._
 
 import org.apache.commons.math3.FieldElement
-import org.apache.commons.math3.fraction.{BigFraction, Fraction}
-import org.apache.commons.math3.linear.{BlockFieldMatrix, FieldMatrix, FieldVector,
-  MatrixUtils, FieldLUDecomposition}
+import org.apache.commons.math3.fraction._
+import org.apache.commons.math3.linear._
 import algebra._
 
-trait RationalField[A] extends Field[A] {
-  // EuclideanRing
-
-  def numerator(a: A): BigInt
-  def denominator(a: A): BigInt
-  def ratio(numerator: BigInt, denominator: BigInt): A
-  def toRational(a: A): Rational = Rational(numerator(a), denominator(a))
-  def fromRational(r: Rational): A = ratio(r.numerator, r.denominator)
-  def gcd(x: A, y: A): A = 
-    fromRational(toRational(x).gcd(toRational(y)))
-  def mod(x: A, y: A): A = 
-    fromRational(toRational(x).gcd(toRational(y)))
-  def quot(x: A, y: A): A = 
-    fromRational(toRational(x).gcd(toRational(y)))
+final class CommonsRealVec
+    extends VecInField[RealVector, Double]
+    with VecMutable[RealVector, Double] {
+  type V = RealVector
+  type A = Double
+  def classTagA = classTag[A]
+  def eqA = Eq[A]
+  def scalar = Field[A]
+  def V: Vec[V, A] = this
+  def length(v: V): Int = v.getDimension
+  def apply(v: V, k: Int): A = v.getEntry(k)
+  def from(v: FunV[A]): V = MatrixUtils.createRealVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
+  override def plus(x: V, y: V): V = x.add(y)
+  override def minus(x: V, y: V): V = x.subtract(y)
+  override def negate(x: V): V = x.mapMultiply(-1.0)
+  override def timesl(a: A, v: V): V = v.mapMultiply(a)
 }
 
-final class FractionField extends RationalField[Fraction] {
+final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMutable[RealVector, Double])
+    extends MatVecInField[RealMatrix, RealVector, Double]
+    with MatVecMutable[RealMatrix, RealVector, Double] { self =>
+  type M = RealMatrix
+  type V = RealVector
+  type A = Double
+  def classTagA = classTag[A]
+  def eqA = Eq[A]
+  def scalar = Field[A]
+  def M: MatInField[M, A] with MatMutable[M, A] = self
+  def nRows(m: M): Int = m.getRowDimension
+  def nCols(m: M): Int = m.getColumnDimension
+  def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
+  def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
+  def from(m: FunM[A]): M = MatrixUtils.createRealMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
+  override def plus(x: M, y: M): M = x.add(y)
+  override def minus(x: M, y: M): M = x.subtract(y)
+  override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))
+  override def times(x: M, y: M): M = x.multiply(y)
+  override def timesl(a: A, m: M): M = m.scalarMultiply(a)
+  override def timesl2(v: V, m: M): V = m.preMultiply(v)
+  override def timesr2(m: M, v: V): V = m.operate(v)
+  override def t(m: M): M = m.transpose
+}
+
+final class CommonsFractionField extends RationalField[Fraction] {
+  // Order
+  override def eqv(x: Fraction, y: Fraction): Boolean = (x == y)
+  def compare(x: Fraction, y: Fraction): Int = x.compareTo(y)
+
   // AdditiveGroup
   def zero: Fraction = Fraction.ZERO
   def plus(x: Fraction, y: Fraction): Fraction = x.add(y)
@@ -55,91 +86,100 @@ final class FractionField extends RationalField[Fraction] {
   }
 }
 
-trait CommonsBase[A, J <: FieldElement[J]] extends Any {
-  implicit def jClassTag: ClassTag[J]
-  implicit def eqA: Eq[A]
-  implicit def scalar: AdditiveMonoid[A]
-  def toJ(a: A): J
-  def fromJ(j: J): A
+final class CommonsBigFractionField extends RationalField[BigFraction] {
+  // Order
+  override def eqv(x: BigFraction, y: BigFraction): Boolean = (x == y)
+  def compare(x: BigFraction, y: BigFraction): Int = x.compareTo(y)
+
+  // AdditiveGroup
+  def zero: BigFraction = BigFraction.ZERO
+  def plus(x: BigFraction, y: BigFraction): BigFraction = x.add(y)
+  override def minus(x: BigFraction, y: BigFraction): BigFraction = x.subtract(y)
+  def negate(x: BigFraction): BigFraction = x.negate
+
+  // MultiplicativeGroup
+  def one: BigFraction = BigFraction.ONE
+  def times(x: BigFraction, y: BigFraction): BigFraction = x.multiply(y)
+  override def reciprocal(x: BigFraction): BigFraction = x.reciprocal
+  def div(x: BigFraction, y: BigFraction): BigFraction = x.divide(y)
+
+  // Ring
+  override def fromInt(n: Int): BigFraction = new BigFraction(n)
+
+  def numerator(x: BigFraction): BigInt = x.getNumerator
+  def denominator(x: BigFraction): BigInt = x.getDenominator
+  def ratio(numerator: BigInt, denominator: BigInt): BigFraction =
+    new BigFraction(numerator.bigInteger, denominator.bigInteger)
 }
 
-trait CommonsFraction extends Any with CommonsBase[Rational, Fraction] {
-  def jClassTag: ClassTag[Fraction] = implicitly[ClassTag[Fraction]]
-  def eqA: Eq[Rational] = implicitly[Eq[Rational]]
-  def scalar: Field[Rational] = implicitly[Field[Rational]]
-  def fromJ(j: Fraction): Rational = Rational(j.getNumerator, j.getDenominator)
-  def toJ(a: Rational): Fraction = {
-    val num = a.numerator
-    val den = a.denominator
-    require(num.isValidInt && den.isValidInt)
-    new Fraction(a.numerator.toInt, a.denominator.toInt)
-  }
-}
-
-trait CommonsBigFraction extends Any with CommonsBase[Rational, BigFraction] {
-  def jClassTag: ClassTag[BigFraction] = implicitly[ClassTag[BigFraction]]
-  def eqA: Eq[Rational] = implicitly[Eq[Rational]]
-  def scalar: Field[Rational] = implicitly[Field[Rational]]
-  def fromJ(j: BigFraction): Rational = Rational(j.getNumerator, j.getDenominator)
-  def toJ(a: Rational): BigFraction = new BigFraction(a.numerator.bigInteger, a.denominator.bigInteger)
-}
-
-trait CommonsVec[A, J <: FieldElement[J]] extends Any
-    with CommonsBase[A, J]
-    with VecInField[FieldVector[J], A]
-    with VecMutable[FieldVector[J], A] { self =>
-  type V = FieldVector[J]
+trait CommonsVec[A <: FieldElement[A]] extends Any
+    with VecInField[FieldVector[A], A]
+    with VecMutable[FieldVector[A], A] { self =>
+  implicit def classTagA: ClassTag[A]
+  type V = FieldVector[A]
   def V: Vec[V, A] = self
-
   def length(v: V): Int = v.getDimension
-  def apply(v: V, k: Int): A = fromJ(v.getEntry(k))
-  def from(v: FunV[A]): V = MatrixUtils.createFieldVector(Array.tabulate[J](v.len) { k => toJ(v.f(k)) })
-  def update(v: V, k: Int, a: A): Unit = v.setEntry(k, toJ(a))
+  def apply(v: V, k: Int): A = v.getEntry(k)
+  def from(v: FunV[A]): V = MatrixUtils.createFieldVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
-  override def negate(x: V): V = x.mapMultiply(toJ(scalar.fromInt(-1)))
-  override def timesl(a: A, v: V): V = v.mapMultiply(toJ(a))
+  override def negate(x: V): V = x.mapMultiply(scalar.fromInt(-1))
+  override def timesl(a: A, v: V): V = v.mapMultiply(a)
 }
 
-
-trait CommonsMatVec[A, J <: FieldElement[J]] extends Any
-    with CommonsBase[A, J]
-    with MatVecInField[FieldMatrix[J], FieldVector[J], A]
-    with MatVecMutable[FieldMatrix[J], FieldVector[J], A] { self =>
-  type M = FieldMatrix[J]
-  type V = FieldVector[J]
-  implicit def M: MatInField[M, A] with MatMutable[M, A] = self
-  implicit def V: VecInField[V, A] with VecMutable[V, A]
+trait CommonsMatVec[A <: FieldElement[A]] extends Any
+    with MatVecInField[FieldMatrix[A], FieldVector[A], A]
+    with MatVecMutable[FieldMatrix[A], FieldVector[A], A] { self =>
+  implicit def classTagA: ClassTag[A]
+  type M = FieldMatrix[A]
+  type V = FieldVector[A]
+  def M: MatInField[M, A] with MatMutable[M, A] = self
+  def V: VecInField[V, A] with VecMutable[V, A]
   def nRows(m: M): Int = m.getRowDimension
   def nCols(m: M): Int = m.getColumnDimension
-  def apply(m: M, r: Int, c: Int): A = fromJ(m.getEntry(r, c))
-  def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, toJ(a))
-  def from(m: FunM[A]): M = MatrixUtils.createFieldMatrix(Array.tabulate[J](m.nR, m.nC) { (r, c) => toJ(m.f(r, c)) })
+  def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
+  def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
+  def from(m: FunM[A]): M = MatrixUtils.createFieldMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
-  override def negate(x: M): M = x.scalarMultiply(toJ(scalar.fromInt(-1)))
+  override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))
   override def times(x: M, y: M): M = x.multiply(y)
-  override def timesl(a: A, m: M): M = m.scalarMultiply(toJ(a))
+  override def timesl(a: A, m: M): M = m.scalarMultiply(a)
   override def timesl2(v: V, m: M): V = m.preMultiply(v)
   override def timesr2(m: M, v: V): V = m.operate(v)
   override def t(m: M): M = m.transpose
 }
 
 trait CommonsInstances {
-  implicit val CommonsFractionMV = new CommonsMatVec[Rational, Fraction] with CommonsFraction {
-    implicit val V = new CommonsVec[Rational, Fraction] with CommonsFraction
-  }
-  implicit val CommonsFractionV = CommonsFractionMV.V
+  implicit val CommonsRealVec = new CommonsRealVec
+  implicit val CommonsRealMatVec = new CommonsRealMatVec(CommonsRealVec)
+  implicit val CommonsFractionField = new CommonsFractionField
+  implicit val CommonsBigFractionField = new CommonsBigFractionField
 
-  implicit val CommonsBigFractionMV = new CommonsMatVec[Rational, BigFraction] with CommonsBigFraction {
-    implicit val V = new CommonsVec[Rational, BigFraction] with CommonsBigFraction
+  implicit val CommonsFractionVec = new CommonsVec[Fraction] {
+    def classTagA = classTag[Fraction]
+    def eqA = CommonsFractionField
+    def scalar = CommonsFractionField
   }
-  implicit val CommonsBigFractionV = CommonsBigFractionMV.V
+
+  implicit val CommonsBigFractionVec = new CommonsVec[BigFraction] {
+    def classTagA = classTag[BigFraction]
+    def eqA = CommonsBigFractionField
+    def scalar = CommonsBigFractionField
+  }
+
+  implicit val CommonsFractionMatVec = new CommonsMatVec[Fraction] {
+    def classTagA = classTag[Fraction]
+    def eqA = CommonsFractionField
+    def scalar = CommonsFractionField
+    def V = CommonsFractionVec
+  }
+
+  implicit val CommonsBigFractionMatVec = new CommonsMatVec[BigFraction] {
+    def classTagA = classTag[BigFraction]
+    def eqA = CommonsBigFractionField
+    def scalar = CommonsBigFractionField
+    def V = CommonsBigFractionVec
+  }
 }
- 
-/*
-
-final class CommonsFieldMatrixFractionMat extends CommonsFieldMatrixMat[Rational, Fraction] with CommonsFraction
-
-final class CommonsFieldMatrixBigFractionMat extends CommonsFieldMatrixMat[Rational, BigFraction] with CommonsBigFraction
- */
