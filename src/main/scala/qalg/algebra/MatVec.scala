@@ -49,7 +49,9 @@ trait MatVecInRing[M, V, @sp(Double, Long) A] extends Any with MatVecBuilder[M, 
   }
 }
 
-trait MatVecInField[M, V, @sp(Double, Long) A] extends Any with MatInField[M, A] { self =>
+trait MatVecInField[M, V, @sp(Double, Long) A] extends Any
+    with MatVecInRing[M, V, A]
+    with MatInField[M, A] { self =>
   implicit def V: VecInField[V, A]
 }
 

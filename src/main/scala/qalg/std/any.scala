@@ -1,9 +1,9 @@
 package com.faacets.qalg
 package std
 
-trait AnyInstances extends CommonsInstances
-/*    extends ArrayInstances
+trait AnyInstances 
+    extends ArrayInstances
     with ArrayArrayInstances
-    with JLinAlgInstances
     with CommonsInstances
+/*    with JLinAlgInstances
     with JScienceInstances*/

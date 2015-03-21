@@ -5,7 +5,7 @@ import scala.language.higherKinds
 
 import scala.{specialized => sp}
 
-import scala.reflect.ClassTag
+import scala.reflect.{classTag, ClassTag}
 
 import spire.algebra._
 import spire.math.Rational
@@ -140,27 +140,25 @@ object ArrayArraySupport {
   }
 }
 
-final class ArrayMat[@sp(Double, Long) A: ClassTag](implicit
-  val scalar: AdditiveMonoid[A],
-  val eqA: Eq[A]) extends MatBuilder[Array[Array[A]], A] with MatMutable[Array[Array[A]], A] {
-  def from(m: FunM[A]): Array[Array[A]] = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
-  def nRows(m: Array[Array[A]]): Int = m.length
-  def nCols(m: Array[Array[A]]): Int = m(0).length
-  def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
-  def update(m: Array[Array[A]], r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
+trait ArrayArrayMatVec[@sp(Double, Long) A] extends Any
+    with MatVecBuilder[Array[Array[A]], Array[A], A]
+    with MatVecMutable[Array[Array[A]], Array[A], A] { self =>
+  type M = Array[Array[A]]
+  type V = Array[A]
+  implicit def classTagA: ClassTag[A]
+  implicit def V: VecBuilder[V, A] with VecMutable[V, A]
+  def M: Mat[M, A] = self
+  def from(m: FunM[A]): M = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
+  def nRows(m: M): Int = m.length
+  def nCols(m: M): Int = m(0).length
+  def apply(m: M, r: Int, c: Int): A = m(r)(c)
+  def update(m: M, r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
 }
 
-final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
-  val VA: VecBuilder[Array[A], A],
-  val scalar: Ring[A],
-  val eqA: Eq[A])
-    extends MatInRing[Array[Array[A]], A]
-    with MatVecProduct[Array[Array[A]], Array[A], A]
-    with MatMutable[Array[Array[A]], A] {
-  def from(m: FunM[A]): Array[Array[A]] = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
-  def nRows(m: Array[Array[A]]): Int = m.length
-  def nCols(m: Array[Array[A]]): Int = m(0).length
-  def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
+trait ArrayArrayMatVecInRing[@sp(Double, Long) A] extends Any
+    with ArrayArrayMatVec[A]
+    with MatVecInRing[Array[Array[A]], Array[A], A] {
+  implicit def V: VecInRing[V, A] with VecMutable[V, A]
   override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
   override def negate(m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.negate(m)
@@ -168,34 +166,32 @@ final class ArrayMatInRing[@sp(Double, Long) A: ClassTag](implicit
   override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
   override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
   override def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
-  def update(m: Array[Array[A]], r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
 }
 
-final class ArrayMatInField[@sp(Double, Long) A: ClassTag](implicit
-  val VA: VecBuilder[Array[A], A],
-  val scalar: Field[A],
-  val eqA: Eq[A])
-    extends MatInField[Array[Array[A]], A]
-    with MatVecProduct[Array[Array[A]], Array[A], A]
-    with MatMutable[Array[Array[A]], A] {
-  def from(m: FunM[A]): Array[Array[A]] = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
-  def nRows(m: Array[Array[A]]): Int = m.length
-  def nCols(m: Array[Array[A]]): Int = m(0).length
-  def apply(m: Array[Array[A]], r: Int, c: Int): A = m(r)(c)
-  override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
-  override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
-  override def negate(m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.negate(m)
-  override def timesl(a: A, m: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.timesl(a, m)
-  override def times(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.times(x, y)
-  override def timesl2(x: Array[A], y: Array[Array[A]]): Array[A] = ArrayArraySupport.timesl2(x, y)
-  override def timesr2(x: Array[Array[A]], y: Array[A]): Array[A] = ArrayArraySupport.timesr2(x, y)
-  def update(m: Array[Array[A]], r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
+trait ArrayArrayMatVecInField[@sp(Double, Long) A] extends Any
+    with ArrayArrayMatVecInRing[A]
+    with MatVecInField[Array[Array[A]], Array[A], A] {
+  implicit def V: VecInField[V, A] with VecMutable[V, A]
 }
 
 trait ArrayArrayInstances {
   import array._
-  implicit val ArrayMatDouble = new ArrayMatInField[Double] // TODO: field
-  implicit val ArrayMatRational = new ArrayMatInField[Rational]
-  implicit val ArrayMatLong = new ArrayMatInRing[Long]
-  implicit def ArrayMat[A: ClassTag: AdditiveMonoid: Eq]: MatBuilder[Array[Array[A]], A] = new ArrayMat[A]
+  implicit val ArrayArrayDouble = new ArrayArrayMatVecInField[Double] {
+    implicit val V = ArrayDouble
+    def classTagA = classTag[Double]
+    def scalar = Field[Double]
+    def eqA = Eq[Double]
+  }
+  implicit val ArrayArrayRational = new ArrayArrayMatVecInField[Rational] {
+    implicit val V = ArrayRational
+    def classTagA = classTag[Rational]
+    def scalar = Field[Rational]
+    def eqA = Eq[Rational]
+  }
+  implicit val ArrayArrayLong = new ArrayArrayMatVecInRing[Long] {
+    implicit val V = ArrayLong
+    def classTagA = classTag[Long]
+    def scalar = Ring[Long]
+    def eqA = Eq[Long]
+  }
 }

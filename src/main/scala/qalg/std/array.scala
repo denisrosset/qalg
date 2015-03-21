@@ -5,7 +5,7 @@ import scala.language.higherKinds
 
 import scala.{specialized => sp}
 
-import scala.reflect.ClassTag
+import scala.reflect.{classTag, ClassTag}
 
 import spire.algebra._
 import spire.math.Rational
@@ -49,43 +49,46 @@ object ArraySupport {
     y
   }
 }
-/*
-final class ArrayVec[@sp(Double, Long) A: ClassTag](implicit
-  val scalar: AdditiveMonoid[A],
-  val eqA: Eq[A]) extends VecBuilder[Array[A], A] {
-  def apply(v: Array[A], k: Int): A = v(k)
-  def length(v: Array[A]): Int = v.length
+
+trait ArrayVec[@sp(Double, Long) A] extends Any
+    with VecBuilder[Array[A], A]
+    with VecMutable[Array[A], A] {
+  implicit def classTagA: ClassTag[A]
+  type V = Array[A]
+  def V: Vec[V, A] = this
+  def apply(v: V, k: Int): A = v(k)
+  def length(v: V): Int = v.length
   def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
+  def update(v: V, k: Int, a: A): Unit = { v(k) = a }
 }
 
-final class ArrayVecModule[@sp(Double, Long) A: ClassTag](implicit
-  val scalar: Ring[A],
-  val eqA: Eq[A]) extends VecInRing[Array[A], A] {
-  def apply(v: Array[A], k: Int): A = v(k)
-  def length(v: Array[A]): Int = v.length
-  def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
+trait ArrayVecInRing[@sp(Double, Long) A] extends Any
+    with ArrayVec[A]
+    with VecInRing[Array[A], A] {
   override def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
   override def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
   override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
   override def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
 }
 
-final class ArrayVecVectorSpace[@sp(Double, Long) A: ClassTag](implicit
-  val scalar: Field[A],
-  val eqA: Eq[A]) extends VecInField[Array[A], A] {
-  def apply(v: Array[A], k: Int): A = v(k)
-  def length(v: Array[A]): Int = v.length
-  def from(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
-  override def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
-  override def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
-  override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
-  override def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
-}
+trait ArrayVecInField[@sp(Double, Long) A] extends Any
+    with ArrayVecInRing[A]
+    with VecInField[Array[A], A]
 
 trait ArrayInstances {
-  implicit val ArrayVecDouble = new ArrayVecVectorSpace[Double]
-  implicit val ArrayVecRational = new ArrayVecVectorSpace[Rational]
-  implicit val ArrayVecLong = new ArrayVecModule[Long]
-  implicit def ArrayVec[A: ClassTag: AdditiveMonoid: Eq]: VecBuilder[Array[A], A] = new ArrayVec[A]
+  implicit val ArrayDouble = new ArrayVecInField[Double] {
+    def classTagA = classTag[Double]
+    def eqA = Eq[Double]
+    def scalar = Field[Double]
+  }
+  implicit val ArrayRational = new ArrayVecInField[Rational] {
+    def classTagA = classTag[Rational]
+    def eqA = Eq[Rational]
+    def scalar = Field[Rational]
+  }
+  implicit val ArrayLong = new ArrayVecInRing[Long] {
+    def classTagA = classTag[Long]
+    def eqA = Eq[Long]
+    def scalar = Ring[Long]
+  }
 }
- */
