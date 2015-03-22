@@ -17,6 +17,7 @@ trait MatVecBuilder[M, V, @sp(Double, Long) A] extends Any with MatVec[M, V, A] 
 
 trait ConvertedMatVecBuilder[M, V, @sp(Double, Long) A, J] extends Any
     with ConvertedMatVec[M, V, A, J]
+    with ConvertedMatBuilder[M, A, J]
     with MatVecBuilder[M, V, A] {
   def source: MatVecBuilder[M, V, J]
   override def apply(m: M, rows: ::.type, c: Int): V = source(m, rows, c)

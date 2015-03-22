@@ -13,7 +13,7 @@ trait MatInField[MA, @sp(Double, Long) A] extends Any with MatInRing[MA, A] with
 }
 
 trait ConvertedMatInField[M, @sp(Double, Long) A, J] extends Any
-    with ConvertedMat[M, A, J]
+    with ConvertedMatInRing[M, A, J]
     with MatInField[M, A] {
   def source: MatInField[M, J]
 

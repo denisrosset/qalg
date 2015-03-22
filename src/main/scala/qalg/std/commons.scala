@@ -157,29 +157,80 @@ trait CommonsInstances {
   implicit val CommonsFractionField = new CommonsFractionField
   implicit val CommonsBigFractionField = new CommonsBigFractionField
 
-  implicit val CommonsFractionVec = new CommonsVec[Fraction] {
-    def classTagA = classTag[Fraction]
-    def eqA = CommonsFractionField
-    def scalar = CommonsFractionField
+  object native {
+    implicit val CommonsFractionVec = new CommonsVec[Fraction] {
+      def classTagA = classTag[Fraction]
+      def eqA = CommonsFractionField
+      def scalar = CommonsFractionField
+    }
+
+    implicit val CommonsBigFractionVec = new CommonsVec[BigFraction] {
+      def classTagA = classTag[BigFraction]
+      def eqA = CommonsBigFractionField
+      def scalar = CommonsBigFractionField
+    }
+
+    implicit val CommonsFractionMatVec = new CommonsMatVec[Fraction] {
+      def classTagA = classTag[Fraction]
+      def eqA = CommonsFractionField
+      def scalar = CommonsFractionField
+      def V = CommonsFractionVec
+    }
+
+    implicit val CommonsBigFractionMatVec = new CommonsMatVec[BigFraction] {
+      def classTagA = classTag[BigFraction]
+      def eqA = CommonsBigFractionField
+      def scalar = CommonsBigFractionField
+      def V = CommonsBigFractionVec
+    }
   }
 
-  implicit val CommonsBigFractionVec = new CommonsVec[BigFraction] {
-    def classTagA = classTag[BigFraction]
-    def eqA = CommonsBigFractionField
-    def scalar = CommonsBigFractionField
-  }
-
-  implicit val CommonsFractionMatVec = new CommonsMatVec[Fraction] {
-    def classTagA = classTag[Fraction]
-    def eqA = CommonsFractionField
-    def scalar = CommonsFractionField
-    def V = CommonsFractionVec
-  }
-
-  implicit val CommonsBigFractionMatVec = new CommonsMatVec[BigFraction] {
-    def classTagA = classTag[BigFraction]
-    def eqA = CommonsBigFractionField
-    def scalar = CommonsBigFractionField
-    def V = CommonsBigFractionVec
+  object converted {
+    implicit val CommonsBigFractionVec: VecInField[FieldVector[BigFraction], Rational] with VecMutable[FieldVector[BigFraction], Rational] =
+      new RationalConverted[BigFraction]
+          with ConvertedVecInField[FieldVector[BigFraction], Rational, BigFraction]
+          with ConvertedVecMutable[FieldVector[BigFraction], Rational, BigFraction] { self =>
+        def rationalFieldJ = CommonsBigFractionField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def V = self
+        def source: CommonsVec[BigFraction] = native.CommonsBigFractionVec
+      }
+    implicit val CommonsFractionVec: VecInField[FieldVector[Fraction], Rational] with VecMutable[FieldVector[Fraction], Rational] =
+      new RationalConverted[Fraction]
+          with ConvertedVecInField[FieldVector[Fraction], Rational, Fraction]
+          with ConvertedVecMutable[FieldVector[Fraction], Rational, Fraction] { self =>
+        def rationalFieldJ = CommonsFractionField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def V = self
+        def source: CommonsVec[Fraction] = native.CommonsFractionVec
+      }
+    implicit val CommonsBigFractionMatVec: MatVecInField[FieldMatrix[BigFraction], FieldVector[BigFraction], Rational] with MatVecMutable[FieldMatrix[BigFraction], FieldVector[BigFraction], Rational] =
+      new RationalConverted[BigFraction]
+          with ConvertedMatVecInField[FieldMatrix[BigFraction], FieldVector[BigFraction], Rational, BigFraction]
+          with ConvertedMatVecMutable[FieldMatrix[BigFraction], FieldVector[BigFraction], Rational, BigFraction] { self =>
+        def rationalFieldJ = CommonsBigFractionField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def M = self
+        def V = CommonsBigFractionVec
+        def source: CommonsMatVec[BigFraction] = native.CommonsBigFractionMatVec
+      }
+    implicit val CommonsFractionMatVec: MatVecInField[FieldMatrix[Fraction], FieldVector[Fraction], Rational] with MatVecMutable[FieldMatrix[Fraction], FieldVector[Fraction], Rational] =
+      new RationalConverted[Fraction]
+          with ConvertedMatVecInField[FieldMatrix[Fraction], FieldVector[Fraction], Rational, Fraction]
+          with ConvertedMatVecMutable[FieldMatrix[Fraction], FieldVector[Fraction], Rational, Fraction] { self =>
+        def rationalFieldJ = CommonsFractionField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def M = self
+        def V = CommonsFractionVec
+        def source: CommonsMatVec[Fraction] = native.CommonsFractionMatVec
+      }
   }
 }

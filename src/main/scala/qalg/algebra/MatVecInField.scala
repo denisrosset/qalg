@@ -15,6 +15,7 @@ trait MatVecInField[M, V, @sp(Double, Long) A] extends Any
 
 trait ConvertedMatVecInField[M, V, @sp(Double, Long) A, J] extends Any
     with ConvertedMatVecInRing[M, V, A, J]
+    with ConvertedMatInField[M, A, J]
     with MatVecInField[M, V, A] {
   def source: MatVecInField[M, V, J]
 }

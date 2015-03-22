@@ -13,7 +13,8 @@ trait MatVecMutable[M, V, @sp(Double, Long) A] extends Any
 }
 
 trait ConvertedMatVecMutable[M, V, @sp(Double, Long) A, J] extends Any
-    with MatVecMutable[M, V, A] {
+    with MatVecMutable[M, V, A]
+    with ConvertedMatMutable[M, A, J] {
   def source: MatVecMutable[M, V, J]
 }
 

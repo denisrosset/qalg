@@ -76,7 +76,7 @@ trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with M
 }
 
 trait ConvertedMatInRing[M, @sp(Double, Long) A, J] extends Any
-    with ConvertedMat[M, A, J]
+    with ConvertedMatBuilder[M, A, J]
     with MatInRing[M, A] {
   def source: MatInRing[M, J]
 
