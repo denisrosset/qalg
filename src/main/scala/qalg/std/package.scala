@@ -2,8 +2,8 @@ package com.faacets.qalg
 
 package object std {
   object array extends ArrayInstances
-  object arrayArray extends ArrayArrayInstances
+  object arrayarray extends ArrayArrayInstances
   object commons extends CommonsInstances
-  object jLinAlg extends JLinAlgInstances
-  object jScience extends JScienceInstances
+  object jlinalg extends JLinAlgInstances
+  object jscience extends JScienceInstances
 }

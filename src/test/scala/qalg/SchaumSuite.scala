@@ -88,8 +88,8 @@ class CommonsSchaumSuite extends SchaumSuite[FieldMatrix[Fraction], FieldVector[
 import org.jscience.mathematics.number.{Rational => JSRational}
 import org.jscience.mathematics.vector.{DenseVector => JSDenseVector, DenseMatrix => JSDenseMatrix}
 
-import std.jScience._
-import std.jScience.converted._
+import std.jscience._
+import std.jscience.converted._
 
 class JScienceSchaumSuite extends SchaumSuite[JSDenseMatrix[JSRational], JSDenseVector[JSRational]] {
   def M = MatVecInField[JSDenseMatrix[JSRational], JSDenseVector[JSRational], Rational]
@@ -98,8 +98,8 @@ class JScienceSchaumSuite extends SchaumSuite[JSDenseMatrix[JSRational], JSDense
 import org.jlinalg.{Vector => JLVector, Matrix => JLMatrix}
 import org.jlinalg.rational.{Rational => JLRational}
 
-import std.jLinAlg._
-import std.jLinAlg.converted._
+import std.jlinalg._
+import std.jlinalg.converted._
 
 class JLinAlgSchaumSuite extends SchaumSuite[JLMatrix[JLRational], JLVector[JLRational]] {
   def M = MatVecInField[JLMatrix[JLRational], JLVector[JLRational], Rational]

@@ -60,7 +60,7 @@ final class JScienceRationalField extends RationalField[JRational] {
   // Ring
   override def fromInt(n: Int): JRational = JRational.valueOf(n, 1L)
 
-  import jScience._
+  import jscience._
   import JScienceLargeIntegerRing.{toBigInt, fromBigInt}
 
   def numerator(x: JRational): BigInt = toBigInt(x.getDividend)
