@@ -1,20 +1,48 @@
 package com.faacets.qalg
 
-import mutable.{QVector => QVec, QMatrix => QMat}
 import org.scalatest.{FunSuite, NonImplicitAssertions}
 import spire.math.Rational
 import spire.syntax.all._
 import spire.std.seq._
 import spire.std.int._
 
+import algebra._
+import algos._
+
 /** LU examples taken from
   * http://www.johnloomis.org/ece538/notes/Matrix/ludcmp.html
   */
-class LinearAlgebraSuite extends FunSuite with NonImplicitAssertions {
-  test("Example 1") {
-    val a = QMat.rowMajor( (3,3),
-       4, -2, 1,
-      -3, -1, 4,
+trait LinearAlgebraSuite[M, V] extends FunSuite with NonImplicitAssertions {
+  implicit def M: MatVecInField[M, V, Rational]
+  implicit def V: VecInField[V, Rational] = M.V
+  test("Kron of [1, 2] and [3, 5]") {
+    val a = V.build(1, 2)
+    val b = V.build(3, 5)
+    assert((a |+| b) == V.build(3, 5, 6, 10))
+    assert(kron(a, b) == V.build(3, 5, 6, 10))
+    assert(reverseKron(b, a) == V.build(3, 5, 6, 10))
+  }
+  test("Kron of [1, 2; 3 5] and [1, 0; 0, 1]") {
+    val a = M.build(2, 2,
+      1, 2,
+      3, 5)
+    val b = M.build(2, 2,
+      1, 0,
+      0, 1);
+    val k = M.build(4, 4,
+      1, 0, 2, 0,
+      0, 1, 0, 2,
+      3, 0, 5, 0,
+      0, 3, 0, 5)
+    assert((a |+| b) == k)
+    assert(kron(a, b) == k)
+    assert(reverseKron(b, a) == k)
+  }
+  /*
+   test("Example 1") {
+   val a = QMat.rowMajor( (3,3),
+   4, -2, 1,
+   -3, -1, 4,
        1, -1, 3)
     val b = QVec(15, 8, 13)
     assert(a.solve(b) === QVec(2, -2, 3))
@@ -90,27 +118,5 @@ class LinearAlgebraSuite extends FunSuite with NonImplicitAssertions {
     ))
     assert(k2.sorted == List(0,1))
   }
-  test("Kron of [1, 2] and [3, 5]") {
-    val a = QVec(1, 2)
-    val b = QVec(3, 5)
-    assert((a |+| b) == QVec(3, 5, 6, 10))
-    assert(vecKron(a, b) == QVec(3, 5, 6, 10))
-    assert(vecReverseKron(b, a) == QVec(3, 5, 6, 10))
-  }
-  test("Kron of [1, 2; 3 5] and [1, 0; 0, 1]") {
-    val a = QMat.rowMajor((2, 2),
-      1, 2,
-      3, 5)
-    val b = QMat.rowMajor((2, 2),
-      1, 0,
-      0, 1);
-    val k = QMat.rowMajor((4, 4),
-      1, 0, 2, 0,
-      0, 1, 0, 2,
-      3, 0, 5, 0,
-      0, 3, 0, 5)
-    assert((a |+| b) == k)
-    assert(kron(a, b) == k)
-    assert(reverseKron(b, a) == k)
-  }
+  */
 }
