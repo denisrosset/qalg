@@ -34,6 +34,11 @@ trait VecMutable[V, @sp(Double, Long) A] extends Any { self =>
     update(v, AtRange1(0 until V.length(v)), v1)
 }
 
-object VecMutable {
-  implicit def fromMatVecMutable[M, V, @sp(Double, Long) A](implicit MV: MatVecMutable[M, V, A]): VecMutable[V, A] = MV.V
+trait ConvertedVecMutable[V, @sp(Double, Long) A, J] extends Any
+    with Converted[A, J]
+    with VecMutable[V, A] {
+  def source: VecMutable[V, J]
+  def update(v: V, k: Int, a: A): Unit = source.update(v, k, aToJ(a))
+  override def update(v: V, at: At1, a: A): Unit = source.update(v, at, aToJ(a))
+  override def update(v: V, at: ::.type, a: A): Unit = source.update(v, at, aToJ(a))
 }

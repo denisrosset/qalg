@@ -7,10 +7,16 @@ import spire.syntax.eq._
 import spire.syntax.cfor._
 import util._
 
-trait VecInField[VA, @sp(Double, Long) A] extends Any with VecInRing[VA, A] with VectorSpace[VA, A] {
+trait VecInField[V, @sp(Double, Long) A] extends Any with VecInRing[V, A] with VectorSpace[V, A] {
   implicit def scalar: Field[A]
 }
 
 object VecInField {
-  implicit def fromMatVecInField[M, V, @sp(Double, Long) A](implicit MV: MatVecInField[M, V, A]): Vec[V, A] = MV.V
+  def apply[V, @sp(Double, Long) A](implicit V: Vec[V, A]): Vec[V, A] = V
+}
+
+trait ConvertedVecInField[V, @sp(Double, Long) A, J] extends Any
+    with ConvertedVecInRing[V, A, J]
+    with VecInField[V, A] {
+  def source: VecInField[V, J]
 }

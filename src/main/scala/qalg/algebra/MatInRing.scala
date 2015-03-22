@@ -9,11 +9,11 @@ import spire.syntax.eq._
 import spire.syntax.ring._
 import util._
 
-trait MatInRing[MA, @sp(Double, Long) A] extends Any with MatBuilder[MA, A] with Module[MA, A] with MultiplicativeSemigroup[MA] with Monoid[MA] { self =>
+trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with Module[M, A] with MultiplicativeSemigroup[M] with Monoid[M] { self =>
   implicit def scalar: Ring[A]
-  def zero: MA = from(FunM.empty[A])
-  def id: MA = from(FunM.fill[A](1, 1)(scalar.one))
-  def op(x: MA, y: MA): MA = from(new FunM[A] {
+  def zero: M = from(FunM.empty[A])
+  def id: M = from(FunM.fill[A](1, 1)(scalar.one))
+  def op(x: M, y: M): M = from(new FunM[A] {
     val nrx = self.nRows(x)
     val ncx = self.nCols(x)
     val nry = self.nRows(y)
@@ -28,7 +28,7 @@ trait MatInRing[MA, @sp(Double, Long) A] extends Any with MatBuilder[MA, A] with
       self.apply(x, rx, cx) * self.apply(y, ry, cy)
     }
   })
-  def plus(x: MA, y: MA): MA = {
+  def plus(x: M, y: M): M = {
     require(nRows(x) == nRows(y))
     require(nCols(x) == nCols(y))
     from(new FunM[A] {
@@ -37,7 +37,7 @@ trait MatInRing[MA, @sp(Double, Long) A] extends Any with MatBuilder[MA, A] with
       def f(r: Int, c: Int): A = self.apply(x, r, c) + self.apply(y, r, c)
     })
   }
-  override def minus(x: MA, y: MA): MA = {
+  override def minus(x: M, y: M): M = {
     require(nRows(x) == nRows(y))
     require(nCols(x) == nCols(y))
     from(new FunM[A] {
@@ -46,7 +46,7 @@ trait MatInRing[MA, @sp(Double, Long) A] extends Any with MatBuilder[MA, A] with
       def f(r: Int, c: Int): A = self.apply(x, r, c) - self.apply(y, r, c)
     })
   }
-  def times(x: MA, y: MA): MA = {
+  def times(x: M, y: M): M = {
     val nK = nCols(x)
     require(nK == nRows(y))
     from(new FunM[A] {
@@ -61,16 +61,31 @@ trait MatInRing[MA, @sp(Double, Long) A] extends Any with MatBuilder[MA, A] with
       }
     })
   }
-  def negate(m: MA): MA = {
+  def negate(m: M): M = {
     from(new FunM[A] {
       def nR = self.nRows(m)
       def nC = self.nCols(m)
       def f(r: Int, c: Int): A = -self.apply(m, r, c)
     })
   }
-  def timesl(a: A, m: MA): MA = from(new FunM[A] {
+  def timesl(a: A, m: M): M = from(new FunM[A] {
     def nR = self.nRows(m)
     def nC = self.nCols(m)
     def f(r: Int, c: Int): A = a * self.apply(m, r, c)
   })
+}
+
+trait ConvertedMatInRing[M, @sp(Double, Long) A, J] extends Any
+    with ConvertedMat[M, A, J]
+    with MatInRing[M, A] {
+  def source: MatInRing[M, J]
+
+  override def zero: M = source.zero
+  override def id: M = source.id
+  override def op(x: M, y: M): M = source.op(x, y)
+  override def plus(x: M, y: M): M = source.plus(x, y)
+  override def minus(x: M, y: M): M = source.minus(x, y)
+  override def times(x: M, y: M): M = source.times(x, y)
+  override def negate(m: M): M = source.negate(m)
+  override def timesl(a: A, m: M): M = source.timesl(aToJ(a), m)
 }

@@ -102,3 +102,18 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
 object MatMutable {
   def apply[M, @sp(Double, Long) A](implicit M: MatMutable[M, A]): MatMutable[M, A] = M
 }
+
+trait ConvertedMatMutable[M, @sp(Double, Long) A, J] extends Any
+    with Converted[A, J]
+    with MatMutable[M, A] {
+  def source: MatMutable[M, J]
+  def update(m: M, r: Int, c: Int, a: A): Unit = source.update(m, r, c, aToJ(a))
+  override def update(m: M, rows: At1, c: Int, a: A): Unit = source.update(m, rows, c, aToJ(a))
+  override def update(m: M, r: Int, cols: At1, a: A): Unit = source.update(m, r, cols, aToJ(a))
+  override def update(m: M, rows: ::.type, c: Int, a: A): Unit = source.update(m, rows, c, aToJ(a))
+  override def update(m: M, r: Int, cols: ::.type, a: A): Unit = source.update(m, r, cols, aToJ(a))
+  override def update(m: M, rows: At1, cols: At1, a: A): Unit = source.update(m, rows, cols, aToJ(a))
+  override def update(m: M, rows: ::.type, cols: ::.type, a: A): Unit = source.update(m, rows, cols, aToJ(a))
+  override def update(m: M, rows: ::.type, cols: At1, a: A): Unit = source.update(m, rows, cols, aToJ(a))
+  override def update(m: M, rows: At1, cols: ::.type, a: A): Unit = source.update(m, rows, cols, aToJ(a))
+}
