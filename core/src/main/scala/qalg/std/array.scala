@@ -1,10 +1,7 @@
 package com.faacets.qalg
 package std
 
-import scala.language.higherKinds
-
 import scala.{specialized => sp}
-
 import scala.reflect.{classTag, ClassTag}
 
 import spire.algebra._

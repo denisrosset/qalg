@@ -8,7 +8,6 @@ import spire.syntax.cfor._
 import util._
 
 trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
-  implicit def scalar: AdditiveMonoid[A]
   def fromFunV(v: FunV[A]): V
   def from[V1](v1: V1)(implicit V1: Vec[V1, A]): V = fromFunV(V1.view(v1, ::))
   def apply(v: V, at: At1): V = fromFunV(view(v, at))

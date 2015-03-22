@@ -6,4 +6,5 @@ package object std {
   object commons extends CommonsInstances
   object jlinalg extends JLinAlgInstances
   object jscience extends JScienceInstances
+  object seq extends SeqInstances
 }
