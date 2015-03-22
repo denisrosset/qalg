@@ -19,6 +19,12 @@ trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
   def apply(m: M, rows: At1, cols: ::.type): M = fromFunM(view(m, rows, cols))
 
   def t(m: M): M = fromFunM(viewT(m))
+
+  def build(nRows: Int, nCols: Int, elements: A*): M = fromFunM(new FunM[A] {
+    def nR = nRows
+    def nC = nCols
+    def f(r: Int, c: Int): A = elements(r * nCols + c)
+  })
 }
 
 object MatBuilder {
@@ -35,6 +41,8 @@ trait ConvertedMatBuilder[M, @sp(Double, Long) A, J] extends Any
     def nC: Int = m.nC
     def f(r: Int, c: Int): J = aToJ(m.f(r, c))
   })
+
+  def from[M1](m: M1)(implicit M1: Mat[M1, A]): M = fromFunM(M1.view(m, ::, ::))
 
   override def apply(m: M, rows: At1, cols: At1): M = source(m, rows, cols)
   override def apply(m: M, rows: ::.type, cols: ::.type): M = source(m, rows, cols)

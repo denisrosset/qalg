@@ -44,6 +44,14 @@ trait VecInRing[V, @sp(Double, Long) A] extends Any with VecBuilder[V, A] with M
     def len = self.length(v)
     def f(k: Int): A = a * self.apply(v, k)
   })
+  def dot(x: V, y: V): A = {
+    require(length(x) == length(y))
+    var acc = scalar.zero
+    cforRange(0 until length(x)) { k =>
+      acc += apply(x, k) * apply(y, k)
+    }
+    acc
+  }
 }
 
 object VecInRing {

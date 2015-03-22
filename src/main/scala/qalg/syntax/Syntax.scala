@@ -11,8 +11,9 @@ trait LinSyntax {
 }
 
 trait VecSyntax extends LinSyntax {
-  implicit def vecSyntax[VA, A](v: VA)(implicit ev: Vec[VA, A]): VecOps[VA, A] = new VecOps(v)
-  implicit def vecMutableSyntax[VA, A](v: VA)(implicit ev: VecMutable[VA, A]): VecMutableOps[VA, A] = new VecMutableOps(v)
+  implicit def vecSyntax[V, A](v: V)(implicit ev: Vec[V, A]): VecOps[V, A] = new VecOps(v)
+  implicit def vecMutableSyntax[V, A](v: V)(implicit ev: VecMutable[V, A]): VecMutableOps[V, A] = new VecMutableOps(v)
+  implicit def vecInRingSyntax[V, A](v: V)(implicit ev: VecInRing[V, A]): VecInRingOps[V, A] = new VecInRingOps[V, A](v)
 }
 
 trait MatSyntax extends LinSyntax {

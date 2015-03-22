@@ -28,6 +28,10 @@ final class VecOps[V, A](lhs: V)(implicit ev: Vec[V, A]) {
   def toVec[V1](implicit T: ToVec[V, V1]): V1 = T.toVec(lhs)
 }
 
+final class VecInRingOps[V, A](lhs: V)(implicit ev: VecInRing[V, A]) {
+  def dot(rhs: V): A = ev.dot(lhs, rhs)
+}
+
 // all operations in VecBuilder have been incorporatedin to VecOps
 
 final class VecMutableOps[V, A](lhs: V)(implicit ev: VecMutable[V, A]) {
