@@ -13,6 +13,10 @@ trait MatVecInField[M, V, @sp(Double, Long) A] extends Any
   implicit def V: VecInField[V, A]
 }
 
+object MatVecInField {
+  def apply[M, V, @sp(Double, Long) A](implicit MV: MatVecInField[M, V, A]): MatVecInField[M, V, A] = MV
+}
+
 trait ConvertedMatVecInField[M, V, @sp(Double, Long) A, J] extends Any
     with ConvertedMatVecInRing[M, V, A, J]
     with ConvertedMatInField[M, A, J]

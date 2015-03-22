@@ -15,6 +15,10 @@ trait MatVecBuilder[M, V, @sp(Double, Long) A] extends Any with MatVec[M, V, A] 
   def apply(m: M, r: Int, cols: At1): V = V.fromFunV(view(m, r, cols))
 }
 
+object MatVecBuilder {
+  def apply[M, V, @sp(Double, Long) A](implicit MV: MatVecBuilder[M, V, A]): MatVecBuilder[M, V, A] = MV
+}
+
 trait ConvertedMatVecBuilder[M, V, @sp(Double, Long) A, J] extends Any
     with ConvertedMatVec[M, V, A, J]
     with ConvertedMatBuilder[M, A, J]
