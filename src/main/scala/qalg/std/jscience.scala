@@ -16,7 +16,10 @@ import org.jscience.mathematics.structure.{Field => JField}
 
 import algebra._
 
-final class JScienceFloat64Field extends Field[Float64] with Order[Float64] {
+final class JScienceFloat64Field extends DoubleField[Float64] {
+  def toDouble(j: Float64): Double = j.doubleValue
+  override def fromDouble(a: Double): Float64 = Float64.valueOf(a)
+
   // Order
   override def eqv(x: Float64, y: Float64): Boolean = (x == y)
   def compare(x: Float64, y: Float64): Int = x.compareTo(y)
@@ -35,15 +38,6 @@ final class JScienceFloat64Field extends Field[Float64] with Order[Float64] {
 
   // Ring
   override def fromInt(n: Int): Float64 = Float64.valueOf(n)
-
-  // EuclideanRing
-
-  def gcd(x: Float64, y: Float64): Float64 =
-    Float64.valueOf(Field[Double].gcd(x.doubleValue, y.doubleValue))
-  def mod(x: Float64, y: Float64): Float64 =
-    Float64.valueOf(Field[Double].mod(x.doubleValue, y.doubleValue))
-  def quot(x: Float64, y: Float64): Float64 =
-    Float64.valueOf(Field[Double].mod(x.doubleValue, y.doubleValue))
 }
 
 final class JScienceRationalField extends RationalField[JRational] {
@@ -78,7 +72,7 @@ final class JScienceRationalField extends RationalField[JRational] {
 final class JScienceLargeIntegerRing extends EuclideanRing[LargeInteger] with Order[LargeInteger] {
   def toBigInt(x: LargeInteger): BigInt = {
     val nBits = x.bitLength
-    val bytes = new Array[Byte]((nBits + 7) / 8)
+    val bytes = new Array[Byte](scala.math.max(1, (nBits + 7) / 8))
     val written = x.toByteArray(bytes, 0)
     BigInt(new java.math.BigInteger(bytes))
   }
@@ -175,19 +169,62 @@ trait JScienceInstances {
   implicit val JScienceLargeIntegerRing = new JScienceLargeIntegerRing
   implicit val JScienceRationalField = new JScienceRationalField
 
-  implicit val JScienceRationalDenseVec = new JScienceDenseVectorVec[JRational] {
-    def classTagA = classTag[JRational]
-    def eqA = JScienceRationalField
-    def scalar = JScienceRationalField
+  object native {
+    implicit val JScienceRationalDenseVec = new JScienceDenseVectorVec[JRational] {
+      def classTagA = classTag[JRational]
+      def eqA = JScienceRationalField
+      def scalar = JScienceRationalField
+    }
+
+    implicit val JScienceRationalDenseMatVec = new JScienceDenseMatrixMatVec[JRational] {
+      def V = JScienceRationalDenseVec
+      def classTagA = classTag[JRational]
+      def eqA = JScienceRationalField
+      def scalar = JScienceRationalField
+    }
+
+    implicit val JScienceFloat64Vec = new JScienceFloat64Vec
+    implicit val JScienceFloat64MatVec = new JScienceFloat64MatVec
   }
 
-  implicit val JScienceRationalDenseMatVec = new JScienceDenseMatrixMatVec[JRational] {
-    def V = JScienceRationalDenseVec
-    def classTagA = classTag[JRational]
-    def eqA = JScienceRationalField
-    def scalar = JScienceRationalField
+  object converted {
+    implicit val JScienceRationalDenseVec: VecInField[JDenseVector[JRational], Rational] =
+      new RationalConverted[JRational]
+          with ConvertedVecInField[JDenseVector[JRational], Rational, JRational] { self =>
+        def rationalFieldJ = JScienceRationalField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def source: JScienceDenseVectorVec[JRational] = native.JScienceRationalDenseVec
+      }
+    implicit val JScienceRationalDenseMatVec: MatVecInField[JDenseMatrix[JRational], JDenseVector[JRational], Rational] =
+      new RationalConverted[JRational]
+          with ConvertedMatVecInField[JDenseMatrix[JRational], JDenseVector[JRational], Rational, JRational] { self =>
+        def rationalFieldJ = JScienceRationalField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def V = JScienceRationalDenseVec
+        def source: JScienceDenseMatrixMatVec[JRational] = native.JScienceRationalDenseMatVec
+      }
+    implicit val JScienceFloat64Vec: VecInField[Float64Vector, Double] =
+      new DoubleConverted[Float64]
+          with ConvertedVecInField[Float64Vector, Double, Float64] {
+        def doubleFieldJ = JScienceFloat64Field
+        def classTagA = classTag[Double]
+        def eqA = Eq[Double]
+        def scalar = Field[Double]
+        def source = native.JScienceFloat64Vec
+      }
+    implicit val JScienceFloat64MatVec: MatVecInField[Float64Matrix, Float64Vector, Double] =
+      new DoubleConverted[Float64]
+          with ConvertedMatVecInField[Float64Matrix, Float64Vector, Double, Float64] {
+        def doubleFieldJ = JScienceFloat64Field
+        def classTagA = classTag[Double]
+        def eqA = Eq[Double]
+        def scalar = Field[Double]
+        def V = JScienceFloat64Vec
+        def source = native.JScienceFloat64MatVec
+      }
   }
-
-  implicit val JScienceFloat64Vec = new JScienceFloat64Vec
-  implicit val JScienceFloat64MatVec = new JScienceFloat64Vec
 }

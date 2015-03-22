@@ -16,3 +16,10 @@ trait RationalConverted[J] extends Any
   def aToJ(a: Rational): J = rationalFieldJ.fromRational(a)
   def jToA(j: J): Rational = rationalFieldJ.toRational(j)
 }
+
+trait DoubleConverted[J] extends Any
+    with Converted[Double, J] {
+  implicit def doubleFieldJ: DoubleField[J]
+  def aToJ(a: Double): J = doubleFieldJ.fromDouble(a)
+  def jToA(j: J): Double = doubleFieldJ.toDouble(j)
+}

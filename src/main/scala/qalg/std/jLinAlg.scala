@@ -42,7 +42,10 @@ final class JLinAlgRationalField extends RationalField[JRational] {
     JRational.FACTORY.get(numerator.bigInteger, denominator.bigInteger, true)
 }
 
-final class JLinAlgDoubleWrapperField extends Field[DoubleWrapper] with Order[DoubleWrapper] {
+final class JLinAlgDoubleWrapperField extends DoubleField[DoubleWrapper] {
+  override def fromDouble(a: Double) = DoubleWrapper.FACTORY.get(a)
+  def toDouble(j: DoubleWrapper) = j.doubleValue
+
   // Order
   override def eqv(x: DoubleWrapper, y: DoubleWrapper): Boolean = (x == y)
   def compare(x: DoubleWrapper, y: DoubleWrapper): Int = x.compareTo(y)
@@ -61,15 +64,6 @@ final class JLinAlgDoubleWrapperField extends Field[DoubleWrapper] with Order[Do
 
   // Ring
   override def fromInt(n: Int): DoubleWrapper = DoubleWrapper.FACTORY.get(n)
-
-  // EuclideanRing
-  
-  def gcd(x: DoubleWrapper, y: DoubleWrapper): DoubleWrapper =
-    DoubleWrapper.FACTORY.get(Field[Double].gcd(x.getValue, y.getValue))
-  def mod(x: DoubleWrapper, y: DoubleWrapper): DoubleWrapper =
-    DoubleWrapper.FACTORY.get(Field[Double].mod(x.getValue, y.getValue))
-  def quot(x: DoubleWrapper, y: DoubleWrapper): DoubleWrapper =
-    DoubleWrapper.FACTORY.get(Field[Double].mod(x.getValue, y.getValue))
 }
 
 trait JLinAlgVec[A <: IRingElement[A]] extends Any
@@ -113,27 +107,77 @@ trait JLinAlgMatVec[A <: IRingElement[A]] extends Any
 
 trait JLinAlgInstances {
   implicit val JLinAlgRationalField = new JLinAlgRationalField
-  implicit val JLinAlgRationalVec = new JLinAlgVec[JRational] {
-    def classTagA = classTag[JRational]
-    def eqA = JLinAlgRationalField
-    def scalar = JLinAlgRationalField
-  }
-  implicit val JLinALgRationalMatVec = new JLinAlgMatVec[JRational] {
-    def V = JLinAlgRationalVec
-    def classTagA = classTag[JRational]
-    def eqA = JLinAlgRationalField
-    def scalar = JLinAlgRationalField
-  }
   implicit val JLinAlgDoubleWrapperField = new JLinAlgDoubleWrapperField
-  implicit val JLinAlgDoubleWrapperVec = new JLinAlgVec[DoubleWrapper] {
-    def classTagA = classTag[DoubleWrapper]
-    def eqA = JLinAlgDoubleWrapperField
-    def scalar = JLinAlgDoubleWrapperField
+  object native {
+    implicit val JLinAlgRationalVec = new JLinAlgVec[JRational] {
+      def classTagA = classTag[JRational]
+      def eqA = JLinAlgRationalField
+      def scalar = JLinAlgRationalField
+    }
+    implicit val JLinAlgRationalMatVec = new JLinAlgMatVec[JRational] {
+      def V = JLinAlgRationalVec
+      def classTagA = classTag[JRational]
+      def eqA = JLinAlgRationalField
+      def scalar = JLinAlgRationalField
+    }
+    implicit val JLinAlgDoubleWrapperVec = new JLinAlgVec[DoubleWrapper] {
+      def classTagA = classTag[DoubleWrapper]
+      def eqA = JLinAlgDoubleWrapperField
+      def scalar = JLinAlgDoubleWrapperField
+    }
+    implicit val JLinAlgDoubleWrapperMatVec = new JLinAlgMatVec[DoubleWrapper] {
+      def V = JLinAlgDoubleWrapperVec
+      def classTagA = classTag[DoubleWrapper]
+      def eqA = JLinAlgDoubleWrapperField
+      def scalar = JLinAlgDoubleWrapperField
+    }
   }
-  implicit val JLinAlgDoubleWrapperMatVec = new JLinAlgMatVec[DoubleWrapper] {
-    def V = JLinAlgDoubleWrapperVec
-    def classTagA = classTag[DoubleWrapper]
-    def eqA = JLinAlgDoubleWrapperField
-    def scalar = JLinAlgDoubleWrapperField
+  object converted {
+    implicit val JLinAlgRationalVec: VecInField[JVector[JRational], Rational] with VecMutable[JVector[JRational], Rational] =
+      new RationalConverted[JRational]
+          with ConvertedVecInField[JVector[JRational], Rational, JRational]
+          with ConvertedVecMutable[JVector[JRational], Rational, JRational] { self =>
+        def rationalFieldJ = JLinAlgRationalField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def V = self
+        def source = native.JLinAlgRationalVec
+      }
+    implicit val JLinAlgRationalMatVec: MatVecInField[JMatrix[JRational], JVector[JRational], Rational] with MatVecMutable[JMatrix[JRational], JVector[JRational], Rational] =
+      new RationalConverted[JRational]
+          with ConvertedMatVecInField[JMatrix[JRational], JVector[JRational], Rational, JRational]
+          with ConvertedMatVecMutable[JMatrix[JRational], JVector[JRational], Rational, JRational] { self =>
+        def rationalFieldJ = JLinAlgRationalField
+        def classTagA = classTag[Rational]
+        def eqA = Eq[Rational]
+        def scalar = Field[Rational]
+        def M = self
+        def V = JLinAlgRationalVec
+        def source = native.JLinAlgRationalMatVec
+      }
+    implicit val JLinAlgDoubleVec: VecInField[JVector[DoubleWrapper], Double] with VecMutable[JVector[DoubleWrapper], Double] =
+      new DoubleConverted[DoubleWrapper]
+          with ConvertedVecInField[JVector[DoubleWrapper], Double, DoubleWrapper]
+          with ConvertedVecMutable[JVector[DoubleWrapper], Double, DoubleWrapper] { self =>
+        def doubleFieldJ = JLinAlgDoubleWrapperField
+        def classTagA = classTag[Double]
+        def eqA = Eq[Double]
+        def scalar = Field[Double]
+        def V = self
+        def source = native.JLinAlgDoubleWrapperVec
+      }
+    implicit val JLinAlgDoubleMatVec: MatVecInField[JMatrix[DoubleWrapper], JVector[DoubleWrapper], Double] with MatVecMutable[JMatrix[DoubleWrapper], JVector[DoubleWrapper], Double] =
+      new DoubleConverted[DoubleWrapper]
+          with ConvertedMatVecInField[JMatrix[DoubleWrapper], JVector[DoubleWrapper], Double, DoubleWrapper]
+          with ConvertedMatVecMutable[JMatrix[DoubleWrapper], JVector[DoubleWrapper], Double, DoubleWrapper] { self => 
+        def doubleFieldJ = JLinAlgDoubleWrapperField
+        def classTagA = classTag[Double]
+        def eqA = Eq[Double]
+        def scalar = Field[Double]
+        def M = self
+        def V = JLinAlgDoubleVec
+        def source = native.JLinAlgDoubleWrapperMatVec
+      }
   }
 }
