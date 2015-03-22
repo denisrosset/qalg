@@ -47,7 +47,7 @@ trait DenseVec[@sp(Double, Long) A] extends Any
 }
 
 trait DenseVecInRing[@sp(Double, Long) A] extends Any with DenseVec[A] with VecInRing[DenseV[A], A] {
-  def from(v: FunV[A]): DenseV[A] = new DenseV(v.len, Array.tabulate(v.len)(k => v.f(k)))
+  def fromFunV(v: FunV[A]): DenseV[A] = new DenseV(v.len, Array.tabulate(v.len)(k => v.f(k)))
   override def negate(v: DenseV[A]): DenseV[A] = fromArray(std.ArraySupport.negate(v.array))
   override def plus(x: DenseV[A], y: DenseV[A]): DenseV[A] =
     fromArray(std.ArraySupport.plus(x.array, y.array))

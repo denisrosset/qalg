@@ -115,7 +115,7 @@ final class JScienceFloat64Vec(implicit val eqA: Eq[Float64], val scalar: Field[
   override def minus(x: V, y: V): V = x.minus(y)
   override def negate(v: V): V = v.opposite
   override def timesl(a: Float64, v: V): V = v.times(a)
-  def from(v: FunV[Float64]): V = Float64Vector.valueOf(new java.util.AbstractList[Float64] {
+  def fromFunV(v: FunV[Float64]): V = Float64Vector.valueOf(new java.util.AbstractList[Float64] {
     def get(k: Int) = v.f(k)
     def size = v.len
   })
@@ -132,7 +132,7 @@ final class JScienceFloat64MatVec(implicit val eqA: Eq[Float64], val scalar: Fie
   override def minus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.minus(y)
   override def negate(v: Float64Matrix): Float64Matrix = v.opposite
   override def timesl(a: Float64, v: Float64Matrix): Float64Matrix = v.times(a)
-  def from(m: FunM[Float64]): Float64Matrix = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c).doubleValue))
+  def fromFunM(m: FunM[Float64]): Float64Matrix = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c).doubleValue))
   override def times(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.times(y)
 }
 
@@ -142,7 +142,7 @@ trait JScienceDenseVectorVec[A <: JField[A]] extends Any
   implicit def classTagA: ClassTag[A]
   def apply(v: V, k: Int): A = v.get(k)
   def length(v: V): Int = v.getDimension
-  def from(v: FunV[A]): JDenseVector[A] = JDenseVector.valueOf(new java.util.AbstractList[A] {
+  def fromFunV(v: FunV[A]): JDenseVector[A] = JDenseVector.valueOf(new java.util.AbstractList[A] {
     def get(k: Int) = v.f(k)
     def size = v.len
   })
@@ -167,7 +167,7 @@ trait JScienceDenseMatrixMatVec[A <: JField[A]] extends Any
   override def timesl(a: A, m: M): M = m.times(a)
   override def times(x: M, y: M): M = x.times(y)
   override def t(m: M): M = m.transpose
-  def from(m: FunM[A]): M = JDenseMatrix.valueOf(Array.tabulate[A](m.nR, m.nC)( (r, c) => m.f(r, c)))
+  def fromFunM(m: FunM[A]): M = JDenseMatrix.valueOf(Array.tabulate[A](m.nR, m.nC)( (r, c) => m.f(r, c)))
 }
 
 trait JScienceInstances {

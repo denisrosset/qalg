@@ -25,7 +25,7 @@ final class CommonsRealVec
   def V: Vec[V, A] = this
   def length(v: V): Int = v.getDimension
   def apply(v: V, k: Int): A = v.getEntry(k)
-  def from(v: FunV[A]): V = MatrixUtils.createRealVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def fromFunV(v: FunV[A]): V = MatrixUtils.createRealVector(Array.tabulate[A](v.len) { k => v.f(k) })
   def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
@@ -47,7 +47,7 @@ final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMuta
   def nCols(m: M): Int = m.getColumnDimension
   def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
   def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
-  def from(m: FunM[A]): M = MatrixUtils.createRealMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
+  def fromFunM(m: FunM[A]): M = MatrixUtils.createRealMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
   override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))
@@ -120,7 +120,7 @@ trait CommonsVec[A <: FieldElement[A]] extends Any
   def V: Vec[V, A] = self
   def length(v: V): Int = v.getDimension
   def apply(v: V, k: Int): A = v.getEntry(k)
-  def from(v: FunV[A]): V = MatrixUtils.createFieldVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def fromFunV(v: FunV[A]): V = MatrixUtils.createFieldVector(Array.tabulate[A](v.len) { k => v.f(k) })
   def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
@@ -140,7 +140,7 @@ trait CommonsMatVec[A <: FieldElement[A]] extends Any
   def nCols(m: M): Int = m.getColumnDimension
   def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
   def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
-  def from(m: FunM[A]): M = MatrixUtils.createFieldMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
+  def fromFunM(m: FunM[A]): M = MatrixUtils.createFieldMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
   override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))

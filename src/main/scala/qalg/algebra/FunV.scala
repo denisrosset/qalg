@@ -37,5 +37,5 @@ object FunV {
 class FunVec[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eqA: Eq[A]) extends VecBuilder[FunV[A], A] {
   def length(v: FunV[A]): Int = v.len
   def apply(v: FunV[A], k: Int): A = v.f(k)
-  def from(v: FunV[A]): FunV[A] = v
+  def fromFunV(v: FunV[A]): FunV[A] = v
 }

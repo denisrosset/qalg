@@ -57,5 +57,5 @@ class FunMat[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eq
   def nRows(m: FunM[A]): Int = m.nR
   def nCols(m: FunM[A]): Int = m.nC
   def apply(m: FunM[A], r: Int, c: Int): A = m.f(r, c)
-  def from(m: FunM[A]): FunM[A] = m
+  def fromFunM(m: FunM[A]): FunM[A] = m
 }

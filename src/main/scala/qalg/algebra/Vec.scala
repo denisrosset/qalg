@@ -19,12 +19,12 @@ trait Vec[V, @sp(Double, Long) A] extends Any with Lin[V, A] { self =>
     def length: Int = self.length(v)
     def apply(k: Int): A = self.apply(v, k)
   }
-  def rowMat[M](v: V)(implicit M: MatBuilder[M, A]): M = M.from(new FunM[A] {
+  def rowMat[M](v: V)(implicit M: MatBuilder[M, A]): M = M.fromFunM(new FunM[A] {
     def nR: Int = 1
     def nC: Int = self.length(v)
     def f(r: Int, c: Int): A = self.apply(v, c)
   })
-  def colMat[M](v: V)(implicit M: MatBuilder[M, A]): M = M.from(new FunM[A] {
+  def colMat[M](v: V)(implicit M: MatBuilder[M, A]): M = M.fromFunM(new FunM[A] {
     def nR: Int = self.length(v)
     def nC: Int = 1
     def f(r: Int, c: Int): A = self.apply(v, r)

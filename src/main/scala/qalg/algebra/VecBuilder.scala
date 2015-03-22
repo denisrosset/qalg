@@ -9,9 +9,9 @@ import util._
 
 trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
   implicit def scalar: AdditiveMonoid[A]
-  def from(v: FunV[A]): V
-  def apply(v: V, at: At1): V = from(view(v, at))
-  def apply(v: V, at: ::.type): V = from(view(v, at))
+  def fromFunV(v: FunV[A]): V
+  def apply(v: V, at: At1): V = fromFunV(view(v, at))
+  def apply(v: V, at: ::.type): V = fromFunV(view(v, at))
 }
 
 object VecBuilder {
@@ -23,7 +23,7 @@ trait ConvertedVecBuilder[V, @sp(Double, Long) A, J] extends Any
     with VecBuilder[V, A] {
   def source: VecBuilder[V, J]
 
-  def from(v: FunV[A]): V = source.from(new FunV[J] {
+  def fromFunV(v: FunV[A]): V = source.fromFunV(new FunV[J] {
     def len: Int = v.len
     def f(k: Int): J = aToJ(v.f(k))
   })

@@ -11,14 +11,14 @@ import util._
 trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
   implicit def scalar: AdditiveMonoid[A]
 
-  def from(m: FunM[A]): M
+  def fromFunM(m: FunM[A]): M
 
-  def apply(m: M, rows: At1, cols: At1): M = from(view(m, rows, cols))
+  def apply(m: M, rows: At1, cols: At1): M = fromFunM(view(m, rows, cols))
   def apply(m: M, rows: ::.type, cols: ::.type): M = m
-  def apply(m: M, rows: ::.type, cols: At1): M = from(view(m, rows, cols))
-  def apply(m: M, rows: At1, cols: ::.type): M = from(view(m, rows, cols))
+  def apply(m: M, rows: ::.type, cols: At1): M = fromFunM(view(m, rows, cols))
+  def apply(m: M, rows: At1, cols: ::.type): M = fromFunM(view(m, rows, cols))
 
-  def t(m: M): M = from(viewT(m))
+  def t(m: M): M = fromFunM(viewT(m))
 }
 
 object MatBuilder {
@@ -30,7 +30,7 @@ trait ConvertedMatBuilder[M, @sp(Double, Long) A, J] extends Any
     with MatBuilder[M, A] {
   def source: MatBuilder[M, J]
 
-  def from(m: FunM[A]): M = source.from(new FunM[J] {
+  def fromFunM(m: FunM[A]): M = source.fromFunM(new FunM[J] {
     def nR: Int = m.nR
     def nC: Int = m.nC
     def f(r: Int, c: Int): J = aToJ(m.f(r, c))

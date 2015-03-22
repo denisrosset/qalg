@@ -148,7 +148,7 @@ trait ArrayArrayMatVec[@sp(Double, Long) A] extends Any
   implicit def classTagA: ClassTag[A]
   implicit def V: VecBuilder[V, A] with VecMutable[V, A]
   def M: Mat[M, A] = self
-  def from(m: FunM[A]): M = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
+  def fromFunM(m: FunM[A]): M = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
   def nRows(m: M): Int = m.length
   def nCols(m: M): Int = m(0).length
   def apply(m: M, r: Int, c: Int): A = m(r)(c)

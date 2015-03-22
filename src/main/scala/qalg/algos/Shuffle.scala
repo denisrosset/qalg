@@ -14,7 +14,7 @@ import syntax.all._
 
 trait Shuffle {
   def circShift[MA, @sp(Double, Long) A](ma: MA, rowShift: Int, colShift: Int)(implicit MA: MatMutable[MA, A] with MatBuilder[MA, A]) = {
-    val res = MA.from(ma.view(::, ::))
+    val res = MA.fromFunM(ma.view(::, ::))
     val rows = ma.nRows
     val cols = ma.nCols
     rowShift.signum match {

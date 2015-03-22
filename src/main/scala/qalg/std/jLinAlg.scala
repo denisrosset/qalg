@@ -81,7 +81,7 @@ trait JLinAlgVec[A <: IRingElement[A]] extends Any
   def apply(v: V, k: Int): A = v.getEntry(k + 1)
   def update(v: V, k: Int, a: A): Unit = { v.set(k + 1, a) }
   def length(v: V): Int = v.length
-  def from(v: FunV[A]): V = new V(Array.tabulate[A](v.len)(k => v.f(k)))
+  def fromFunV(v: FunV[A]): V = new V(Array.tabulate[A](v.len)(k => v.f(k)))
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
   override def negate(v: V): V = v.multiply(scalar.fromInt(-1))
@@ -100,7 +100,7 @@ trait JLinAlgMatVec[A <: IRingElement[A]] extends Any
   def nCols(m: M): Int = m.getCols
   def apply(m: M, r: Int, c: Int): A = m.get(r + 1, c + 1)
   def update(m: M, r: Int, c: Int, a: A): Unit = { m.set(r + 1, c + 1, a) }
-  def from(m: FunM[A]): M = new M(Array.tabulate[A](m.nR, m.nC)( (r, c) => m.f(r, c)))
+  def fromFunM(m: FunM[A]): M = new M(Array.tabulate[A](m.nR, m.nC)( (r, c) => m.f(r, c)))
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
   override def negate(m: M): M = m.multiply(scalar.fromInt(-1))

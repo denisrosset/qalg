@@ -54,7 +54,7 @@ trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
     with MatVecInRing[DenseM[A], DenseV[A], A] {
   implicit def V: VecInRing[DenseV[A], A] with VecMutable[DenseV[A], A]
 
-  def from(m: FunM[A]): DenseM[A] = {
+  def fromFunM(m: FunM[A]): DenseM[A] = {
     val nR = m.nR
     val nC = m.nC
     val array = new Array[A](nR * nC)
