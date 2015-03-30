@@ -8,8 +8,12 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait MatInField[MA, @sp(Double, Long) A] extends Any with MatInRing[MA, A] with VectorSpace[MA, A] {
+trait MatInField[M, @sp(Double, Long) A] extends Any with MatInRing[M, A] with VectorSpace[M, A] {
   implicit def scalar: Field[A]
+}
+
+object MatInField {
+  def apply[M, @sp(Double, Long) A](implicit M: MatInField[M, A]): MatInField[M, A] = M
 }
 
 trait ConvertedMatInField[M, @sp(Double, Long) A, J] extends Any

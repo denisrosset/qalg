@@ -76,6 +76,10 @@ trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with M
     })
 }
 
+object MatInRing {
+  def apply[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]): MatInRing[M, A] = M
+}
+
 trait ConvertedMatInRing[M, @sp(Double, Long) A, J] extends Any
     with ConvertedMatBuilder[M, A, J]
     with MatInRing[M, A] {
