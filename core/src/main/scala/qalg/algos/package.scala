@@ -5,3 +5,4 @@ package object algos
     with Kron
     with Shuffle
     with Factory
+    with Cat
