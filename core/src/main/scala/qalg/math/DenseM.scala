@@ -8,6 +8,7 @@ import scala.reflect.ClassTag
 import spire.algebra._
 import spire.math.Rational
 import spire.std.double._
+import spire.std.long._
 import spire.syntax.field._
 import spire.syntax.cfor._
 
@@ -121,6 +122,12 @@ trait DenseMatVecInField[@sp(Double, Long) A] extends Any
 
 object DenseM {
   def seed = 0x3EED4E43
+  implicit val forLong = new DenseMatVecInRing[Long] {
+    def V = DenseV.forLong
+    def classTag = scala.reflect.classTag[Long]
+    def scalar = Ring[Long]
+    def eqA = Eq[Long]
+  }
   implicit val forDouble = new DenseMatVecInField[Double] {
     def V = DenseV.forDouble
     def classTag = scala.reflect.classTag[Double]

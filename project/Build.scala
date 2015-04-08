@@ -9,11 +9,11 @@ object MyBuild extends Build {
   lazy val discipline = "org.typelevel" %% "discipline" % "0.2.1"
   lazy val scalaMeter = "com.storm-enroute" %% "scalameter" % "0.6"
 
-  lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.1"
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "2.2.1"
-  lazy val spireScalaCheckBindings = "org.spire-math" %% "spire-scalacheck-binding" % "0.9.1"
+  lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.2"
+  lazy val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4"
+  lazy val spireScalaCheckBindings = "org.spire-math" %% "spire-scalacheck-binding" % "0.9.2-SNAPSHOT"
 
-  lazy val spire = "org.spire-math" %% "spire" % "0.9.1"
+  lazy val spire = "org.spire-math" %% "spire" % "0.9.2-SNAPSHOT"
   lazy val jscience = "org.jscience" % "jscience" % "4.3.1"
   lazy val commonsMath = "org.apache.commons" % "commons-math3" % "3.4.1"
 

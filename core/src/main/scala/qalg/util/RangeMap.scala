@@ -21,8 +21,12 @@ object RangeMap {
     def get(k: Int) =
       if (range.contains(k)) Some(b) else None
   }
+  protected class Empty[B] extends RangeMap[B] {
+    def range = 0 until 0
+    def get(k: Int) = None
+  }
   protected def build[B](sortedElems: Seq[(Range, B)]): RangeMap[B] = sortedElems match {
-    case Seq() => throw new IllegalArgumentException("Cannot construct empty RangeMap.")
+    case Seq() => new Empty[B]
     case Seq((range, b)) => new Leaf(range, b)
     case _ =>
       val mid = scala.math.min(1, sortedElems.size / 2)
@@ -30,5 +34,5 @@ object RangeMap {
       new Branch(build(leftElems), build(rightElems))
   }
 
-  def apply[B](elems: (Range, B)*): RangeMap[B] = build(elems.sortBy(_._1.start))
+  def apply[B](elems: (Range, B)*): RangeMap[B] = build(elems.filterNot(_._1.isEmpty).sortBy(_._1.start))
 }

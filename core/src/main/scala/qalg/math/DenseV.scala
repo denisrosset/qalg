@@ -8,6 +8,7 @@ import scala.reflect.ClassTag
 import spire.algebra._
 import spire.math.Rational
 import spire.std.double._
+import spire.std.long._
 import spire.syntax.field._
 import spire.syntax.cfor._
 
@@ -61,6 +62,11 @@ trait DenseVecInField[@sp(Double, Long) A] extends Any with DenseVecInRing[A] wi
 
 object DenseV {
   def seed = 0x5EED5EED
+  implicit val forLong = new DenseVecInRing[Long] {
+    def classTag = scala.reflect.classTag[Long]
+    def scalar = Ring[Long]
+    def eqA = Eq[Long]
+  }
   implicit val forDouble = new DenseVecInField[Double] {
     def classTag = scala.reflect.classTag[Double]
     def scalar = Field[Double]

@@ -5,6 +5,7 @@ import spire.algebra._
 import spire.math._
 import spire.syntax.vectorSpace._
 import spire.syntax.cfor._
+import spire.std.bigInt._
 
 import algebra._
 import syntax.all._
@@ -14,8 +15,11 @@ trait QAlgos {
     var lcmDen = SafeLong.one
     var gcdNum = SafeLong.zero
     cforRange(0 until l.linearLength) { k =>
-      lcmDen = lcm(lcmDen, l.linearApply(k).denominator)
-      gcdNum = gcd(gcdNum, l.linearApply(k).numerator)
+      val num = l.linearApply(k).numerator
+      if (!num.isZero) {
+        lcmDen = lcm(lcmDen, l.linearApply(k).denominator)
+        gcdNum = gcd(gcdNum, l.linearApply(k).numerator)
+      }
     }
     Rational(gcdNum, lcmDen)
   }

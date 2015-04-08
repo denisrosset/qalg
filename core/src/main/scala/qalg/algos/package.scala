@@ -6,3 +6,4 @@ package object algos
     with Shuffle
     with Factory
     with Cat
+    with GramSchmidt
