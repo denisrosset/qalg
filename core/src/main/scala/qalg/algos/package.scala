@@ -7,3 +7,5 @@ package object algos
     with Factory
     with Cat
     with GramSchmidt
+    with LU
+    with RREF
