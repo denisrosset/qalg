@@ -17,15 +17,11 @@ final class VecOps[V, A](lhs: V)(implicit ev: Vec[V, A]) {
   def length: Int = ev.length(lhs)
   def apply(k: Int): A = ev.apply(lhs, k)
   def toIndexedSeq: IndexedSeq[A] = ev.toIndexedSeq(lhs)
-  def rowMat[M](implicit M: MatBuilder[M, A]): M = ev.rowMat[M](lhs)
-  def colMat[M](implicit M: MatBuilder[M, A]): M = ev.colMat[M](lhs)
   def view(at: At1): FunV[A] = ev.view(lhs, at)
   def view(at: ::.type): FunV[A] = ev.view(lhs, at)
   // VecBuilder -- we reuse the same wrapper class because of the `apply` overload
   def apply(at: At1)(implicit ev1: VecBuilder[V, A]): V = ev1.apply(lhs, at)
   def apply(at: ::.type)(implicit ev1: VecBuilder[V, A]): V = ev1.apply(lhs, at)
-  // ToVec
-  def toVec[V1](implicit T: ToVec[V, V1]): V1 = T.toVec(lhs)
 }
 
 // all operations in VecBuilder have been incorporatedin to VecOps
@@ -64,8 +60,6 @@ final class MatOps[M, A](lhs: M)(implicit ev: Mat[M, A]) {
   def apply[V](r: Int, cols: ::.type)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, r, cols)
   def apply[V](rows: At1, c: Int)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, rows, c)
   def apply[V](rows: ::.type, c: Int)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, rows, c)
-  // ToMat
-  def toMat[M1](implicit T: ToMat[M, M1]): M1 = T.toMat(lhs)
 }
 
 final class MatBuilderOps[M, A](lhs: M)(implicit ev: MatBuilder[M, A]) {

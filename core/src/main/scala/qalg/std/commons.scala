@@ -13,6 +13,7 @@ import org.apache.commons.math3.FieldElement
 import org.apache.commons.math3.fraction._
 import org.apache.commons.math3.linear._
 import algebra._
+import algebra.converted._
 
 final class CommonsRealVec
     extends VecInField[RealVector, Double]

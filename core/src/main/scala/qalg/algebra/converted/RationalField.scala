@@ -1,5 +1,6 @@
 package com.faacets.qalg
 package algebra
+package converted
 
 import scala.{specialized => sp}
 

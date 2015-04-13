@@ -18,7 +18,6 @@ trait LinearAlgebraSuite[M, V] extends FunSuite with NonImplicitAssertions {
   test("Kron of [1, 2] and [3, 5]") {
     val a = V.build(1, 2)
     val b = V.build(3, 5)
-    assert((a |+| b) == V.build(3, 5, 6, 10))
     assert(kron(a, b) == V.build(3, 5, 6, 10))
     assert(reverseKron(b, a) == V.build(3, 5, 6, 10))
   }
@@ -34,7 +33,6 @@ trait LinearAlgebraSuite[M, V] extends FunSuite with NonImplicitAssertions {
       0, 1, 0, 2,
       3, 0, 5, 0,
       0, 3, 0, 5)
-    assert((a |+| b) == k)
     assert(kron(a, b) == k)
     assert(reverseKron(b, a) == k)
   }

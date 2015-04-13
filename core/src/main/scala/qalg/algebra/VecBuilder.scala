@@ -23,13 +23,3 @@ trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
 object VecBuilder {
   def apply[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A]): VecBuilder[V, A] = V
 }
-
-trait ConvertedVecBuilder[V, @sp(Double, Long) A, J] extends Any
-    with ConvertedVec[V, A, J]
-    with VecBuilder[V, A] {
-  def source: VecBuilder[V, J]
-
-  def tabulate(n: Int)(f: Int => A): V = source.tabulate(n)(k => aToJ(f(k)))
-  override def apply(v: V, at: At1): V = source(v, at)
-  override def apply(v: V, at: ::.type): V = source(v, at)
-}

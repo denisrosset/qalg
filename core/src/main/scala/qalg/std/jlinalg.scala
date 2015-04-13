@@ -15,6 +15,7 @@ import org.jlinalg.doublewrapper.DoubleWrapper
 import org.jlinalg.operator.MonadicOperator
 
 import algebra._
+import algebra.converted._
 
 final class JLinAlgRationalField extends RationalField[JRational] {
   // Order

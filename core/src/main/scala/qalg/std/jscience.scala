@@ -15,6 +15,7 @@ import org.jscience.mathematics.vector.{Matrix => JMatrix, Vector => JVector, Fl
 import org.jscience.mathematics.structure.{Field => JField}
 
 import algebra._
+import algebra.converted._
 
 final class JScienceFloat64Field extends DoubleField[Float64] {
   def toDouble(j: Float64): Double = j.doubleValue

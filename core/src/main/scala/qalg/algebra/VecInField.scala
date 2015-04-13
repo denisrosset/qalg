@@ -24,9 +24,3 @@ trait VecInField[V, @sp(Double, Long) A] extends Any with VecInRing[V, A] with I
 object VecInField {
   def apply[V, @sp(Double, Long) A](implicit V: VecInField[V, A]): VecInField[V, A] = V
 }
-
-trait ConvertedVecInField[V, @sp(Double, Long) A, J] extends Any
-    with ConvertedVecInRing[V, A, J]
-    with VecInField[V, A] {
-  def source: VecInField[V, J]
-}

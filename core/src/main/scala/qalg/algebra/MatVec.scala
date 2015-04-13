@@ -14,9 +14,3 @@ trait MatVec[M, V, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
 object MatVec {
   def apply[M, V, @sp(Double, Long) A](implicit MV: MatVec[M, V, A]): MatVec[M, V, A] = MV
 }
-
-trait ConvertedMatVec[M, V, @sp(Double, Long) A, J] extends Any
-    with ConvertedMat[M, A, J]
-    with MatVec[M, V, A] {
-  def source: MatVec[M, V, J]
-}
