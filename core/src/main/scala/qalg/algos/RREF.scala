@@ -18,7 +18,7 @@ trait RREF {
 
   def rref[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A], orderA: Order[A], signedA: Signed[A]): RREFDecomposition[M, A] = {
     import M.scalar
-    val a = M.fromFunM(m.view(::, ::))
+    val a = m.copy
     val used = collection.mutable.ArrayBuilder.make[Int]
     var r = 0
     cforRange(0 until a.nCols) { c =>

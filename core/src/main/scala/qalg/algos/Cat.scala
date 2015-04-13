@@ -20,16 +20,13 @@ trait Cat {
       case ((start, nextStart), i) => (start until nextStart) -> i
     }
     val map = RangeMap(ranges: _*)
-    V1.fromFunV(new FunV[A] {
-      def len = startIndices.last
-      def f(k: Int): A = {
-        val vec = map(k)
-        if (vec == 0) first(k) else {
-          val vecK = k - startIndices(vec)
-          rest(vec - 1)(vecK)
-        }
+    V1.tabulate(startIndices.last) { k =>
+      val vec = map(k)
+      if (vec == 0) first(k) else {
+        val vecK = k - startIndices(vec)
+        rest(vec - 1)(vecK)
       }
-    })
+    }
   }
 
   def vertcat[M1, M2, @sp(Double, Long) A](first: M1, rest: M2*)(implicit M1: MatBuilder[M1, A], M2: Mat[M2, A]): M1 = {
@@ -40,17 +37,13 @@ trait Cat {
       case ((start, nextStart), i) => (start until nextStart) -> i
     }
     val rowMap = RangeMap(rowRanges: _*)
-    M1.fromFunM(new FunM[A] {
-      def nC = ncols
-      def nR = startIndices.last
-      def f(r: Int, c: Int): A = {
-        val mat = rowMap(r)
-        if (mat == 0) first(r, c) else {
-          val matR = r - startIndices(mat)
-          rest(mat - 1)(matR, c)
-        }
+    M1.tabulate(startIndices.last, ncols) { (r, c) =>
+      val mat = rowMap(r)
+      if (mat == 0) first(r, c) else {
+        val matR = r - startIndices(mat)
+        rest(mat - 1)(matR, c)
       }
-    })
+    }
   }
 
   def horzcat[M1, M2, A](first: M1, rest: M2*)(implicit M1: MatBuilder[M1, A], M2: Mat[M2, A]): M1 = {
@@ -61,17 +54,13 @@ trait Cat {
       case ((start, nextStart), i) => (start until nextStart) -> i
     }
     val colMap = RangeMap(colRanges: _*)
-    M1.fromFunM(new FunM[A] {
-      def nC = startIndices.last
-      def nR = nrows
-      def f(r: Int, c: Int): A = {
-        val mat = colMap(c)
-        if (mat == 0) first(r, c) else {
-          val matC = c - startIndices(mat)
-          rest(mat - 1)(r, matC)
-        }
+    M1.tabulate(nrows, startIndices.last) { (r, c) =>
+      val mat = colMap(c)
+      if (mat == 0) first(r, c) else {
+        val matC = c - startIndices(mat)
+        rest(mat - 1)(r, matC)
       }
-    })
+    }
   }
 
   implicit class VecCat[V, @sp(Double, Long) A](val lhs: VecBuilder[V, A]) {
@@ -82,14 +71,11 @@ trait Cat {
         case ((start, nextStart), i) => (start until nextStart) -> i
       }
       val map = RangeMap(ranges: _*)
-      lhs.fromFunV(new FunV[A] {
-        def len = startIndices.last
-        def f(k: Int): A = {
-          val vec = map(k)
-          val vecK = k - startIndices(vec)
-          vectors(vec)(vecK)
-        }
-      })
+      lhs.tabulate(startIndices.last) { k =>
+        val vec = map(k)
+        val vecK = k - startIndices(vec)
+        vectors(vec)(vecK)
+      }
     }
   }
 
@@ -104,15 +90,11 @@ trait Cat {
         case ((start, nextStart), i) => (start until nextStart) -> i
       }
       val rowMap = RangeMap(rowRanges: _*)
-      lhs.fromFunM(new FunM[A] {
-        def nC = ncols
-        def nR = startIndices.last
-        def f(r: Int, c: Int): A = {
-          val mat = rowMap(r)
-          val matR = r - startIndices(mat)
-          matrices(mat)(matR, c)
-        }
-      })
+      lhs.tabulate(startIndices.last, ncols) { (r, c) =>
+        val mat = rowMap(r)
+        val matR = r - startIndices(mat)
+        matrices(mat)(matR, c)
+      }
     }
 
     def horzcat[M1](matrices: M1*)(implicit M1: Mat[M1, A]): M = {
@@ -124,15 +106,11 @@ trait Cat {
         case ((start, nextStart), i) => (start until nextStart) -> i
       }
       val colMap = RangeMap(colRanges: _*)
-      lhs.fromFunM(new FunM[A] {
-        def nC = startIndices.last
-        def nR = nrows
-        def f(r: Int, c: Int): A = {
-          val mat = colMap(c)
-          val matC = c - startIndices(mat)
-          matrices(mat)(r, matC)
-        }
-      })
+      lhs.tabulate(nrows, startIndices.last) { (r, c) =>
+        val mat = colMap(c)
+        val matC = c - startIndices(mat)
+        matrices(mat)(r, matC)
+      }
     }
   }
 }

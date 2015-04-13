@@ -44,10 +44,25 @@ trait DenseMatVec[@sp(Double, Long) A] extends Any
   implicit def V: VecBuilder[DenseV[A], A] with VecMutable[DenseV[A], A]
   implicit def M: Mat[DenseM[A], A] = self
   implicit def classTag: ClassTag[A]
+
+  type M = DenseM[A]
+
   def apply(m: DenseM[A], r: Int, c: Int): A = m.array(r * m.nC + c)
   def update(m: DenseM[A], r: Int, c: Int, a: A): Unit = { m.array(r * m.nC + c) = a }
   def nRows(m: DenseM[A]): Int = m.nR
   def nCols(m: DenseM[A]): Int = m.nC
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = {
+    val array = new Array[A](nRows * nCols)
+    var i = 0
+    cforRange(0 until nRows) { r =>
+      cforRange(0 until nCols) { c =>
+        array(i) = f(r, c)
+        i += 1
+      }
+    }
+    new DenseM(nRows, nCols, array)
+  }
+  def copy(m: M): M = new DenseM(m.nR, m.nC, m.array.clone)
 }
 
 trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
@@ -55,7 +70,7 @@ trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
     with MatVecInRing[DenseM[A], DenseV[A], A] {
   implicit def V: VecInRing[DenseV[A], A] with VecMutable[DenseV[A], A]
 
-  def fromFunM(m: FunM[A]): DenseM[A] = {
+  def fromFunM(m: FunM[A]): M = {
     val nR = m.nR
     val nC = m.nC
     val array = new Array[A](nR * nC)
@@ -72,18 +87,19 @@ trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
     }
     new DenseM(nR, nC, array)
   }
-  override def negate(m: DenseM[A]): DenseM[A] = new DenseM(m.nR, m.nC, std.ArraySupport.negate(m.array))
-  override def plus(x: DenseM[A], y: DenseM[A]): DenseM[A] = {
+
+  override def negate(m: M): M = new DenseM(m.nR, m.nC, std.ArraySupport.negate(m.array))
+  override def plus(x: M, y: M): M = {
     require(x.nR == y.nR && x.nC == y.nC)
     new DenseM(x.nR, x.nC, std.ArraySupport.plus(x.array, y.array))
   }
-  override def minus(x: DenseM[A], y: DenseM[A]): DenseM[A] = {
+  override def minus(x: M, y: M): M = {
     require(x.nR == y.nR && x.nC == y.nC)
     new DenseM(x.nR, x.nC, std.ArraySupport.minus(x.array, y.array))
   }
-  override def timesl(x: A, y: DenseM[A]): DenseM[A] =
+  override def timesl(x: A, y: M): M =
     new DenseM(y.nR, y.nC, std.ArraySupport.timesl(x, y.array))
-  override def times(x: DenseM[A], y: DenseM[A]): DenseM[A] = {
+  override def times(x: M, y: M): M = {
     val xR = x.nR
     val yR = y.nR
     val xC = x.nC

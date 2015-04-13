@@ -10,48 +10,27 @@ import util._
 
 trait VecInRing[V, @sp(Double, Long) A] extends Any with VecBuilder[V, A] with Module[V, A] with Monoid[V] { self =>
   implicit def scalar: Ring[A]
-  def zero: V = fromFunV(FunV.empty[A])
-  def id: V = fromFunV(FunV.fill[A](1)(scalar.one))
-  def op(x: V, y: V): V = fromFunV(new FunV[A] {
+  def zero: V = tabulate(0)(k => sys.error("Cannot be called"))
+  def id: V = fill(1)(scalar.one)
+  def op(x: V, y: V): V = {
     val nx = self.length(x)
     val ny = self.length(y)
-    def len = nx * ny
-    def f(k: Int): A = {
+    tabulate(nx * ny) { k =>
       val kx = k / ny
       val ky = k % ny
       self.apply(x, kx) * self.apply(y, ky)
     }
-  })
+  }
   def plus(x: V, y: V): V = {
     require(length(x) == length(y))
-    fromFunV(new FunV[A] {
-      def len = self.length(x)
-      def f(k: Int): A = self.apply(x, k) + self.apply(y, k)
-    })
+    tabulate(length(x))( k => apply(x, k) + apply(y, k) )
   }
   override def minus(x: V, y: V): V = {
     require(length(x) == length(y))
-    fromFunV(new FunV[A] {
-      def len = self.length(x)
-      def f(k: Int): A = self.apply(x, k) - self.apply(y, k)
-    })
+    tabulate(length(x))( k => apply(x, k) - apply(y, k) )
   }
-  def negate(v: V): V = fromFunV(new FunV[A] {
-    def len = self.length(v)
-    def f(k: Int): A = -self.apply(v, k)
-  })
-  def timesl(a: A, v: V): V = fromFunV(new FunV[A] {
-    def len = self.length(v)
-    def f(k: Int): A = a * self.apply(v, k)
-  })
-  def dot(x: V, y: V): A = {
-    require(length(x) == length(y))
-    var acc = scalar.zero
-    cforRange(0 until length(x)) { k =>
-      acc += apply(x, k) * apply(y, k)
-    }
-    acc
-  }
+  def negate(v: V): V = tabulate(length(v))( k => -apply(v, k) )
+  def timesl(a: A, v: V): V = tabulate(length(v))( k => a * apply(v, k) )
 }
 
 object VecInRing {

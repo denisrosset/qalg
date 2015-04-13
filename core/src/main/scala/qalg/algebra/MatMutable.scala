@@ -10,6 +10,9 @@ import util._
 
 trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
   implicit def M: Mat[M, A]
+
+  def copy(m: M): M
+
   // scalar
 
   def update(m: M, r: Int, c: Int, a: A): Unit
@@ -116,4 +119,6 @@ trait ConvertedMatMutable[M, @sp(Double, Long) A, J] extends Any
   override def update(m: M, rows: ::.type, cols: ::.type, a: A): Unit = source.update(m, rows, cols, aToJ(a))
   override def update(m: M, rows: ::.type, cols: At1, a: A): Unit = source.update(m, rows, cols, aToJ(a))
   override def update(m: M, rows: At1, cols: ::.type, a: A): Unit = source.update(m, rows, cols, aToJ(a))
+  def copy(m: M): M = source.copy(m)
+
 }

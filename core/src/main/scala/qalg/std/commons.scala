@@ -25,12 +25,13 @@ final class CommonsRealVec
   def V: Vec[V, A] = this
   def length(v: V): Int = v.getDimension
   def apply(v: V, k: Int): A = v.getEntry(k)
-  def fromFunV(v: FunV[A]): V = MatrixUtils.createRealVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def tabulate(n: Int)(f: Int => A): V = MatrixUtils.createRealVector(Array.tabulate[A](n)(f))
   def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
   override def negate(x: V): V = x.mapMultiply(-1.0)
   override def timesl(a: A, v: V): V = v.mapMultiply(a)
+  def copy(v: V): V = v.copy
 }
 
 final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMutable[RealVector, Double])
@@ -48,6 +49,7 @@ final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMuta
   def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
   def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
   def fromFunM(m: FunM[A]): M = MatrixUtils.createRealMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = MatrixUtils.createRealMatrix(Array.tabulate[A](nRows, nCols)(f))
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
   override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))
@@ -56,6 +58,7 @@ final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMuta
   override def timesl2(v: V, m: M): V = m.preMultiply(v)
   override def timesr2(m: M, v: V): V = m.operate(v)
   override def t(m: M): M = m.transpose
+  def copy(m: M): M = m.copy
 }
 
 final class CommonsFractionField extends RationalField[Fraction] {
@@ -120,12 +123,13 @@ trait CommonsVec[A <: FieldElement[A]] extends Any
   def V: Vec[V, A] = self
   def length(v: V): Int = v.getDimension
   def apply(v: V, k: Int): A = v.getEntry(k)
-  def fromFunV(v: FunV[A]): V = MatrixUtils.createFieldVector(Array.tabulate[A](v.len) { k => v.f(k) })
+  def tabulate(n: Int)(f: Int => A): V = MatrixUtils.createFieldVector(Array.tabulate[A](n)(f))
   def update(v: V, k: Int, a: A): Unit = v.setEntry(k, a)
   override def plus(x: V, y: V): V = x.add(y)
   override def minus(x: V, y: V): V = x.subtract(y)
   override def negate(x: V): V = x.mapMultiply(scalar.fromInt(-1))
   override def timesl(a: A, v: V): V = v.mapMultiply(a)
+  def copy(v: V): V = v.copy
 }
 
 trait CommonsMatVec[A <: FieldElement[A]] extends Any
@@ -141,6 +145,8 @@ trait CommonsMatVec[A <: FieldElement[A]] extends Any
   def apply(m: M, r: Int, c: Int): A = m.getEntry(r, c)
   def update(m: M, r: Int, c: Int, a: A): Unit = m.setEntry(r, c, a)
   def fromFunM(m: FunM[A]): M = MatrixUtils.createFieldMatrix(Array.tabulate[A](m.nR, m.nC) { (r, c) => m.f(r, c) })
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = MatrixUtils.createFieldMatrix(Array.tabulate[A](nRows, nCols)(f))
+
   override def plus(x: M, y: M): M = x.add(y)
   override def minus(x: M, y: M): M = x.subtract(y)
   override def negate(x: M): M = x.scalarMultiply(scalar.fromInt(-1))
@@ -149,6 +155,7 @@ trait CommonsMatVec[A <: FieldElement[A]] extends Any
   override def timesl2(v: V, m: M): V = m.preMultiply(v)
   override def timesr2(m: M, v: V): V = m.operate(v)
   override def t(m: M): M = m.transpose
+  def copy(m: M): M = m.copy
 }
 
 trait CommonsInstances {

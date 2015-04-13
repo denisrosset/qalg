@@ -9,10 +9,10 @@ import util._
 
 trait MatVecBuilder[M, V, @sp(Double, Long) A] extends Any with MatVec[M, V, A] with MatBuilder[M, A] { self =>
   implicit def V: VecBuilder[V, A]
-  def apply(m: M, rows: ::.type, c: Int): V = V.fromFunV(view(m, rows, c))
-  def apply(m: M, rows: At1, c: Int): V = V.fromFunV(view(m, rows, c))
-  def apply(m: M, r: Int, cols: ::.type): V = V.fromFunV(view(m, r, cols))
-  def apply(m: M, r: Int, cols: At1): V = V.fromFunV(view(m, r, cols))
+  def apply(m: M, rows: ::.type, c: Int): V = V.tabulate(nRows(m))( apply(m, _, c) )
+  def apply(m: M, rows: At1, c: Int): V = V.tabulate(rows.length)( k => apply(m, rows(k), c) )
+  def apply(m: M, r: Int, cols: ::.type): V = V.tabulate(nCols(m))( apply(m, r, _) )
+  def apply(m: M, r: Int, cols: At1): V = V.tabulate(cols.length)( k => apply(m, r, cols(k)) )
 }
 
 object MatVecBuilder {

@@ -147,10 +147,13 @@ trait ArrayArrayMatVec[@sp(Double, Long) A] extends Any
   implicit def V: VecBuilder[V, A] with VecMutable[V, A]
   def M: Mat[M, A] = self
   def fromFunM(m: FunM[A]): M = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = Array.tabulate(nRows, nCols)(f)
   def nRows(m: M): Int = m.length
   def nCols(m: M): Int = m(0).length
   def apply(m: M, r: Int, c: Int): A = m(r)(c)
   def update(m: M, r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
+  def copy(m: M): M = m.map(_.clone)
+
 }
 
 trait ArrayArrayMatVecInRing[@sp(Double, Long) A] extends Any

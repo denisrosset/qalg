@@ -55,8 +55,9 @@ trait ArrayVec[@sp(Double, Long) A] extends Any
   def V: Vec[V, A] = this
   def apply(v: V, k: Int): A = v(k)
   def length(v: V): Int = v.length
-  def fromFunV(v: FunV[A]): Array[A] = Array.tabulate(v.len)(v.f(_))
   def update(v: V, k: Int, a: A): Unit = { v(k) = a }
+  def tabulate(n: Int)(f: Int => A): Array[A] = Array.tabulate(n)(f)
+  def copy(v: V): V = v.clone
 }
 
 trait ArrayVecInRing[@sp(Double, Long) A] extends Any

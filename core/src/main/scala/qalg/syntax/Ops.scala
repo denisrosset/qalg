@@ -28,13 +28,10 @@ final class VecOps[V, A](lhs: V)(implicit ev: Vec[V, A]) {
   def toVec[V1](implicit T: ToVec[V, V1]): V1 = T.toVec(lhs)
 }
 
-final class VecInRingOps[V, A](lhs: V)(implicit ev: VecInRing[V, A]) {
-  def dot(rhs: V): A = ev.dot(lhs, rhs)
-}
-
 // all operations in VecBuilder have been incorporatedin to VecOps
 
 final class VecMutableOps[V, A](lhs: V)(implicit ev: VecMutable[V, A]) {
+  def copy: V = ev.copy(lhs)
   def update(k: Int, a: A): Unit = ev.update(lhs, k, a)
   def update(at: At1, a: A): Unit = ev.update(lhs, at, a)
   def update[V1](at: At1, v1: V1)(implicit ev1: Vec[V1, A]): Unit = ev.update[V1](lhs, at, v1)
@@ -84,6 +81,7 @@ final class MatInRingOps[M, A](m: M)(implicit ev: MatInRing[M, A]) {
 }
 
 final class MatMutableOps[M, A](lhs: M)(implicit ev: MatMutable[M, A]) {
+  def copy: M = ev.copy(lhs)
   def update(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)
   def update[V1](rows: At1, c: Int, va1: V1)(implicit ev1: Vec[V1, A]): Unit = ev.update(lhs, rows, c, va1)
   def update[V1](r: Int, cols: At1, va1: V1)(implicit ev1: Vec[V1, A]): Unit = ev.update(lhs, r, cols, va1)

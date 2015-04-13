@@ -8,14 +8,16 @@ import spire.syntax.cfor._
 import util._
 
 trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
-  def fromFunV(v: FunV[A]): V
-  def from[V1](v1: V1)(implicit V1: Vec[V1, A]): V = fromFunV(V1.view(v1, ::))
-  def apply(v: V, at: At1): V = fromFunV(view(v, at))
-  def apply(v: V, at: ::.type): V = fromFunV(view(v, at))
-  def build(elements: A*): V = fromFunV(new FunV[A] {
-    def len = elements.size
-    def f(k: Int): A = elements(k)
-  })
+
+  // type class methods
+  def apply(v: V, at: At1): V = tabulate(at.length)(k => apply(v, at(k)))
+  def apply(v: V, at: ::.type): V = tabulate(length(v))(k => apply(v, k))
+
+  // direct methods
+  def from[V1](v1: V1)(implicit V1: Vec[V1, A]): V = tabulate(V1.length(v1))(V1.apply(v1, _))
+  def build(elements: A*): V = tabulate(elements.size)(elements(_))
+  def tabulate(n: Int)(f: Int => A): V
+  def fill(n: Int)(a: A): V = tabulate(n)(k => a)
 }
 
 object VecBuilder {
@@ -27,10 +29,7 @@ trait ConvertedVecBuilder[V, @sp(Double, Long) A, J] extends Any
     with VecBuilder[V, A] {
   def source: VecBuilder[V, J]
 
-  def fromFunV(v: FunV[A]): V = source.fromFunV(new FunV[J] {
-    def len: Int = v.len
-    def f(k: Int): J = aToJ(v.f(k))
-  })
+  def tabulate(n: Int)(f: Int => A): V = source.tabulate(n)(k => aToJ(f(k)))
   override def apply(v: V, at: At1): V = source(v, at)
   override def apply(v: V, at: ::.type): V = source(v, at)
 }

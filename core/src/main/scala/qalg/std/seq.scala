@@ -20,7 +20,7 @@ trait SeqVecBuilder[@sp(Double, Long) A] extends Any
   def V: Vec[V, A] = this
   def apply(v: V, k: Int): A = v(k)
   def length(v: V): Int = v.length
-  def fromFunV(v: FunV[A]): Seq[A] = Seq.tabulate(v.len)(v.f(_))
+  def tabulate(n: Int)(f: Int => A): V = Seq.tabulate(n)(f)
 }
 
 trait SeqVecInRing[@sp(Double, Long) A] extends Any

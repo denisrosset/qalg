@@ -11,7 +11,7 @@ import util._
 trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
   implicit def scalar: AdditiveMonoid[A]
 
-  def fromFunM(m: FunM[A]): M
+  protected[algebra] def fromFunM(m: FunM[A]): M
 
   def apply(m: M, rows: At1, cols: At1): M = fromFunM(view(m, rows, cols))
   def apply(m: M, rows: ::.type, cols: ::.type): M = m
@@ -20,11 +20,10 @@ trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
 
   def t(m: M): M = fromFunM(viewT(m))
 
-  def build(nRows: Int, nCols: Int, elements: A*): M = fromFunM(new FunM[A] {
-    def nR = nRows
-    def nC = nCols
-    def f(r: Int, c: Int): A = elements(r * nCols + c)
-  })
+  def build(nRows: Int, nCols: Int, elements: A*): M = tabulate(nRows, nCols)( (r, c) => elements(r * nCols + c) )
+
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M
+  def fill(nRows: Int, nCols: Int)(a: A): M = tabulate(nRows, nCols)( (r, c) => a )
 }
 
 object MatBuilder {
@@ -41,6 +40,8 @@ trait ConvertedMatBuilder[M, @sp(Double, Long) A, J] extends Any
     def nC: Int = m.nC
     def f(r: Int, c: Int): J = aToJ(m.f(r, c))
   })
+
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = source.tabulate(nRows, nCols)( (r, c) => aToJ(f(r, c)) )
 
   def from[M1](m: M1)(implicit M1: Mat[M1, A]): M = fromFunM(M1.view(m, ::, ::))
 

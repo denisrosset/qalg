@@ -13,27 +13,18 @@ import syntax.all._
 trait LU {
   case class LUDecomposition[M, @sp(Double, Long) A](compact: M, order: Array[Int], sign: Int)(implicit val M: MatInField[M, A], eqA: Eq[A]) {
     implicit def A: Field[A] = M.scalar
-    def matP: M = M.fromFunM(new FunM[A] {
-      def nR = compact.nRows
-      def nC = compact.nCols
-      def f(r: Int, c: Int): A =
-        if (r == order(c)) A.one else A.zero
-    })
-    def matU: M = M.fromFunM(new FunM[A] {
-      def nR = compact.nRows
-      def nC = compact.nCols
-      def f(r: Int, c: Int): A =
-        if (r < c) compact(r, c) // upper triangular part
-        else if (r == c) A.one // diagonal elements are = 1 by definition
-        else A.zero
-    })
-    def matL: M = M.fromFunM(new FunM[A] {
-      def nR = compact.nRows
-      def nC = compact.nCols
-      def f(r: Int, c: Int): A =
-        if (r >= c) compact(r, c) // lower triangular part
-        else A.zero
-    })
+    def matP: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
+      if (r == order(c)) A.one else A.zero
+    }
+    def matU: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
+      if (r < c) compact(r, c) // upper triangular part
+      else if (r == c) A.one // diagonal elements are = 1 by definition
+      else A.zero
+    }
+    def matL: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
+      if (r >= c) compact(r, c) // lower triangular part
+      else A.zero
+    }
     def original: M = matP * matL * matU
     def isSingular: Boolean = {
       cforRange(0 until compact.nRows) { i =>
@@ -47,10 +38,7 @@ trait LU {
       import MV.V
       var n = compact.nRows
       // rearrange the elements of the b vector, hold them into x
-      val x = V.fromFunV(new FunV[A] {
-        def len = n
-        def f(k: Int): A = b(order(k))
-      })
+      val x = V.tabulate(n)(k => b(order(k)))
       // do forward substitution, replacing x vector
       x(0) = x(0) / compact(0,0)
       cforRange(1 until n) { i =>
@@ -79,7 +67,7 @@ trait LU {
     require(n == m.nCols)
     var sign = 1 // changes sign with each row interchange
     val order: Array[Int] = Array.tabulate(n)(i => i) // establish initial ordering in order vector
-    val a: M = M.fromFunM(m.view(::, ::))
+    val a: M = m.copy
      /* Find pivot element
      * 
      * The function pivot finds the largest element for a pivot in "jcol"

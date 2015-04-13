@@ -109,10 +109,11 @@ final class JScienceFloat64Vec(implicit val eqA: Eq[Float64], val scalar: Field[
   override def minus(x: V, y: V): V = x.minus(y)
   override def negate(v: V): V = v.opposite
   override def timesl(a: Float64, v: V): V = v.times(a)
-  def fromFunV(v: FunV[Float64]): V = Float64Vector.valueOf(new java.util.AbstractList[Float64] {
-    def get(k: Int) = v.f(k)
-    def size = v.len
+  def tabulate(n: Int)(f: Int => A): V = Float64Vector.valueOf(new java.util.AbstractList[Float64] {
+    def get(k: Int) = f(k)
+    def size = n
   })
+  def copy(v: V): V = v.copy
 }
 
 final class JScienceFloat64MatVec(implicit val eqA: Eq[Float64], val scalar: Field[Float64], val V: VecInField[Float64Vector, Float64]) extends MatVecInField[Float64Matrix, Float64Vector, Float64] {
@@ -122,12 +123,14 @@ final class JScienceFloat64MatVec(implicit val eqA: Eq[Float64], val scalar: Fie
   def apply(m: M, r: Int, c: Int): A = m.get(r, c)
   def nRows(m: M): Int = m.getNumberOfRows
   def nCols(m: M): Int = m.getNumberOfColumns
-  override def plus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.plus(y)
-  override def minus(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.minus(y)
-  override def negate(v: Float64Matrix): Float64Matrix = v.opposite
-  override def timesl(a: Float64, v: Float64Matrix): Float64Matrix = v.times(a)
-  def fromFunM(m: FunM[Float64]): Float64Matrix = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c).doubleValue))
+  override def plus(x: M, y: M): M = x.plus(y)
+  override def minus(x: M, y: M): M = x.minus(y)
+  override def negate(v: M): M = v.opposite
+  override def timesl(a: A, v: M): M = v.times(a)
+  def fromFunM(m: FunM[A]): M = Float64Matrix.valueOf(Array.tabulate[Double](m.nR, m.nC)( (r, c) => m.f(r, c).doubleValue))
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = Float64Matrix.valueOf(Array.tabulate[Double](nRows, nCols)( (r, c) => f(r, c).doubleValue ))
   override def times(x: Float64Matrix, y: Float64Matrix): Float64Matrix = x.times(y)
+  def copy(m: M): M = m.copy
 }
 
 trait JScienceDenseVectorVec[A <: JField[A]] extends Any
@@ -136,14 +139,15 @@ trait JScienceDenseVectorVec[A <: JField[A]] extends Any
   implicit def classTagA: ClassTag[A]
   def apply(v: V, k: Int): A = v.get(k)
   def length(v: V): Int = v.getDimension
-  def fromFunV(v: FunV[A]): JDenseVector[A] = JDenseVector.valueOf(new java.util.AbstractList[A] {
-    def get(k: Int) = v.f(k)
-    def size = v.len
+  def tabulate(n: Int)(f: Int => A): V = JDenseVector.valueOf(new java.util.AbstractList[A] {
+    def get(k: Int) = f(k)
+    def size = n
   })
   override def plus(x: V, y: V): V = x.plus(y)
   override def minus(x: V, y: V): V = x.minus(y)
   override def negate(v: V): V = v.opposite
   override def timesl(a: A, v: V): V = v.times(a)
+  def copy(v: V): V = v.copy
 }
 
 
@@ -162,6 +166,8 @@ trait JScienceDenseMatrixMatVec[A <: JField[A]] extends Any
   override def times(x: M, y: M): M = x.times(y)
   override def t(m: M): M = m.transpose
   def fromFunM(m: FunM[A]): M = JDenseMatrix.valueOf(Array.tabulate[A](m.nR, m.nC)( (r, c) => m.f(r, c)))
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = JDenseMatrix.valueOf(Array.tabulate[A](nRows, nCols)(f))
+  def copy(m: M): M = m.copy
 }
 
 trait JScienceInstances {

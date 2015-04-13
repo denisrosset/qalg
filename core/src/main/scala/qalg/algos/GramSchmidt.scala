@@ -12,9 +12,9 @@ import syntax.all._
 import util._
 
 trait GramSchmidt {
-  def gramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A] with MatMutable[M, A]): M = {
-    import M.scalar
-    val res = M.fromFunM(m.view(::, ::))
+  def gramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A]): M = {
+    import M.{scalar, eqA}
+    val res = m.copy
     val nR = res.nRows
     val nC = res.nCols
     cforRange(0 until nR) { i =>
@@ -25,16 +25,18 @@ trait GramSchmidt {
           uv = uv + res(i, c) * res(j, c)
           uu = uu + res(i, c) * res(i, c)
         }
-        val factor = uv / uu
-        cforRange(0 until nC) { c =>
-          res(j, c) = res(j, c) - factor * res(i, c)
+        if (!uu.isZero) {
+          val factor = uv / uu
+          cforRange(0 until nC) { c =>
+            res(j, c) = res(j, c) - factor * res(i, c)
+          }
         }
       }
     }
     res
   }
 
-  def normGramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A] with MatMutable[M, A], A: NRoot[A]): M = {
+  def normGramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A], A: NRoot[A]): M = {
     import M.scalar
     val res = gramSchmidt(m)
     cforRange(0 until res.nRows) { r =>
@@ -50,8 +52,8 @@ trait GramSchmidt {
     res
   }
 
-  def euclideanGramSchmidt[M, @sp(Long) A](m: M)(implicit M: MatInRing[M, A] with MatMutable[M, A], A: EuclideanRing[A]): M = {
-    val res = M.fromFunM(m.view(::, ::))
+  def euclideanGramSchmidt[M, @sp(Long) A](m: M)(implicit M: MatInRing[M, A], MM: MatMutable[M, A], A: EuclideanRing[A]): M = {
+    val res = m.copy
     val nR = res.nRows
     val nC = res.nCols
     cforRange(0 until nR) { i =>

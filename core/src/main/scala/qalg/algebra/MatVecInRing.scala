@@ -11,29 +11,23 @@ trait MatVecInRing[M, V, @sp(Double, Long) A] extends Any with MatVecBuilder[M, 
   implicit def V: VecInRing[V, A]
   def timesl2(v: V, m: M): V = {
     require(nRows(m) == V.length(v))
-    V.fromFunV(new FunV[A] {
-    def len = self.nCols(m)
-    def f(c: Int): A = {
+    V.tabulate(nCols(m)) { c =>
       var acc = scalar.zero
       cforRange(0 until self.nRows(m)) { r =>
         acc += V.apply(v, r) * self.apply(m, r, c)
       }
       acc
     }
-    })
   }
   def timesr2(m: M, v: V): V = {
     require(nCols(m) == V.length(v))
-    V.fromFunV(new FunV[A] {
-      def len = self.nRows(m)
-      def f(r: Int): A = {
-        var acc = scalar.zero
-        cforRange(0 until self.nCols(m)) { c =>
-          acc += self.apply(m, r, c) * V.apply(v, c)
-        }
-        acc
+    V.tabulate(nRows(m)) { r =>
+      var acc = scalar.zero
+      cforRange(0 until self.nCols(m)) { c =>
+        acc += self.apply(m, r, c) * V.apply(v, c)
       }
-    })
+      acc
+    }
   }
 }
 

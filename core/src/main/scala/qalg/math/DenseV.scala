@@ -14,11 +14,11 @@ import spire.syntax.cfor._
 
 import algebra._
 
-final class DenseV[@sp(Double, Long) A: ClassTag](val len: Int, val array: Array[A]) {
-  override def toString = math.MatrixPrinting.print(1, len, (r: Int, c: Int) => array(c).toString)
+final class DenseV[@sp(Double, Long) A: ClassTag](val array: Array[A]) {
+  override def toString = math.MatrixPrinting.print(1, array.length, (r: Int, c: Int) => array(c).toString)
   override def equals(other: Any): Boolean = other match {
     case that: DenseV[A] =>
-      (this.len == that.len) && {
+      (this.array.length == that.array.length) && {
         cforRange(0 until array.length) { k =>
           if (this.array(k) != that.array(k)) return false
         }
@@ -29,10 +29,10 @@ final class DenseV[@sp(Double, Long) A: ClassTag](val len: Int, val array: Array
   override def hashCode: Int = {
     import scala.util.hashing.MurmurHash3
     var h = DenseV.seed
-    cforRange(0 until len) { k =>
+    cforRange(0 until array.length) { k =>
       h = MurmurHash3.mix(h, array(k).##)
     }
-    MurmurHash3.finalizeHash(h, len)
+    MurmurHash3.finalizeHash(h, array.length)
   }
 }
 
@@ -41,21 +41,22 @@ trait DenseVec[@sp(Double, Long) A] extends Any
     with VecMutable[DenseV[A], A] { self =>
   implicit def V: Vec[DenseV[A], A] = self
   implicit def classTag: ClassTag[A]
-  def length(v: DenseV[A]): Int = v.len
-  def apply(v: DenseV[A], k: Int): A = v.array(k)
-  def update(v: DenseV[A], k: Int, a: A): Unit = { v.array(k) = a }
-  def fromArray(a: Array[A]): DenseV[A] = new DenseV(a.length, a)
+  type V = DenseV[A]
+  def length(v: V): Int = v.array.length
+  def apply(v: V, k: Int): A = v.array(k)
+  def update(v: V, k: Int, a: A): Unit = { v.array(k) = a }
+  def tabulate(n: Int)(f: Int => A): V = new DenseV(Array.tabulate(n)(f))
+  def copy(v: V): V = new DenseV(v.array.clone)
 }
 
 trait DenseVecInRing[@sp(Double, Long) A] extends Any with DenseVec[A] with VecInRing[DenseV[A], A] {
-  def fromFunV(v: FunV[A]): DenseV[A] = new DenseV(v.len, Array.tabulate(v.len)(k => v.f(k)))
-  override def negate(v: DenseV[A]): DenseV[A] = fromArray(std.ArraySupport.negate(v.array))
+  override def negate(v: DenseV[A]): DenseV[A] = new DenseV(std.ArraySupport.negate(v.array))
   override def plus(x: DenseV[A], y: DenseV[A]): DenseV[A] =
-    fromArray(std.ArraySupport.plus(x.array, y.array))
+    new DenseV(std.ArraySupport.plus(x.array, y.array))
   override def minus(x: DenseV[A], y: DenseV[A]): DenseV[A] =
-    fromArray(std.ArraySupport.minus(x.array, y.array))
+    new DenseV(std.ArraySupport.minus(x.array, y.array))
   override def timesl(x: A, y: DenseV[A]): DenseV[A] =
-    fromArray(std.ArraySupport.timesl(x, y.array))
+    new DenseV(std.ArraySupport.timesl(x, y.array))
 }
 
 trait DenseVecInField[@sp(Double, Long) A] extends Any with DenseVecInRing[A] with VecInField[DenseV[A], A]
