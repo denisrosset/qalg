@@ -35,24 +35,6 @@ trait FunM[@sp(Double, Long) A] extends Any {
   def nC: Int
 }
 
-object FunM {
-  def empty[@sp(Double, Long) A]: FunM[A] = new FunM[A] {
-    def nR = 0
-    def nC = 0
-    def f(r: Int, c: Int) = sys.error("Cannot get element of empty matrix.")
-  }
-  def fill[@sp(Double, Long) A](nRows: Int, nCols: Int)(a: A): FunM[A] = new FunM[A] {
-    def nR = nRows
-    def nC = nCols
-    def f(r: Int, c: Int) = a
-  }
-  def fillDiag[@sp(Double, Long) A](nRows: Int, nCols: Int)(diag: A, nonDiag: A): FunM[A] = new FunM[A] {
-    def nR = nRows
-    def nC = nCols
-    def f(r: Int, c: Int) = if (r == c) diag else nonDiag
-  }
-}
-
 class FunMat[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eqA: Eq[A]) extends MatBuilder[FunM[A], A] {
   def nRows(m: FunM[A]): Int = m.nR
   def nCols(m: FunM[A]): Int = m.nC
@@ -62,5 +44,15 @@ class FunMat[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eq
     def nR = nRows
     def nC = nCols
     def f(r: Int, c: Int): A = fun(r, c)
+  }
+}
+
+object FunM {
+  implicit def FunMat[@sp(Double, Long) A: AdditiveMonoid: Eq]: MatBuilder[FunM[A], A] = new FunMat[A]
+
+  def empty[@sp(Double, Long) A]: FunM[A] = new FunM[A] {
+    def nR = 0
+    def nC = 0
+    def f(r: Int, c: Int) = sys.error("Cannot get element of empty matrix.")
   }
 }
