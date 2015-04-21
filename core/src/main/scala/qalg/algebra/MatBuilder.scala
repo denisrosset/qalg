@@ -22,6 +22,21 @@ trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
 
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M
   def fill(nRows: Int, nCols: Int)(a: A): M = tabulate(nRows, nCols)( (r, c) => a )
+
+  def fromCols[V](dim: Int, cols: V*)(implicit V: Vec[V, A]): M =
+    if (cols.isEmpty) tabulate(dim, 0)( (r, c) => sys.error("Empty matrix")) else {
+      val nRows = V.length(cols.head)
+      require(cols.forall(V.length(_) == nRows))
+      tabulate(nRows, cols.size)( (r, c) => V.apply(cols(c), r) )
+    }
+
+  def fromRows[V](dim: Int, rows: V*)(implicit V: Vec[V, A]): M =
+    if (rows.isEmpty) tabulate(0, dim)( (r, c) => sys.error("Empty matrix")) else {
+      require(rows.nonEmpty)
+      val nCols = V.length(rows.head)
+      require(rows.forall(V.length(_) == nCols))
+      tabulate(rows.size, nCols)( (r, c) => V.apply(rows(r), c) )
+    }
 }
 
 object MatBuilder {
