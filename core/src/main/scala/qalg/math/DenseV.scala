@@ -78,4 +78,5 @@ object DenseV {
     def scalar = Field[Rational]
     def eqA = Eq[Rational]
   }
+  implicit def matType[@sp(Double, Long) A]: MatType[DenseM[A], DenseV[A], A] = new MatType[DenseM[A], DenseV[A], A] { }
 }
