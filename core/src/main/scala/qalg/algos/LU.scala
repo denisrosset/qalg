@@ -33,9 +33,8 @@ trait LU {
       }
       false
     }
-    def solve[V](b: V)(implicit MV: MatVecInField[M, V, A], VM: VecMutable[V, A]): V = {
+    def solve[V](b: V)(implicit V: VecInField[V, A], VM: VecMutable[V, A]): V = {
       require(!isSingular)
-      import MV.V
       var n = compact.nRows
       // rearrange the elements of the b vector, hold them into x
       val x = V.tabulate(n)(k => b(order(k)))

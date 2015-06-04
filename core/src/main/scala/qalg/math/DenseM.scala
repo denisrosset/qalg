@@ -3,7 +3,7 @@ package math
 
 import scala.{specialized => sp}
 
-import scala.reflect.ClassTag
+import scala.reflect.{classTag, ClassTag}
 
 import spire.algebra._
 import spire.math.Rational
@@ -15,10 +15,10 @@ import spire.syntax.cfor._
 import algebra._
 
 /** Dense matrix stored in row-major order. */
-final class DenseM[@sp(Double, Long) A: ClassTag](val nR: Int, val nC: Int, val array: Array[A]) {
+final class DenseM[@sp(Double, Long) A: ClassTag, M <: Mutability](val nR: Int, val nC: Int, val array: Array[A]) {
   override def toString = math.MatrixPrinting.print(nR, nC, (r: Int, c: Int) => array(r * nC + c).toString)
   override def equals(other: Any): Boolean = other match {
-    case that: DenseM[A] =>
+    case that: DenseM[A, _] =>
       (this.nR == that.nR) && (this.nC == that.nC) && {
         cforRange(0 until array.length) { k =>
           if (this.array(k) != that.array(k)) return false
@@ -38,20 +38,16 @@ final class DenseM[@sp(Double, Long) A: ClassTag](val nR: Int, val nC: Int, val 
   }
 }
 
-trait DenseMatVec[@sp(Double, Long) A] extends Any
-    with MatVecBuilder[DenseM[A], DenseV[A], A]
-    with MatVecMutable[DenseM[A], DenseV[A], A] { self =>
-  implicit def V: VecBuilder[DenseV[A], A] with VecMutable[DenseV[A], A]
-  implicit def M: Mat[DenseM[A], A] = self
-  implicit def classTag: ClassTag[A]
+trait DenseMat[@sp(Double, Long) A, M <: Mutability] extends Any
+    with MatBuilder[DenseM[A, M], A] { self =>
+  type DM = DenseM[A, M]
+  implicit def ctA: ClassTag[A]
 
-  type M = DenseM[A]
 
-  def apply(m: DenseM[A], r: Int, c: Int): A = m.array(r * m.nC + c)
-  def update(m: DenseM[A], r: Int, c: Int, a: A): Unit = { m.array(r * m.nC + c) = a }
-  def nRows(m: DenseM[A]): Int = m.nR
-  def nCols(m: DenseM[A]): Int = m.nC
-  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = {
+  def apply(m: DM, r: Int, c: Int): A = m.array(r * m.nC + c)
+  def nRows(m: DM): Int = m.nR
+  def nCols(m: DM): Int = m.nC
+  def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): DM = {
     val array = new Array[A](nRows * nCols)
     var i = 0
     cforRange(0 until nRows) { r =>
@@ -60,17 +56,15 @@ trait DenseMatVec[@sp(Double, Long) A] extends Any
         i += 1
       }
     }
-    new DenseM(nRows, nCols, array)
+    new DenseM[A, M](nRows, nCols, array)
   }
-  def copy(m: M): M = new DenseM(m.nR, m.nC, m.array.clone)
 }
 
-trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
-    with DenseMatVec[A]
-    with MatVecInRing[DenseM[A], DenseV[A], A] {
-  implicit def V: VecInRing[DenseV[A], A] with VecMutable[DenseV[A], A]
+trait DenseMatInRing[@sp(Double, Long) A, M <: Mutability] extends Any
+    with DenseMat[A, M]
+    with MatInRing[DenseM[A, M], A] {
 
-  def fromFunM(m: FunM[A]): M = {
+  def fromFunM(m: FunM[A]): DM = {
     val nR = m.nR
     val nC = m.nC
     val array = new Array[A](nR * nC)
@@ -85,21 +79,25 @@ trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
       }
       r += 1
     }
-    new DenseM(nR, nC, array)
+    new DenseM[A, M](nR, nC, array)
   }
 
-  override def negate(m: M): M = new DenseM(m.nR, m.nC, std.ArraySupport.negate(m.array))
-  override def plus(x: M, y: M): M = {
+  override def negate(m: DM): DM = new DenseM[A, M](m.nR, m.nC, std.ArraySupport.negate(m.array))
+
+  override def plus(x: DM, y: DM): DM = {
     require(x.nR == y.nR && x.nC == y.nC)
-    new DenseM(x.nR, x.nC, std.ArraySupport.plus(x.array, y.array))
+    new DenseM[A, M](x.nR, x.nC, std.ArraySupport.plus(x.array, y.array))
   }
-  override def minus(x: M, y: M): M = {
+
+  override def minus(x: DM, y: DM): DM = {
     require(x.nR == y.nR && x.nC == y.nC)
-    new DenseM(x.nR, x.nC, std.ArraySupport.minus(x.array, y.array))
+    new DenseM[A, M](x.nR, x.nC, std.ArraySupport.minus(x.array, y.array))
   }
-  override def timesl(x: A, y: M): M =
-    new DenseM(y.nR, y.nC, std.ArraySupport.timesl(x, y.array))
-  override def times(x: M, y: M): M = {
+
+  override def timesl(x: A, y: DM): DM =
+    new DenseM[A, M](y.nR, y.nC, std.ArraySupport.timesl(x, y.array))
+
+  override def times(x: DM, y: DM): DM = {
     val xR = x.nR
     val yR = y.nR
     val xC = x.nC
@@ -126,34 +124,72 @@ trait DenseMatVecInRing[@sp(Double, Long) A] extends Any
       }
       r += 1
     }
-    new DenseM(nR, nC, array)
+    new DenseM[A, M](nR, nC, array)
   }
 }
+
+trait DenseMatMutable[@sp(Double, Long) A] extends Any
+    with MatMutable[DenseM[A, Mutable], A] { self =>
+  implicit def ctA: ClassTag[A]
+  type DM = DenseM[A, Mutable]
+  def update(m: DM, r: Int, c: Int, a: A): Unit = { m.array(r * m.nC + c) = a }
+  def copy(m: DM): DM = new DenseM(m.nR, m.nC, m.array.clone)
+}
+
+trait DenseMatInField[@sp(Double, Long) A, M <: Mutability] extends Any
+    with DenseMatInRing[A, M]
+    with MatInField[DenseM[A, M], A]
+
+/*
 
 trait DenseMatVecInField[@sp(Double, Long) A] extends Any
     with DenseMatVecInRing[A]
     with MatVecInField[DenseM[A], DenseV[A], A] {
   implicit def V: VecInField[DenseV[A], A] with VecMutable[DenseV[A], A]
 }
-
+ */
 object DenseM {
   def seed = 0x3EED4E43
-  implicit val forLong = new DenseMatVecInRing[Long] {
-    def V = DenseV.forLong
-    def classTag = scala.reflect.classTag[Long]
-    def scalar = Ring[Long]
+
+  object longInstance extends DenseMatInRing[Long, Mutability] {
+    def ctA = classTag[Long]
     def eqA = Eq[Long]
+    def scalar = Ring[Long]
   }
-  implicit val forDouble = new DenseMatVecInField[Double] {
-    def V = DenseV.forDouble
-    def classTag = scala.reflect.classTag[Double]
-    def scalar = Field[Double]
+
+  object doubleInstance extends DenseMatInField[Double, Mutability] {
+    def ctA = classTag[Double]
     def eqA = Eq[Double]
+    def scalar = Field[Double]
   }
-  implicit val forRational = new DenseMatVecInField[Rational] {
-    def V = DenseV.forRational
-    def classTag = scala.reflect.classTag[Rational]
-    def scalar = Field[Rational]
+
+  object rationalInstance extends DenseMatInField[Rational, Mutability] {
+    def ctA = classTag[Rational]
     def eqA = Eq[Rational]
+    def scalar = Field[Rational]
+  }
+
+  @inline implicit def forLong[M <: Mutability]: DenseMatInRing[Long, M] =
+    longInstance.asInstanceOf[DenseMatInRing[Long, M]]
+
+  @inline implicit def forDouble[M <: Mutability]: DenseMatInField[Double, M] =
+    doubleInstance.asInstanceOf[DenseMatInField[Double, M]]
+
+  @inline implicit def forRational[M <: Mutability]: DenseMatInField[Rational, M] =
+    rationalInstance.asInstanceOf[DenseMatInField[Rational, M]]
+
+  implicit object longMutInstance extends DenseMatMutable[Long] {
+    def M = forLong[Mutable]
+    def ctA = classTag[Long]
+  }
+
+  implicit object doubleMutInstance extends DenseMatMutable[Double] {
+    def M = forDouble[Mutable]
+    def ctA = classTag[Double]
+  }
+
+  implicit object rationalMutInstance extends DenseMatMutable[Rational] {
+    def M = forRational[Mutable]
+    def ctA = classTag[Rational]
   }
 }

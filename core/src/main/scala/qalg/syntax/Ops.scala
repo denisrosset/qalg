@@ -56,10 +56,10 @@ final class MatOps[M, A](lhs: M)(implicit ev: Mat[M, A]) {
   def apply(rows: ::.type, cols: At1)(implicit ev1: MatBuilder[M, A]): M = ev1(lhs, rows, cols)
   def apply(rows: At1, cols: ::.type)(implicit ev1: MatBuilder[M, A]): M = ev1(lhs, rows, cols)
   // MatVecBuilder
-  def apply[V](r: Int, cols: At1)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, r, cols)
-  def apply[V](r: Int, cols: ::.type)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, r, cols)
-  def apply[V](rows: At1, c: Int)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, rows, c)
-  def apply[V](rows: ::.type, c: Int)(implicit ev1: MatVecBuilder[M, V, A]): V = ev1(lhs, rows, c)
+  def apply[V](r: Int, cols: At1)(implicit ev1: MatSlicer[M, V]): V = ev1(lhs, r, cols)
+  def apply[V](r: Int, cols: ::.type)(implicit ev1: MatSlicer[M, V]): V = ev1(lhs, r, cols)
+  def apply[V](rows: At1, c: Int)(implicit ev1: MatSlicer[M, V]): V = ev1(lhs, rows, c)
+  def apply[V](rows: ::.type, c: Int)(implicit ev1: MatSlicer[M, V]): V = ev1(lhs, rows, c)
 }
 
 final class MatBuilderOps[M, A](lhs: M)(implicit ev: MatBuilder[M, A]) {
@@ -70,8 +70,8 @@ final class MatBuilderOps[M, A](lhs: M)(implicit ev: MatBuilder[M, A]) {
 
 final class MatInRingOps[M, A](m: M)(implicit ev: MatInRing[M, A]) {
   // MatVecInRing
-  def *::[V](lhs: V)(implicit ev1: MatVecInRing[M, V, A]): V = ev1.timesl2(lhs, m)
-  def ::*[V](rhs: V)(implicit ev1: MatVecInRing[M, V, A]): V = ev1.timesr2(m, rhs)
+  def *::[V](lhs: V)(implicit ev1: MatVecProduct[M, V]): V = ev1.timesl2(lhs, m)
+  def ::*[V](rhs: V)(implicit ev1: MatVecProduct[M, V]): V = ev1.timesr2(m, rhs)
 }
 
 final class MatMutableOps[M, A](lhs: M)(implicit ev: MatMutable[M, A]) {
