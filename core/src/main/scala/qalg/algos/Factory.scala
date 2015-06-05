@@ -12,17 +12,34 @@ import spire.syntax.cfor._
 import algebra._
 import syntax.all._
 
-trait Factory {
-  implicit class MatFactory[M, @sp(Double, Long) A](val lhs: MatBuilder[M, A]) {
-    def zeros(nRows: Int, nCols: Int)(implicit A: AdditiveMonoid[A]): M = lhs.fill(nRows, nCols)(A.zero)
-    def ones(nRows: Int, nCols: Int)(implicit A: MultiplicativeMonoid[A]): M = lhs.fill(nRows, nCols)(A.one)
-    def eye(nRows: Int, nCols: Int)(implicit A: Ring[A]): M = lhs.tabulate(nRows, nCols)(
-      (r, c) => if (r == c) A.one else A.zero
-    )
-    def eye(n: Int)(implicit A: Ring[A]): M = eye(n, n)
-  }
-  implicit class VecFactory[V, @sp(Double, Long) A](val lhs: VecBuilder[V, A]) {
-    def zeros(n: Int)(implicit A: AdditiveMonoid[A]): V = lhs.fill(n)(A.zero)
-    def ones(n: Int)(implicit A: MultiplicativeMonoid[A]): V = lhs.fill(n)(A.one)
-  }
+trait MatFactory[M] extends Any {
+  def zeros(nRows: Int, nCols: Int): M
+  def ones(nRows: Int, nCols: Int): M
+  def eye(nRows: Int, nCols: Int): M
+  def eye(n: Int): M
+}
+
+trait MatFactoryImpl[M, @sp(Double, Long) A] extends Any with MatFactory[M] {
+  implicit def M: MatInRing[M, A]
+  implicit def A: Ring[A] = M.A
+
+  def zeros(nRows: Int, nCols: Int): M = M.fill(nRows, nCols)(A.zero)
+  def ones(nRows: Int, nCols: Int): M = M.fill(nRows, nCols)(A.one)
+  def eye(nRows: Int, nCols: Int): M = M.tabulate(nRows, nCols)(
+    (r, c) => if (r == c) A.one else A.zero
+  )
+  def eye(n: Int): M = eye(n, n)
+}
+
+trait VecFactory[V] extends Any {
+  def zeros(n: Int): V
+  def ones(n: Int): V
+}
+
+trait VecFactoryImpl[V, @sp(Double, Long) A] extends Any with VecFactory[V] {
+  implicit def V: VecInRing[V, A]
+  implicit def A: Ring[A] = V.A
+
+  def zeros(n: Int): V = V.fill(n)(A.zero)
+  def ones(n: Int): V = V.fill(n)(A.one)
 }

@@ -35,7 +35,7 @@ trait FunM[@sp(Double, Long) A] extends Any {
   def nC: Int
 }
 
-class FunMat[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eqA: Eq[A]) extends MatBuilder[FunM[A], A] {
+class FunMat[@sp(Double, Long) A](implicit val A: AdditiveMonoid[A], val eqA: Eq[A]) extends MatBuilder[FunM[A], A] {
   def nRows(m: FunM[A]): Int = m.nR
   def nCols(m: FunM[A]): Int = m.nC
   def apply(m: FunM[A], r: Int, c: Int): A = m.f(r, c)

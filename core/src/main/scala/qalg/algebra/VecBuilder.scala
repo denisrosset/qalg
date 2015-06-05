@@ -7,7 +7,7 @@ import spire.syntax.eq._
 import spire.syntax.cfor._
 import util._
 
-trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
+trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] with LinBuilder[V, A] { self =>
 
   // type class methods
   def apply(v: V, at: At1): V = tabulate(at.length)(k => apply(v, at(k)))
@@ -18,6 +18,9 @@ trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] { self =>
   def build(elements: A*): V = tabulate(elements.size)(elements(_))
   def tabulate(n: Int)(f: Int => A): V
   def fill(n: Int)(a: A): V = tabulate(n)(k => a)
+  def map(v: V)(f: A => A) =
+    tabulate(length(v))( k => f(apply(v, k)) )
+
 }
 
 object VecBuilder {

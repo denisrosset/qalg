@@ -9,11 +9,12 @@ import spire.syntax.ring._
 import util._
 
 trait VecInRing[V, @sp(Double, Long) A] extends Any with VecBuilder[V, A] with Module[V, A] { self =>
-  implicit def scalar: Ring[A]
+  implicit def A: Ring[A]
+  override def scalar = A
 
   def zero: V = tabulate(0)(k => sys.error("Cannot be called"))
 
-  def id: V = fill(1)(scalar.one)
+  def id: V = fill(1)(A.one)
 
   def plus(x: V, y: V): V = {
     require(length(x) == length(y))

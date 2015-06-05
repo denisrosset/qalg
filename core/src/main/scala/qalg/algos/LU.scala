@@ -10,6 +10,27 @@ import spire.syntax.all._
 import algebra._
 import syntax.all._
 
+/** LU decomposition of a matrix X such that:
+  * X = matP * matL * matU
+  */
+trait LUDecomposition[M, V] extends Any {
+  def order: Array[Int]
+  def sign: Int
+  def matP: M
+  def matU: M
+  def matL: M
+  def isSingular: Boolean
+  def solve(b: V): V
+}
+
+trait LU[M, V] extends Any {
+  def lu(m: M): LUDecomposition[M, V]
+}
+
+trait MutableLU[M, V] extends Any {
+  def unsafeLU(m: M): LUDecomposition[M, V]
+}
+/*
 trait LU {
   case class LUDecomposition[M, @sp(Double, Long) A](compact: M, order: Array[Int], sign: Int)(implicit val M: MatInField[M, A], eqA: Eq[A]) {
     implicit def A: Field[A] = M.scalar
@@ -152,3 +173,4 @@ trait LU {
     LUDecomposition(a, order, sign)
   }
 }
+ */

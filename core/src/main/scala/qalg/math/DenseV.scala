@@ -56,8 +56,6 @@ trait DenseVecInRing[@sp(Double, Long) A, M <: Mutability] extends Any with Dens
     new DenseV(std.ArraySupport.timesl(x, y.array))
 }
 
-trait DenseVecInField[@sp(Double, Long) A, M <: Mutability] extends Any with DenseVecInRing[A, M] with VecInField[DenseV[A, M], A]
-
 trait DenseVecMutable[@sp(Double, Long) A] extends Any 
     with VecMutable[DenseV[A, Mutable], A] { self =>
   implicit def ctA: ClassTag[A]
@@ -69,47 +67,49 @@ trait DenseVecMutable[@sp(Double, Long) A] extends Any
 object DenseV {
   def seed = 0x5EED5EED
 
-  object longInstance extends DenseVecInRing[Long, Mutability] {
+  object longInstance extends DenseVecInRing[Long, Mutability] with VecInEuclideanRing[DenseV[Long, Mutability], Long] {
     def ctA = classTag[Long]
-    def scalar = Ring[Long]
+    def A = EuclideanRing[Long]
     def eqA = Eq[Long]
   }
 
-  object doubleInstance extends DenseVecInField[Double, Mutability] {
+  object doubleInstance extends DenseVecInRing[Double, Mutability] with VecInField[DenseV[Double, Mutability], Double] {
     def ctA = classTag[Double]
-    def scalar = Field[Double]
+    def A = Field[Double]
     def eqA = Eq[Double]
   }
 
-  object rationalInstance extends DenseVecInField[Rational, Mutability] {
+  object rationalInstance extends DenseVecInRing[Rational, Mutability] with VecInField[DenseV[Rational, Mutability], Rational] {
     def ctA = classTag[Rational]
-    def scalar = Field[Rational]
+    def A = Field[Rational]
     def eqA = Eq[Rational]
   }
 
-  @inline implicit def forLong[M <: Mutability]: DenseVecInRing[Long, M] =
-    longInstance.asInstanceOf[DenseVecInRing[Long, M]]
+  implicit def long[M <: Mutability]: VecInEuclideanRing[DenseV[Long, M], Long] =
+    longInstance.asInstanceOf[VecInEuclideanRing[DenseV[Long, M], Long]]
 
-  @inline implicit def forDouble[M <: Mutability]: DenseVecInField[Double, M] =
-    doubleInstance.asInstanceOf[DenseVecInField[Double, M]]
+  implicit def double[M <: Mutability]: VecInField[DenseV[Double, M], Double] =
+    doubleInstance.asInstanceOf[VecInField[DenseV[Double, M], Double]]
 
-  @inline implicit def forRational[M <: Mutability]: DenseVecInField[Rational, M] =
-    rationalInstance.asInstanceOf[DenseVecInField[Rational, M]]
+  implicit def rational[M <: Mutability]: VecInField[DenseV[Rational, M], Rational] =
+    rationalInstance.asInstanceOf[VecInField[DenseV[Rational, M], Rational]]
 
   implicit object longMutInstance extends DenseVecMutable[Long] {
-    def V = forLong[Mutable]
+    def V = long[Mutable]
     def ctA = classTag[Long]
   }
 
   implicit object doubleMutInstance extends DenseVecMutable[Double] {
-    def V = forDouble[Mutable]
+    def V = double[Mutable]
     def ctA = classTag[Double]
   }
 
   implicit object rationalMutInstance extends DenseVecMutable[Rational] {
-    def V = forRational[Mutable]
+    def V = rational[Mutable]
     def ctA = classTag[Rational]
   }
+
+  implicit def rationalPack: PackVField[DenseV[Rational, Immutable], Rational] = DenseM.rationalPack
 
   implicit def matType[@sp(Double, Long) A, M <: Mutability]: MatType[A, DenseV[A, M], DenseM[A, M]] = new MatType[A, DenseV[A, M], DenseM[A, M]] { }
 }

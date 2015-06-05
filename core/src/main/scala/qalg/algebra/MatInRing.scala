@@ -10,9 +10,10 @@ import spire.syntax.ring._
 import util._
 
 trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with Module[M, A] with MultiplicativeSemigroup[M] { self =>
-  implicit def scalar: Ring[A]
+  implicit def A: Ring[A]
+  def scalar = A
   def zero: M = tabulate(0, 0)( (r, c) => sys.error("Cannot provide element for empty matrix"))
-  def id: M = fill(1, 1)(scalar.one)
+  def id: M = fill(1, 1)(A.one)
 /*  def op(x: M, y: M): M = {
   })*/
   def plus(x: M, y: M): M = {
@@ -29,7 +30,7 @@ trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with M
     val nK = nCols(x)
     require(nK == nRows(y))
     tabulate(nRows(x), nCols(y)) { (r, c) =>
-      var acc = scalar.zero
+      var acc = A.zero
       cforRange(0 until nK) { k =>
         acc += self.apply(x, r, k) * self.apply(y, k, c)
       }

@@ -12,13 +12,13 @@ import spire.syntax.cfor._
 import algebra._
 import syntax.all._
 
-trait KronLin[L, @sp(Double, Long) A] extends Any {
+trait Kron[L] extends Any {
   def kron(x: L, y: L): L
 }
 
-trait KronVec[V, @sp(Double, Long) A] extends Any with KronLin[V, A] {
+trait VecKronImpl[V, @sp(Double, Long) A] extends Any with Kron[V] {
   implicit def V: VecInRing[V, A]
-  implicit def A: Ring[A] = V.scalar
+  implicit def A: Ring[A] = V.A
 
   def kron(x: V, y: V): V = {
     val nx = x.length
@@ -31,9 +31,9 @@ trait KronVec[V, @sp(Double, Long) A] extends Any with KronLin[V, A] {
   }
 }
 
-trait KronMat[M, @sp(Double, Long) A] extends Any with KronLin[M, A] {
+trait MatKronImpl[M, @sp(Double, Long) A] extends Any with Kron[M] {
   implicit def M: MatInRing[M, A]
-  implicit def A: Ring[A] = M.scalar
+  implicit def A: Ring[A] = M.A
 
   def kron(x: M, y: M): M = {
     val nrx = x.nRows
@@ -50,21 +50,4 @@ trait KronMat[M, @sp(Double, Long) A] extends Any with KronLin[M, A] {
       x(rx, cx) * y(ry, cy)
     }
   }
-}
-
-trait KronInstances {
-  implicit def KronMat[M, @sp(Double, Long) A](implicit M0: MatInRing[M, A]): KronMat[M, A] = new KronMat[M, A] {
-    def M = M0
-  }
-  implicit def KronVec[V, @sp(Double, Long) A](implicit V0: VecInRing[V, A]): KronVec[V, A] = new KronVec[V, A] {
-    def V = V0
-  }
-}
-
-trait Kron extends KronInstances {
-  def kron[L, @sp(Double, Long) A](lins: L*)(implicit L: Lin[L, A], ev: KronLin[L, A]): L =
-    lins.tail.foldLeft(lins.head)(ev.kron(_, _))
-
-  def reverseKron[L, @sp(Double, Long) A](lins: L*)(implicit L: Lin[L, A], ev: KronLin[L, A]): L =
-    kron[L, A](lins.reverse:_*)
 }

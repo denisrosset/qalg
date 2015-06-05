@@ -139,12 +139,12 @@ object ArrayArraySupport {
 }
 
 trait ArrayArrayMatVec[@sp(Double, Long) A] extends Any
-    with MatVecBuilder[Array[Array[A]], Array[A], A]
-    with MatVecMutable[Array[Array[A]], Array[A], A] { self =>
+    with MatBuilder[Array[Array[A]], A]
+    with MatMutable[Array[Array[A]], A]
+    with MatSlicerImpl[Array[Array[A]], Array[A], A] { self =>
   type M = Array[Array[A]]
   type V = Array[A]
   implicit def classTagA: ClassTag[A]
-  implicit def V: VecBuilder[V, A] with VecMutable[V, A]
   def M: Mat[M, A] = self
   def fromFunM(m: FunM[A]): M = Array.tabulate(m.nR, m.nC)( (r, c) => m.f(r, c))
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M = Array.tabulate(nRows, nCols)(f)
@@ -153,12 +153,12 @@ trait ArrayArrayMatVec[@sp(Double, Long) A] extends Any
   def apply(m: M, r: Int, c: Int): A = m(r)(c)
   def update(m: M, r: Int, c: Int, a: A): Unit = { m(r)(c) = a }
   def copy(m: M): M = m.map(_.clone)
-
 }
 
 trait ArrayArrayMatVecInRing[@sp(Double, Long) A] extends Any
     with ArrayArrayMatVec[A]
-    with MatVecInRing[Array[Array[A]], Array[A], A] {
+    with MatInRing[Array[Array[A]], A]
+    with MatVecProduct[Array[Array[A]], Array[A]] {
   implicit def V: VecInRing[V, A] with VecMutable[V, A]
   override def plus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.plus(x, y)
   override def minus(x: Array[Array[A]], y: Array[Array[A]]): Array[Array[A]] = ArrayArraySupport.minus(x, y)
@@ -171,7 +171,7 @@ trait ArrayArrayMatVecInRing[@sp(Double, Long) A] extends Any
 
 trait ArrayArrayMatVecInField[@sp(Double, Long) A] extends Any
     with ArrayArrayMatVecInRing[A]
-    with MatVecInField[Array[Array[A]], Array[A], A] {
+    with MatInField[Array[Array[A]], A] {
   implicit def V: VecInField[V, A] with VecMutable[V, A]
 }
 
@@ -180,19 +180,19 @@ trait ArrayArrayInstances {
   implicit val ArrayArrayDouble = new ArrayArrayMatVecInField[Double] {
     implicit val V = ArrayDouble
     def classTagA = classTag[Double]
-    def scalar = Field[Double]
+    def A = Field[Double]
     def eqA = Eq[Double]
   }
   implicit val ArrayArrayRational = new ArrayArrayMatVecInField[Rational] {
     implicit val V = ArrayRational
     def classTagA = classTag[Rational]
-    def scalar = Field[Rational]
+    def A = Field[Rational]
     def eqA = Eq[Rational]
   }
   implicit val ArrayArrayLong = new ArrayArrayMatVecInRing[Long] {
     implicit val V = ArrayLong
     def classTagA = classTag[Long]
-    def scalar = Ring[Long]
+    def A = Ring[Long]
     def eqA = Eq[Long]
   }
 }

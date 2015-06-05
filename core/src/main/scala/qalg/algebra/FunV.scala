@@ -23,7 +23,7 @@ trait FunV[@sp(Double, Long) A] extends Any {
   }
 }
 
-class FunVec[@sp(Double, Long) A](implicit val scalar: AdditiveMonoid[A], val eqA: Eq[A]) extends VecBuilder[FunV[A], A] {
+class FunVec[@sp(Double, Long) A](implicit val A: AdditiveMonoid[A], val eqA: Eq[A]) extends VecBuilder[FunV[A], A] {
   def length(v: FunV[A]): Int = v.len
   def apply(v: FunV[A], k: Int): A = v.f(k)
   def tabulate(n: Int)(f0: Int => A): FunV[A] = new FunV[A] {

@@ -62,8 +62,10 @@ trait DenseMat[@sp(Double, Long) A, M <: Mutability] extends Any
 
 trait DenseMatInRing[@sp(Double, Long) A, M <: Mutability] extends Any
     with DenseMat[A, M]
-    with MatInRing[DenseM[A, M], A] {
-
+    with MatInRing[DenseM[A, M], A]
+    with MatSlicerImpl[DenseM[A, M], DenseV[A, M], A]
+    with MatVecProductImpl[DenseM[A, M], DenseV[A, M], A] { self =>
+  def M = self
   def fromFunM(m: FunM[A]): DM = {
     val nR = m.nR
     val nC = m.nC
@@ -140,56 +142,70 @@ trait DenseMatInField[@sp(Double, Long) A, M <: Mutability] extends Any
     with DenseMatInRing[A, M]
     with MatInField[DenseM[A, M], A]
 
-/*
-
-trait DenseMatVecInField[@sp(Double, Long) A] extends Any
-    with DenseMatVecInRing[A]
-    with MatVecInField[DenseM[A], DenseV[A], A] {
-  implicit def V: VecInField[DenseV[A], A] with VecMutable[DenseV[A], A]
-}
- */
 object DenseM {
   def seed = 0x3EED4E43
 
   object longInstance extends DenseMatInRing[Long, Mutability] {
     def ctA = classTag[Long]
     def eqA = Eq[Long]
-    def scalar = Ring[Long]
+    def A = Ring[Long]
+    def V = DenseV.longInstance
   }
 
   object doubleInstance extends DenseMatInField[Double, Mutability] {
     def ctA = classTag[Double]
     def eqA = Eq[Double]
-    def scalar = Field[Double]
+    def A = Field[Double]
+    def V = DenseV.doubleInstance
   }
 
   object rationalInstance extends DenseMatInField[Rational, Mutability] {
     def ctA = classTag[Rational]
     def eqA = Eq[Rational]
-    def scalar = Field[Rational]
+    def A = Field[Rational]
+    def V = DenseV.rationalInstance
   }
 
-  @inline implicit def forLong[M <: Mutability]: DenseMatInRing[Long, M] =
+  implicit def long[M <: Mutability]: DenseMatInRing[Long, M] =
     longInstance.asInstanceOf[DenseMatInRing[Long, M]]
 
-  @inline implicit def forDouble[M <: Mutability]: DenseMatInField[Double, M] =
+  implicit def double[M <: Mutability]: DenseMatInField[Double, M] =
     doubleInstance.asInstanceOf[DenseMatInField[Double, M]]
 
-  @inline implicit def forRational[M <: Mutability]: DenseMatInField[Rational, M] =
+  implicit def rational[M <: Mutability]: DenseMatInField[Rational, M] =
     rationalInstance.asInstanceOf[DenseMatInField[Rational, M]]
 
   implicit object longMutInstance extends DenseMatMutable[Long] {
-    def M = forLong[Mutable]
+    def M = long[Mutable]
     def ctA = classTag[Long]
   }
 
   implicit object doubleMutInstance extends DenseMatMutable[Double] {
-    def M = forDouble[Mutable]
+    def M = double[Mutable]
     def ctA = classTag[Double]
   }
 
   implicit object rationalMutInstance extends DenseMatMutable[Rational] {
-    def M = forRational[Mutable]
+    def M = rational[Mutable]
     def ctA = classTag[Rational]
+  }
+
+  implicit object rationalPack extends PackMVField[DenseM[Rational, Immutable], DenseV[Rational, Immutable], Rational] {
+    type MutM = DenseM[Rational, Mutable]
+    type MutV = DenseV[Rational, Mutable]
+    def unsafeFromMutM(m: MutM): DenseM[Rational, Immutable] = m.asInstanceOf[DenseM[Rational, Immutable]]
+    def unsafeFromMutV(v: MutV): DenseV[Rational, Immutable] = v.asInstanceOf[DenseV[Rational, Immutable]]
+    def unsafeToMutM(m: DenseM[Rational, Immutable]): MutM = m.asInstanceOf[MutM]
+    def unsafeToMutV(v: DenseV[Rational, Immutable]): MutV = v.asInstanceOf[MutV]
+    def M = rational[Immutable]
+    def V = DenseV.rational[Immutable]
+    def MutMutM = rationalMutInstance
+    def MutMutV = DenseV.rationalMutInstance
+    def MutM = rational[Mutable]
+    def MutV = DenseV.rational[Mutable]
+    def MVProduct = rational[Immutable]
+    def MutProduct = rational[Mutable]
+    def MVSlicer = rational[Immutable]
+    def MutSlicer = rational[Mutable]
   }
 }

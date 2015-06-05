@@ -11,10 +11,28 @@ import algebra._
 import syntax.all._
 import util._
 
-trait GramSchmidt {
-  def gramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A]): M = {
-    import M.{scalar, eqA}
-    val res = m.copy
+trait GramSchmidt[M] extends Any {
+  def gramSchmidt(m: M): M
+}
+
+trait MutableGramSchmidt[M] extends Any with GramSchmidt[M] {
+  def gramSchmidt(m: M): M
+  def unsafeGramSchmidt(m: M): Unit
+}
+
+trait GramSchmidtNoRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
+  implicit def M: MatInField[M, A]
+  implicit def A: Field[A] = M.A
+  implicit def eqA: Eq[A] = M.eqA
+  implicit def MM: MatMutable[M, A]
+
+  def gramSchmidt(m: M): M = {
+    val res = MM.copy(m)
+    unsafeGramSchmidt(res)
+    res
+  }
+
+  def unsafeGramSchmidt(res: M): Unit = {
     val nR = res.nRows
     val nC = res.nCols
     cforRange(0 until nR) { i =>
@@ -33,12 +51,25 @@ trait GramSchmidt {
         }
       }
     }
+  }
+}
+
+trait GramSchmidtRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
+  implicit def sourceGS: MutableGramSchmidt[M]
+  implicit def M: MatInField[M, A]
+  implicit def A: Field[A] = M.A
+  implicit def eqA: Eq[A] = M.eqA
+  implicit def nrootA: NRoot[A]
+  implicit def MM: MatMutable[M, A]
+
+  def gramSchmidt(m: M): M = {
+    val res = MM.copy(m)
+    unsafeGramSchmidt(res)
     res
   }
 
-  def normGramSchmidt[M, @sp(Double) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A], A: NRoot[A]): M = {
-    import M.scalar
-    val res = gramSchmidt(m)
+  def unsafeGramSchmidt(res: M): Unit = {
+    sourceGS.unsafeGramSchmidt(res)
     cforRange(0 until res.nRows) { r =>
       var norm2 = Field[A].zero
       cforRange(0 until res.nCols) { c =>
@@ -49,11 +80,21 @@ trait GramSchmidt {
         res(r, c) = res(r, c) * normInv
       }
     }
+  }
+}
+
+trait GramSchmidtEuclidean[M, @sp(Long) A] extends Any with MutableGramSchmidt[M] {
+  implicit def M: MatInEuclideanRing[M, A]
+  implicit def A: EuclideanRing[A] = M.A
+  implicit def MM: MatMutable[M, A]
+
+  def gramSchmidt(m: M): M = {
+    val res = MM.copy(m)
+    unsafeGramSchmidt(res)
     res
   }
 
-  def euclideanGramSchmidt[M, @sp(Long) A](m: M)(implicit M: MatInRing[M, A], MM: MatMutable[M, A], A: EuclideanRing[A]): M = {
-    val res = m.copy
+  def unsafeGramSchmidt(res: M): Unit = {
     val nR = res.nRows
     val nC = res.nCols
     cforRange(0 until nR) { i =>
@@ -74,6 +115,5 @@ trait GramSchmidt {
         }
       }
     }
-    res
   }
 }

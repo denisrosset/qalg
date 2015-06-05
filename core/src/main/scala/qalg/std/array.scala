@@ -77,16 +77,16 @@ trait ArrayInstances {
   implicit val ArrayDouble = new ArrayVecInField[Double] {
     def classTagA = classTag[Double]
     def eqA = Eq[Double]
-    def scalar = Field[Double]
+    def A = Field[Double]
   }
   implicit val ArrayRational = new ArrayVecInField[Rational] {
     def classTagA = classTag[Rational]
     def eqA = Eq[Rational]
-    def scalar = Field[Rational]
+    def A = Field[Rational]
   }
   implicit val ArrayLong = new ArrayVecInRing[Long] {
     def classTagA = classTag[Long]
     def eqA = Eq[Long]
-    def scalar = Ring[Long]
+    def A = Ring[Long]
   }
 }

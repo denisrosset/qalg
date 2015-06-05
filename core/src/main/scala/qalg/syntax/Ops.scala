@@ -74,6 +74,15 @@ final class MatInRingOps[M, A](m: M)(implicit ev: MatInRing[M, A]) {
   def ::*[V](rhs: V)(implicit ev1: MatVecProduct[M, V]): V = ev1.timesr2(m, rhs)
 }
 
+final class LinBuilderOps[LA, A](l: LA)(implicit ev: LinBuilder[LA, A]) {
+  def map(l: LA)(f: A => A): LA = ev.map(l)(f)
+}
+
+final class LinInEuclideanRingOps[LA, A](l: LA)(implicit ev: LinInEuclideanRing[LA, A]) {
+  def commonFactor: A = ev.commonFactor(l)
+  def withPrimes: LA = ev.withPrimes(l)
+}
+
 final class MatMutableOps[M, A](lhs: M)(implicit ev: MatMutable[M, A]) {
   def copy: M = ev.copy(lhs)
   def update(r: Int, c: Int, a: A): Unit = ev.update(lhs, r, c, a)

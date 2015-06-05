@@ -13,8 +13,14 @@ import algebra._
 import syntax.all._
 import util._
 
-trait Cat {
-  def cat[V1, V2, @sp(Double, Long) A](first: V1, rest: V2*)(implicit V1: VecBuilder[V1, A], V2: Vec[V2, A]): V1 = {
+trait VecCat[V1, @sp(Double, Long) A] extends Any {
+  def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1
+}
+
+trait VecCatImpl[V1, @sp(Double, Long) A] extends Any with VecCat[V1, A] {
+  implicit def V1: VecBuilder[V1, A]
+
+  def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1 = {
     val startIndices = (first.length +: rest.map(_.length)).scanLeft(0)(_ + _)
     val ranges = (startIndices zip startIndices.tail).zipWithIndex map {
       case ((start, nextStart), i) => (start until nextStart) -> i
@@ -28,8 +34,17 @@ trait Cat {
       }
     }
   }
+}
 
-  def vertcat[M1, M2, @sp(Double, Long) A](first: M1, rest: M2*)(implicit M1: MatBuilder[M1, A], M2: Mat[M2, A]): M1 = {
+trait MatCat[M1, @sp(Double, Long) A] extends Any {
+  def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1
+  def horzcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1
+}
+
+trait MatCatImpl[M1, @sp(Double, Long) A] extends Any with MatCat[M1, A] {
+  implicit def M1: MatBuilder[M1, A]
+
+  def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1 = {
     val ncols = first.nCols
     require(rest.forall(_.nCols == ncols))
     val startIndices = (first.nRows +: rest.map(_.nRows)).scanLeft(0)(_ + _)
@@ -46,7 +61,7 @@ trait Cat {
     }
   }
 
-  def horzcat[M1, M2, A](first: M1, rest: M2*)(implicit M1: MatBuilder[M1, A], M2: Mat[M2, A]): M1 = {
+  def horzcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1 = {
     val nrows = first.nRows
     require(rest.forall(_.nRows == nrows))
     val startIndices = (first.nCols +: rest.map(_.nCols)).scanLeft(0)(_ + _)
@@ -59,57 +74,6 @@ trait Cat {
       if (mat == 0) first(r, c) else {
         val matC = c - startIndices(mat)
         rest(mat - 1)(r, matC)
-      }
-    }
-  }
-
-  implicit class VecCat[V, @sp(Double, Long) A](val lhs: VecBuilder[V, A]) {
-    def cat[V1](vectors: V1*)(implicit V1: Vec[V1, A]): V = {
-      require(vectors.nonEmpty)
-      val startIndices = vectors.map(_.length).scanLeft(0)(_ + _)
-      val ranges = (startIndices zip startIndices.tail).zipWithIndex map {
-        case ((start, nextStart), i) => (start until nextStart) -> i
-      }
-      val map = RangeMap(ranges: _*)
-      lhs.tabulate(startIndices.last) { k =>
-        val vec = map(k)
-        val vecK = k - startIndices(vec)
-        vectors(vec)(vecK)
-      }
-    }
-  }
-
-  implicit class MatCat[M, @sp(Double, Long) A](val lhs: MatBuilder[M, A]) {
-    // TODO: optimize
-    def vertcat[M1](matrices: M1*)(implicit M1: Mat[M1, A]): M = {
-      require(matrices.nonEmpty)
-      val ncols = matrices.head.nCols
-      require(matrices.forall(_.nCols == ncols))
-      val startIndices = matrices.map(_.nRows).scanLeft(0)(_ + _)
-      val rowRanges = (startIndices zip startIndices.tail).zipWithIndex map {
-        case ((start, nextStart), i) => (start until nextStart) -> i
-      }
-      val rowMap = RangeMap(rowRanges: _*)
-      lhs.tabulate(startIndices.last, ncols) { (r, c) =>
-        val mat = rowMap(r)
-        val matR = r - startIndices(mat)
-        matrices(mat)(matR, c)
-      }
-    }
-
-    def horzcat[M1](matrices: M1*)(implicit M1: Mat[M1, A]): M = {
-      require(matrices.nonEmpty)
-      val nrows = matrices.head.nRows
-      require(matrices.forall(_.nRows == nrows))
-      val startIndices = matrices.map(_.nCols).scanLeft(0)(_ + _)
-      val colRanges = (startIndices zip startIndices.tail).zipWithIndex map {
-        case ((start, nextStart), i) => (start until nextStart) -> i
-      }
-      val colMap = RangeMap(colRanges: _*)
-      lhs.tabulate(nrows, startIndices.last) { (r, c) =>
-        val mat = colMap(c)
-        val matC = c - startIndices(mat)
-        matrices(mat)(r, matC)
       }
     }
   }

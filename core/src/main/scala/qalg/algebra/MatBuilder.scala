@@ -8,8 +8,8 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
-  implicit def scalar: AdditiveMonoid[A]
+trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] with LinBuilder[M, A] { self =>
+  implicit def A: AdditiveMonoid[A]
 
   def apply(m: M, rows: At1, cols: At1): M = tabulate(rows.length, cols.length)( (r, c) => apply(m, rows(r), cols(c)) )
   def apply(m: M, rows: ::.type, cols: ::.type): M = m
@@ -21,6 +21,10 @@ trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] { self =>
   def build(nRows: Int, nCols: Int, elements: A*): M = tabulate(nRows, nCols)( (r, c) => elements(r * nCols + c) )
 
   def tabulate(nRows: Int, nCols: Int)(f: (Int, Int) => A): M
+
+  def map(m: M)(f: A => A) =
+    tabulate(nRows(m), nCols(m))( (r, c) => f(apply(m, r, c)) )
+
   def fill(nRows: Int, nCols: Int)(a: A): M = tabulate(nRows, nCols)( (r, c) => a )
 
   def fromCols[V](dim: Int, cols: V*)(implicit V: Vec[V, A]): M =
