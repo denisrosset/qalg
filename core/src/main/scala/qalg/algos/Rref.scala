@@ -11,10 +11,14 @@ import algebra._
 import syntax.all._
 import util._
 
-trait RrefDecomposition[M] extends Any {
+trait RrefDecomposition[M] extends Any { self =>
   def reduced: M
   def basis: Array[Int]
   def rank: Int = basis.length
+  def map[M1](f: M => M1) = new RrefDecomposition[M1] {
+    val reduced = f(self.reduced)
+    def basis = self.basis
+  }
 }
 
 trait Rref[M] extends Any {
@@ -25,26 +29,26 @@ trait MutableRref[M] extends Any with Rref[M] {
   implicit def MM: MatMutable[M, _]
 
   def unsafeRref(m: M): RrefDecomposition[M]
-  def rref(m: M) = unsafeRref(MM.copy(m))
+  def rref(m: M): RrefDecomposition[M] = unsafeRref(MM.copy(m))
 }
 
 trait MutableRrefImpl[M, @sp(Double, Long) A] extends Any with MutableRref[M] {
   implicit def M: MatInField[M, A]
   implicit def A: Field[A] = M.A
+  implicit def eqA: Eq[A] = M.eqA
   implicit def MM: MatMutable[M, A]
-  implicit def orderA: Order[A]
-  implicit def signedA: Signed[A]
+  implicit def pivotA: Pivot[A]
 
   def unsafeRref(m: M): RrefDecomposition[M] = {
     val used = collection.mutable.ArrayBuilder.make[Int]
     var r = 0
     cforRange(0 until m.nCols) { c =>
       if (r < m.nRows) {
-        var mx = m(r, c).abs
+        var mx = m(r, c)
         var pivot = r
         cforRange((r + 1) until m.nRows) { r1 =>
-          val current = m(r1, c).abs
-          if (current > mx) {
+          val current = m(r1, c)
+          if (pivotA.betterPivot(current, mx)) {
             mx = current
             pivot = r1
           }

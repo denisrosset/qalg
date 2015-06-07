@@ -17,11 +17,13 @@ trait AlgMVRing[M, V, @sp(Double, Long) A] extends Any with PackMVRing[M, V, A] 
   implicit def VCat: VecCat[V, A]
   implicit def MCat: MatCat[M, A]
   implicit def MutVCat: VecCat[MutV, A]
-  implicit def MutMCat: MatCat[MutM, A]
-  implicit def MShift: Shift[M]
-  implicit def MutMShift: Shift[MutM]
-  implicit def MDet: Det[M, A]
-  implicit def MutMDet: Det[MutM, A]
+  implicit def MutMCat: MatCat[MutM, A] 
+  implicit def VShift: VecShift[V]
+  implicit def MutVShift: MutableVecShift[MutV]
+  implicit def MShift: MatShift[M]
+  implicit def MutMShift: MutableMatShift[MutM]
+  implicit def MDeterminant: Determinant[M, A]
+  implicit def MutMDeterminant: Determinant[MutM, A]
   implicit def MTrace: Trace[M, A]
   implicit def MutMTrace: Trace[MutM, A]
 }
@@ -39,8 +41,16 @@ trait AlgMVRingImpl[M, V, @sp(Double, Long) A] extends AlgMVRing[M, V, A] { self
   implicit object VCat extends VecCatImpl[V, A] { def V1 = self.V }
   implicit object MutMCat extends MatCatImpl[MutM, A] { def M1 = self.MutM }
   implicit object MutVCat extends VecCatImpl[MutV, A] { def V1 = self.MutV }
-  implicit object MShift extends ShiftImpl[M, A] { def M = self.M }
-  implicit object MutMShift extends ShiftImpl[MutM, A] { def M = self.MutM }
+  implicit object MShift extends MatShiftImpl[M, A] { def M = self.M }
+  implicit object MutMShift extends MutableMatShiftImpl[MutM, A] {
+    def M = self.MutM
+    def MM = self.MutMutM
+  }
+  implicit object VShift extends VecShiftImpl[V, A] { def V = self.V }
+  implicit object MutVShift extends MutableVecShiftImpl[MutV, A] {
+    def V = self.MutV
+    def VM = self.MutMutV
+  }
   implicit object MTrace extends TraceImpl[M, A] { def M = self.M }
   implicit object MutMTrace extends TraceImpl[MutM, A] { def M = self.MutM }
 }

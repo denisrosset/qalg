@@ -22,9 +22,9 @@ trait MutableGramSchmidt[M] extends Any with GramSchmidt[M] {
 
 trait GramSchmidtNoRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
   implicit def M: MatInField[M, A]
+  implicit def MM: MatMutable[M, A]
   implicit def A: Field[A] = M.A
   implicit def eqA: Eq[A] = M.eqA
-  implicit def MM: MatMutable[M, A]
 
   def gramSchmidt(m: M): M = {
     val res = MM.copy(m)

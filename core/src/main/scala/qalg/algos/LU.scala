@@ -10,167 +10,253 @@ import spire.syntax.all._
 import algebra._
 import syntax.all._
 
-/** LU decomposition of a matrix X such that:
-  * X = matP * matL * matU
+/** LU Decomposition.
+  * For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n
+  * unit lower triangular matrix L, an n-by-n upper triangular matrix U,
+  * and a permutation vector piv of length m so that A(piv,:) = L*U.
+  * If m < n, then L is m-by-m and U is m-by-n.
+  * 
+  * The LU decompostion with pivoting always exists, even if the matrix is
+  * singular, so the constructor will never fail.  The primary use of the
+  * LU decomposition is in the solution of square systems of simultaneous
+  * linear equations.  This will fail if isSingular returns true.
   */
-trait LUDecomposition[M, V] extends Any {
-  def order: Array[Int]
-  def sign: Int
-  def matP: M
-  def matU: M
-  def matL: M
+trait LUDecomposition[M, V, @sp(Double) A] extends Any { self => // not @sp(Long)
+  def pivots: Array[Int]
+  def permutationCount: Int
+  def permutation: M
+  def determinant: A
+  def lower: M
+  def upper: M
   def isSingular: Boolean
-  def solve(b: V): V
+  def solveV(b: V): V
+  def solveM(b: M): M
+  def inverse: M
+  def map[M1, V1](fm: M => M1, fmInv: M1 => M, fv: V => V1, fvInv: V1 => V): LUDecomposition[M1, V1, A] = new LUDecomposition[M1, V1, A] {
+    def pivots = self.pivots
+    def permutationCount = self.permutationCount
+    def permutation = fm(self.permutation)
+    def determinant = self.determinant
+    def lower = fm(self.lower)
+    def upper = fm(self.upper)
+    def isSingular: Boolean = self.isSingular
+    def solveV(b: V1): V1 = fv(self.solveV(fvInv(b)))
+    def solveM(b: M1): M1 = fm(self.solveM(fmInv(b)))
+    def inverse: M1 = fm(self.inverse)
+  }
 }
 
-trait LU[M, V] extends Any {
-  def lu(m: M): LUDecomposition[M, V]
+trait LU[M, V, @sp(Double) A] extends Any { // not @sp(Long)
+  def lu(m: M): LUDecomposition[M, V, A]
 }
 
-trait MutableLU[M, V] extends Any {
-  def unsafeLU(m: M): LUDecomposition[M, V]
+trait MutableLU[M, V, @sp(Double) A] extends Any with LU[M, V, A] { // not @sp(Long)
+  def unsafeLU(m: M): LUDecomposition[M, V, A]
 }
-/*
-trait LU {
-  case class LUDecomposition[M, @sp(Double, Long) A](compact: M, order: Array[Int], sign: Int)(implicit val M: MatInField[M, A], eqA: Eq[A]) {
-    implicit def A: Field[A] = M.scalar
-    def matP: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
-      if (r == order(c)) A.one else A.zero
+/** Implementation taken from the JAMA library (NIST), in the public domain, and
+  * translated to Scala.
+  */
+trait MutableLUImpl[M, V, @sp(Double, Long) A] extends Any with MutableLU[M, V, A] {
+  implicit def M: MatInField[M, A]
+  implicit def V: VecInField[V, A]
+  implicit def A: Field[A] = M.A
+  implicit def eqA: Eq[A] = M.eqA
+  implicit def MM: MatMutable[M, A]
+  implicit def VM: VecMutable[V, A]
+  implicit def MF: MatFactory[M]
+  implicit def VF: VecFactory[V]
+  implicit def MS: MutableMatShift[M]
+  implicit def VS: MutableVecShift[V]
+  implicit def pivotA: Pivot[A]
+  
+  def lu(m: M): LUDecomposition[M, V, A] = unsafeLU(MM.copy(m))
+
+  class LUDecompositionImpl(
+    val pivots: Array[Int],
+    val permutationCount: Int,
+    lu: M) extends LUDecomposition[M, V, A] {
+    val m = lu.nRows // row dimension
+    val n = lu.nCols // column dimension
+    lazy val pivotsInverse = {
+      val res = new Array[Int](pivots.length)
+      cforRange(0 until pivots.length) { i =>
+        res(pivots(i)) = i
+      }
+      res
     }
-    def matU: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
-      if (r < c) compact(r, c) // upper triangular part
-      else if (r == c) A.one // diagonal elements are = 1 by definition
-      else A.zero
+    def permutation: M = {
+      val p = zeros[M](n, n)
+      cforRange(0 until n) { i => p(pivots(i), i) = A.one }
+      p
     }
-    def matL: M = M.tabulate(compact.nRows, compact.nCols) { (r, c) =>
-      if (r >= c) compact(r, c) // lower triangular part
-      else A.zero
+    def lower: M = {
+      val l = zeros[M](m, n)
+      cforRange(0 until n) { i => l(i, i) = A.one }
+      cforRange(0 until m) { i =>
+        cforRange(0 until i) { j =>
+            l(i, j) = lu(i, j)
+        }
+      }
+      l
     }
-    def original: M = matP * matL * matU
+    def upper: M = {
+      val u = zeros[M](n, n)
+      cforRange(0 until n) { i =>
+        cforRange(i until n) { j =>
+          u(i, j) = lu(i, j)
+        }
+      }
+      u
+    }
     def isSingular: Boolean = {
-      cforRange(0 until compact.nRows) { i =>
-        if (compact(i, i).isZero)
-          return true
+      cforRange(0 until n) { j =>
+        if (lu(j, j).isZero) return true
       }
       false
     }
-    def solve[V](b: V)(implicit V: VecInField[V, A], VM: VecMutable[V, A]): V = {
-      require(!isSingular)
-      var n = compact.nRows
-      // rearrange the elements of the b vector, hold them into x
-      val x = V.tabulate(n)(k => b(order(k)))
-      // do forward substitution, replacing x vector
-      x(0) = x(0) / compact(0,0)
-      cforRange(1 until n) { i =>
-        var sum: A = A.zero
-        cforRange(0 until i) { j =>
-          sum = sum + compact(i,j) * x(j)
-        }
-        x(i) = (x(i) - sum)/compact(i,i)
+    def determinant: A = {
+      if (m != n)
+        throw new IllegalArgumentException("Matrix must be square.")
+      var d = if ((permutationCount & 1) == 0) A.one else -A.one
+      cforRange(0 until n) { j =>
+        d *= lu(j, j)
       }
-      // now get the solution vector, x(n-1) is already done
-      cforRange(n - 2 to 0 by -1) { i =>
-        var sum: A = A.zero
-        cforRange(i + 1 until n) { j =>
-          sum = sum + compact(i,j) * x(j)
+      d
+    }
+    def solveV(b: V): V = {
+      if (b.length != m)
+        throw new IllegalArgumentException("Matrix row dimensions must agree.")
+      if (isSingular)
+        throw new RuntimeException("Matrix is singular.")
+      // Copy right hand side with pivoting
+      val x = b.permuted(pivots)
+
+      // Solve L*Y = B(piv,:)
+      cforRange(0 until n) { k =>
+        cforRange(k + 1 until n) { i =>
+          x(i) = x(i) - x(k) * lu(i, k)
         }
-        x(i) = x(i) - sum
+      }
+
+      // Solve U*X = Y;
+      cforRange(n - 1 to 0 by -1) { k =>
+        x(k) = x(k) / lu(k, k)
+        cforRange(0 until k) { i =>
+          x(i) = x(i) - x(k) * lu(i, k)
+        }
       }
       x
     }
+
+    def solveM(b: M): M = {
+      if (b.nRows != m)
+        throw new IllegalArgumentException("Matrix row dimensions must agree.")
+      if (isSingular)
+        throw new RuntimeException("Matrix is singular.")
+      val nx = b.nCols
+      // Copy right hand side with pivoting
+      val x = b.rowsPermuted(pivots)
+
+      // Solve L*Y = B(piv,:)
+      cforRange(0 until n) { k =>
+        cforRange(k + 1 until n) { i =>
+          cforRange(0 until nx) { j =>
+            x(i, j) = x(i, j) - x(k, j) * lu(i, k)
+          }
+        }
+      }
+
+      // Solve U*X = Y;
+      cforRange(n - 1 to 0 by -1) { k =>
+        cforRange(0 until nx) { j =>
+          x(k, j) = x(k, j) / lu(k, k)
+        }
+        cforRange(0 until k) { i =>
+          cforRange(0 until nx) { j =>
+            x(i, j) = x(i, j) - x(k, j) * lu(i, k)
+          }
+        }
+      }
+      x
+    }
+    def inverse: M = {
+      require(m == n)
+      val r = lu.copy
+      // Calculates inv(upper)
+      cforRange(n - 1 to 0 by -1) { j =>
+        r(j, j) = r(j, j).reciprocal
+        cforRange(j - 1 to 0 by - 1) { i =>
+          var sum = r(i, j) * r(j, j)
+          cforRange(j - 1 until i by - 1) { k =>
+            sum = sum + r(i, k) * r(k, j)
+          }
+          r(i, j) = -sum / r(i, i)
+        }
+      }
+      // Solves inv(A) * lower = inv(upper)
+      cforRange(0 until n) { i =>
+        cforRange(n - 2 to 0 by - 1) { j =>
+          cforRange(j + 1 until n) { k =>
+            r(i, j) = r(i, j) - r(i, k) * lu(k, j)
+          }
+        }
+      }
+      // Swaps columns (reverses pivots permutations).
+      r.rowsPermuteInverse(pivotsInverse)
+      r
+    }
   }
 
-  // assumes non-singular square matrix
-  def lu[M, @sp(Double, Long) A](m: M)(implicit M: MatInField[M, A], MM: MatMutable[M, A], orderA: Order[A], signedA: Signed[A]): LUDecomposition[M, A] = {
-    implicit def fieldA: Field[A] = M.scalar
-    val n = m.nRows
-    require(n == m.nCols)
-    var sign = 1 // changes sign with each row interchange
-    val order: Array[Int] = Array.tabulate(n)(i => i) // establish initial ordering in order vector
-    val a: M = m.copy
-     /* Find pivot element
-     * 
-     * The function pivot finds the largest element for a pivot in "jcol"
-     * of Matrix "a", performs interchanges of the appropriate
-     * rows in "a", and also interchanges the corresponding elements in
-     * the order vector.
-     *
-     * using    a      - n by n Matrix of coefficients
-     * using    order  - integer vector to hold row ordering
-     * @param   jcol   - column of "a" being searched for pivot element
-     */
-    def pivot(jcol: Int): Boolean = {
-      var ipvt = jcol
-      var big = a(ipvt, ipvt).abs
-      // Find biggest element on or below diagonal. This will be the pivot row.
-      cforRange(ipvt + 1 until n) { i =>
-        val anext = a(i, jcol).abs
-        if (anext > big) {
-          big = anext
-          ipvt = i
+  def unsafeLU(lu: M): LUDecomposition[M, V, A] = {
+    val m = lu.nRows // row dimension
+    val n = lu.nCols // column dimension
+    require(m >= n)
+    val piv = Array.tabulate(m)(identity) // internal storage of pivot vector
+    var pCount = 0 // permutation count
+   // Use a "left-looking", dot-product, Crout/Doolittle algorithm.
+
+    // Outer loop.
+    val luColj = zeros[V](m)
+
+    cforRange(0 until n) { j =>
+      // Make a copy of the j-th column to localize references.
+      cforRange(0 until m) { i => luColj(i) = lu(i, j) }
+
+      // Apply previous transformations.
+      cforRange(0 until m) { i =>
+        // Most of the time is spent in the following dot product.
+        val kmax = min(i, j)
+        var s = A.zero
+        cforRange(0 until kmax) { k =>
+          s = s + lu(i, k) * luColj(k)
+        }
+        val nv = luColj(i) - s
+        luColj(i) = nv
+        lu(i, j) = nv
+      }
+      // Find pivot and exchange if necessary.
+      var p = j
+      cforRange(j+1 until m) { i =>
+        if (pivotA.betterPivot(luColj(i), luColj(p)))
+          p = i
+      }
+      if (p != j) {
+        lu.rowsPermute(p, j)
+        val t = piv(p)
+        piv(p) = j
+        piv(j) = t
+        pCount += 1
+      }
+
+      // Compute multipliers.
+      val diag = lu(j, j)
+      if (j < m && !diag.isZero) {
+        cforRange(j + 1 until m) { i =>
+          lu(i, j) = lu(i, j) / diag
         }
       }
-      if (big.isZero)
-        throw new IllegalArgumentException("LU decomposition is implemented for now only for non-singular matrices.")
-      // Interchange pivot row (ipvt) with current row (jcol).
-      if (ipvt == jcol) false
-      else {
-        cforRange(0 until n) { c =>
-          val el = a(jcol, c)
-          a(jcol, c) = a(ipvt, c)
-          a(ipvt, c) = el
-        }
-        val tmp = order(jcol)
-        order(jcol) = order(ipvt)
-        order(ipvt) = tmp
-        true
-      }
     }
-
-    /* do pivoting for first column and check for singularity */
-    if (pivot(0)) sign = -sign
-    val diag0 = fieldA.one/a(0,0)
-    cforRange(1 until n) { i =>
-      a(0,i) = a(0,i) * diag0
-    }
-
-    //  Now complete the computing of L and U elements.
-    //  The general plan is to compute a column of L's, then
-    //  call pivot to interchange rows, and then compute
-    //  a row of U's.
-
-    var nm1 = n - 1
-
-    cforRange(1 until nm1) { j =>
-      /* column of L's */
-      cforRange(j until n) { i =>
-	var sum = fieldA.zero
-        cforRange(0 until j) { k =>
-          sum += a(i,k) * a(k,j)
-        }
-        a(i,j) = a(i,j) - sum
-      }
-      /* pivot, and check for singularity */
-      if (pivot(j)) sign = -sign
-      /* row of U's */
-      val diag = fieldA.one/a(j,j)
-      cforRange (j + 1 until n) { k =>
-        var sum = fieldA.zero
-        cforRange(0 until j) { i =>
-          sum += a(j,i) * a(i,k)
-        }
-        a(j,k) = (a(j,k) - sum) * diag
-      }
-    }
-
-    /* still need to get last element in L Matrix */
-
-    var suml = fieldA.zero
-    cforRange(0 until nm1) { k =>
-      suml += a(nm1,k) * a(k,nm1)
-    }
-    a(nm1,nm1) = a(nm1, nm1) - suml
-    LUDecomposition(a, order, sign)
+    new LUDecompositionImpl(piv, pCount, lu)
   }
 }
- */
+

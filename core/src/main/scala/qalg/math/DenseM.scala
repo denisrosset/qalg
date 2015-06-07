@@ -13,6 +13,7 @@ import spire.syntax.field._
 import spire.syntax.cfor._
 
 import algebra._
+import algos._
 
 /** Dense matrix stored in row-major order. */
 final class DenseM[@sp(Double, Long) A: ClassTag, M <: Mutability](val nR: Int, val nC: Int, val array: Array[A]) {
@@ -190,9 +191,10 @@ object DenseM {
     def ctA = classTag[Rational]
   }
 
-  implicit object rationalPack extends PackMVField[DenseM[Rational, Immutable], DenseV[Rational, Immutable], Rational] {
+  implicit object rationalPack extends AlgMVFieldImpl[DenseM[Rational, Immutable], DenseV[Rational, Immutable], Rational] {
     type MutM = DenseM[Rational, Mutable]
     type MutV = DenseV[Rational, Mutable]
+    def pivotA = Pivot.rational
     def unsafeFromMutM(m: MutM): DenseM[Rational, Immutable] = m.asInstanceOf[DenseM[Rational, Immutable]]
     def unsafeFromMutV(v: MutV): DenseV[Rational, Immutable] = v.asInstanceOf[DenseV[Rational, Immutable]]
     def unsafeToMutM(m: DenseM[Rational, Immutable]): MutM = m.asInstanceOf[MutM]
