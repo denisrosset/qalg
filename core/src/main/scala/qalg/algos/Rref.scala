@@ -44,16 +44,16 @@ trait MutableRrefImpl[M, @sp(Double, Long) A] extends Any with MutableRref[M] {
     var r = 0
     cforRange(0 until m.nCols) { c =>
       if (r < m.nRows) {
-        var mx = m(r, c)
+        var pivotPriority = pivotA.priority(m(r, c))
         var pivot = r
         cforRange((r + 1) until m.nRows) { r1 =>
-          val current = m(r1, c)
-          if (pivotA.betterPivot(current, mx)) {
-            mx = current
+          val r1Priority = pivotA.priority(m(r1, c))
+          if (r1Priority > pivotPriority) {
+            pivotPriority = r1Priority
             pivot = r1
           }
         }
-        if (!mx.isZero) { // if el is zero, skip the column c
+        if (pivotPriority != 0) { // if el is zero, skip the column c
           used += c // keep track of bound variables
 
           // swap current row and pivot row
@@ -68,19 +68,24 @@ trait MutableRrefImpl[M, @sp(Double, Long) A] extends Any with MutableRref[M] {
             m(r, c1) = m(r, c1) / f
           }
           // eliminate current column
-          cforRange(0 until m.nRows) { ridx =>
-            if (ridx != r)
+          cforRange(0 until m.nRows) { r1 =>
+            if (r1 != r) {
+              val g = m(r1, c)
               cforRange(c until m.nCols) { c1 =>
-                m(ridx, c1) = m(ridx, c1) - m(r, c1) * m(ridx, c)
+                m(r1, c1) = m(r1, c1) - g * m(r, c1)
               }
+            }
           }
           r += 1
-        }
+        } else // set zero terms to exact zero (used for floating point)
+          cforRange(r until m.nRows) { r1 =>
+            m(r, c) = A.zero
+          }
       }
     }
     new RrefDecomposition[M] {
       def reduced = m
-      def basis = used.result
+      val basis = used.result
     }
   }
 }

@@ -9,18 +9,23 @@ import spire.std.long._
 import algebra._
 import algos._
 import math._
-import std.arrayarray._
-import std.array._
 import syntax.all._
 
-class LUSuite extends FunSuite with NonImplicitAssertions {
+class LUSuite[M, V](val pack: AlgMVField[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
+  import pack._
   test("Linear solver") {
-    val mA = DenseM.forRational.build(3, 3,
+    val mA = M.build(3, 3,
        3,  2, -1,
        2, -2,  4,
       -1, Rational(1, 2), -1)
-    val vb = DenseV.forRational.build(1, -2, 0)
-    val res = DenseV.forRational.build(1, -2, -2)
-    assert(lu(mA).solve(vb) === res)
+    val vb = V.build(1, -2, 0)
+    val res = V.build(1, -2, -2)
+    assert(mA.lu.solveV(vb) === res)
+  }
+  test("Determinant") {
+    val mA = M.build(3,3, -2,2,-3, -1,1,3, 2,0,-1)
+    assert(mA.lu.determinant === 18)
   }
 }
+
+final class DenseLUSuite extends LUSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]](DenseM.rationalPack)

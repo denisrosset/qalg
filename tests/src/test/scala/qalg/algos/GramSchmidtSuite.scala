@@ -9,20 +9,20 @@ import spire.std.long._
 import algebra._
 import algos._
 import math._
-import std.arrayarray._
-import std.array._
 import syntax.all._
 
 class GramSchmidtSuite extends FunSuite with NonImplicitAssertions {
   test("Rational Gram Schmidt") {
-    val m = DenseM.forRational.build(2, 3,
+    import DenseM.rationalPack._
+    val m = M.build(2, 3,
       3, 1, 1,
       2, 2, 1)
-    val res = DenseM.forRational.build(2, 3,
-      Rational(3), Rational(1), Rational(1),
+    val res = M.build(2, 3,
+      3, 1, 1,
       Rational(-5, 11), Rational(13, 11), Rational(2, 11))
-    assert(gramSchmidt(m) === res)
+    assert(m.gramSchmidt === res)
   }
+  /*
   test("Integer Gram Schmidt") {
     val m = DenseM.forLong.build(2, 3,
       3, 1, 1,
@@ -31,5 +31,5 @@ class GramSchmidtSuite extends FunSuite with NonImplicitAssertions {
       3, 1, 1,
       -5, 13, 2)
     assert(euclideanGramSchmidt(m) === res)
-  }
+  }*/
 }

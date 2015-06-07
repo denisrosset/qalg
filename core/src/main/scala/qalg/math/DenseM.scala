@@ -194,6 +194,7 @@ object DenseM {
   implicit object rationalPack extends AlgMVFieldImpl[DenseM[Rational, Immutable], DenseV[Rational, Immutable], Rational] {
     type MutM = DenseM[Rational, Mutable]
     type MutV = DenseV[Rational, Mutable]
+    def classTagMutM = classTag[MutM]
     def pivotA = Pivot.rational
     def unsafeFromMutM(m: MutM): DenseM[Rational, Immutable] = m.asInstanceOf[DenseM[Rational, Immutable]]
     def unsafeFromMutV(v: MutV): DenseV[Rational, Immutable] = v.asInstanceOf[DenseV[Rational, Immutable]]
@@ -209,5 +210,25 @@ object DenseM {
     def MutProduct = rational[Mutable]
     def MVSlicer = rational[Immutable]
     def MutSlicer = rational[Mutable]
+  }
+
+  implicit object longPack extends AlgMVRingImpl[DenseM[Long, Immutable], DenseV[Long, Immutable], Long] {
+    type MutM = DenseM[Long, Mutable]
+    def classTagMutM = classTag[MutM]
+    type MutV = DenseV[Long, Mutable]
+    def unsafeFromMutM(m: MutM): DenseM[Long, Immutable] = m.asInstanceOf[DenseM[Long, Immutable]]
+    def unsafeFromMutV(v: MutV): DenseV[Long, Immutable] = v.asInstanceOf[DenseV[Long, Immutable]]
+    def unsafeToMutM(m: DenseM[Long, Immutable]): MutM = m.asInstanceOf[MutM]
+    def unsafeToMutV(v: DenseV[Long, Immutable]): MutV = v.asInstanceOf[MutV]
+    def M: MatInRing[DenseM[Long, Immutable], Long] = long[Immutable]
+    def V: VecInRing[DenseV[Long, Immutable], Long] = DenseV.long[Immutable]
+    def MutMutM: MatMutable[DenseM[Long, Mutable], Long] = longMutInstance
+    def MutMutV: VecMutable[DenseV[Long, Mutable], Long] = DenseV.longMutInstance
+    def MutM: MatInRing[DenseM[Long, Mutable], Long] = long[Mutable]
+    def MutV: VecInRing[DenseV[Long, Mutable], Long] = DenseV.long[Mutable]
+    def MVProduct = long[Immutable]
+    def MutProduct = long[Mutable]
+    def MVSlicer = long[Immutable]
+    def MutSlicer = long[Mutable]
   }
 }

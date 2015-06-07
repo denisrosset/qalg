@@ -36,8 +36,7 @@ final class CommonsRealVec
 }
 
 final class CommonsRealMatVec(val V: VecInField[RealVector, Double] with VecMutable[RealVector, Double])
-    extends MatVecInField[RealMatrix, RealVector, Double]
-    with MatVecMutable[RealMatrix, RealVector, Double] { self =>
+    extends MatVecInField[RealMatrix, RealVector, Double] { self =>
   type M = RealMatrix
   type V = RealVector
   type A = Double

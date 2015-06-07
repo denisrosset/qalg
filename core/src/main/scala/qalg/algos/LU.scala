@@ -181,28 +181,28 @@ trait MutableLUImpl[M, V, @sp(Double, Long) A] extends Any with MutableLU[M, V, 
     }
     def inverse: M = {
       require(m == n)
-      val r = lu.copy
-      // Calculates inv(upper)
+      val r = upper
+      // Calculate inv(upper)
       cforRange(n - 1 to 0 by -1) { j =>
         r(j, j) = r(j, j).reciprocal
-        cforRange(j - 1 to 0 by - 1) { i =>
-          var sum = r(i, j) * r(j, j)
+        cforRange(j - 1 to 0 by -1) { i =>
+          var sum = -r(i, j) * r(j, j)
           cforRange(j - 1 until i by - 1) { k =>
-            sum = sum + r(i, k) * r(k, j)
+            sum = sum - r(i, k) * r(k, j)
           }
-          r(i, j) = -sum / r(i, i)
+          r(i, j) = sum / r(i, i)
         }
       }
-      // Solves inv(A) * lower = inv(upper)
+      // Solve inv(I) * lower = inv(upper)
       cforRange(0 until n) { i =>
-        cforRange(n - 2 to 0 by - 1) { j =>
+        cforRange(n - 2 to 0 by -1) { j =>
           cforRange(j + 1 until n) { k =>
             r(i, j) = r(i, j) - r(i, k) * lu(k, j)
           }
         }
       }
-      // Swaps columns (reverses pivots permutations).
-      r.rowsPermuteInverse(pivotsInverse)
+      // Correct pivot permutations.
+      r.colsPermuteInverse(pivotsInverse)
       r
     }
   }
@@ -236,9 +236,13 @@ trait MutableLUImpl[M, V, @sp(Double, Long) A] extends Any with MutableLU[M, V, 
       }
       // Find pivot and exchange if necessary.
       var p = j
-      cforRange(j+1 until m) { i =>
-        if (pivotA.betterPivot(luColj(i), luColj(p)))
+      var pPriority = pivotA.priority(luColj(j))
+      cforRange(j + 1 until m) { i =>
+        val iPriority = pivotA.priority(luColj(i))
+        if (iPriority > pPriority) {
           p = i
+          pPriority = iPriority
+        }
       }
       if (p != j) {
         lu.rowsPermute(p, j)

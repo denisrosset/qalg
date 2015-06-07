@@ -3,9 +3,13 @@ package algos
 
 import scala.{specialized => sp}
 
+import scala.reflect.ClassTag
+
 import algebra._
 
-trait AlgMVRing[M, V, @sp(Double, Long) A] extends Any with PackMVRing[M, V, A] {
+trait AlgMVRing[M0, V0, @sp(Double, Long) A] extends Any with PackMVRing[M0, V0, A] {
+  type M = M0
+  type V = V0
   implicit def MFactory: MatFactory[M]
   implicit def VFactory: VecFactory[V]
   implicit def MutMFactory: MatFactory[MutM]
@@ -29,6 +33,7 @@ trait AlgMVRing[M, V, @sp(Double, Long) A] extends Any with PackMVRing[M, V, A] 
 }
 
 trait AlgMVRingImpl[M, V, @sp(Double, Long) A] extends AlgMVRing[M, V, A] { self =>
+  implicit def classTagMutM: ClassTag[MutM]
   implicit object MFactory extends MatFactoryImpl[M, A] { def M = self.M }
   implicit object VFactory extends VecFactoryImpl[V, A] { def V = self.V }
   implicit object MutMFactory extends MatFactoryImpl[MutM, A] { def M = self.MutM }
@@ -53,4 +58,13 @@ trait AlgMVRingImpl[M, V, @sp(Double, Long) A] extends AlgMVRing[M, V, A] { self
   }
   implicit object MTrace extends TraceImpl[M, A] { def M = self.M }
   implicit object MutMTrace extends TraceImpl[MutM, A] { def M = self.MutM }
+  implicit object MutMDeterminant extends DeterminantMutableRingImpl[MutM, A] {
+    def classTagM = self.classTagMutM
+    def M = self.MutM
+    def MF = self.MutMFactory
+    def MM = self.MutMutM
+  }
+  implicit object MDeterminant extends Determinant[M, A] {
+    def determinant(m: M): A = MutMDeterminant.determinant(unsafeToMutM(m))
+  }
 }

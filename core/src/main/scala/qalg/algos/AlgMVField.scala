@@ -50,10 +50,10 @@ trait AlgMVFieldImpl[M, V, @sp(Double, Long) A] extends AlgMVField[M, V, A] with
     def VF = self.MutVFactory
     def pivotA = self.pivotA
   }
-  implicit object MDeterminant extends Determinant[M, A] {
-    def determinant(m: M) = MLU.lu(m).determinant
-  }
-  implicit object MutMDeterminant extends Determinant[MutM, A] {
-    def determinant(m: MutM) = MutMLU.lu(m).determinant
-  }
+//  implicit object MDeterminant extends Determinant[M, A] {
+//    def determinant(m: M) = MLU.lu(m).determinant
+//  }
+//  implicit object MutMDeterminant extends Determinant[MutM, A] {
+//    def determinant(m: MutM) = MutMLU.lu(m).determinant
+//  }
 }
