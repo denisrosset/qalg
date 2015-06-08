@@ -24,8 +24,7 @@ trait MutableVecShift[V] extends Any with VecShift[V] {
   def permuteInverse(v: V, inversePerm: Array[Int]): Unit
 }
 
-trait VecShiftImpl[V, @sp(Double, Long) A] extends Any with VecShift[V] {
-  implicit def V: VecBuilder[V, A]
+final class VecShiftImpl[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A]) extends VecShift[V] {
 
   def circShifted(v: V, shift: Int): V = {
     val n = V.length(v)
@@ -43,10 +42,24 @@ trait VecShiftImpl[V, @sp(Double, Long) A] extends Any with VecShift[V] {
     V.tabulate(V.length(v)) { k => V.apply(v, perm(k)) }
 }
 
-trait MutableVecShiftImpl[V, @sp(Double, Long) A] extends Any with MutableVecShift[V] with VecShiftImpl[V, A] {
-  implicit def VM: VecMutable[V, A]
+final class MutableVecShiftImpl[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A], VM: VecMutable[V, A]) extends MutableVecShift[V] {
 
   def circShift(v: V, shift: Int): Unit = ??? // TODO
+
+  def circShifted(v: V, shift: Int): V = {
+    val n = V.length(v)
+    V.tabulate(n) { k => V.apply(v, (k + shift) % n) }
+  }
+
+  def permuted(v: V, k1: Int, k2: Int): V =
+    V.tabulate(V.length(v)) { k =>
+      if (k == k1) V.apply(v, k2)
+      else if (k == k2) V.apply(v, k1)
+      else V.apply(v, k)
+    }
+
+  def permuted(v: V, perm: Array[Int]): V =
+    V.tabulate(V.length(v)) { k => V.apply(v, perm(k)) }
 
   def permute(v: V, k1: Int, k2: Int): Unit = {
     val t = V.apply(v, k1)

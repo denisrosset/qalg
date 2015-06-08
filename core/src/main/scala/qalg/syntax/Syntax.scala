@@ -9,7 +9,6 @@ import algebra._
 trait LinSyntax {
   implicit def linSyntax[LA, A](l: LA)(implicit ev: Lin[LA, A]): LinOps[LA, A] = new LinOps(l)
   implicit def linBuilderSyntax[LA, A](l: LA)(implicit ev: LinBuilder[LA, A]): LinBuilderOps[LA, A] = new LinBuilderOps(l)
-  implicit def linInEuclideanRingOps[LA, A](l: LA)(implicit ev: LinInEuclideanRing[LA, A]): LinInEuclideanRingOps[LA, A] = new LinInEuclideanRingOps(l)
 }
 
 trait VecSyntax extends LinSyntax {

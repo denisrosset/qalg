@@ -45,6 +45,14 @@ object ArraySupport {
     while (i < y.length) { y(i) = r * x(i); i += 1 }
     y
   }
+
+  def timesr[@sp(Double, Long) A: ClassTag: MultiplicativeSemigroup](x: Array[A], r: A): Array[A] = {
+    val y = new Array[A](x.length)
+    var i = 0
+    while (i < y.length) { y(i) = x(i) * r; i += 1 }
+    y
+  }
+
 }
 
 trait ArrayVec[@sp(Double, Long) A] extends Any

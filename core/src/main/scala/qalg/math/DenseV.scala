@@ -14,7 +14,8 @@ import spire.syntax.cfor._
 
 import algebra._
 
-final class DenseV[@sp(Double, Long) A: ClassTag, M <: Mutability](val array: Array[A]) {
+final class DenseV[@sp(Double, Long) A: ClassTag, M <: Mutability](val array: Array[A]) { lhs =>
+  def length: Int = array.length
   override def toString = math.MatrixPrinting.print(1, array.length, (r: Int, c: Int) => array(c).toString)
   override def equals(other: Any): Boolean = other match {
     case that: DenseV[A, _] =>
@@ -34,8 +35,38 @@ final class DenseV[@sp(Double, Long) A: ClassTag, M <: Mutability](val array: Ar
     }
     MurmurHash3.finalizeHash(h, array.length)
   }
+
+  def unary_-(implicit A: Ring[A]): DenseV[A, M] = new DenseV[A, M](std.ArraySupport.negate(lhs.array))
+  def +(rhs: DenseV[A, M])(implicit A: Ring[A]): DenseV[A, M] = new DenseV[A, M](std.ArraySupport.plus(lhs.array, rhs.array))
+  def -(rhs: DenseV[A, M])(implicit A: Ring[A]): DenseV[A, M] = new DenseV[A, M](std.ArraySupport.minus(lhs.array, rhs.array))
+  def *:(lhs: A)(implicit A: Ring[A]): DenseV[A, M] =
+    new DenseV[A, M](std.ArraySupport.timesl(lhs, array))
+  def :*(rhs: A)(implicit A: Ring[A]): DenseV[A, M] =
+    new DenseV[A, M](std.ArraySupport.timesr(lhs.array, rhs))
 }
 
+object DenseV {
+  def seed = 0x5EED5EED
+  def tabulate[@sp(Double, Long) A: ClassTag, M <: Mutability](n: Int)(f: Int => A): DenseV[A, M] = new DenseV[A, M](Array.tabulate(n)(f))
+  def fromFunM[@sp(Double, Long) A: ClassTag, M <: Mutability](v: FunV[A]): DenseV[A, M] = {
+    val n = v.len
+    val array = new Array[A](n)
+    var i = 0
+    while (i < n) {
+      array(i) = v.f(i)
+      i += 1
+    }
+    new DenseV[A, M](array)
+  }
+}
+
+final class DenseVecMutable[@sp(Double, Long) A](implicit val V: Vec[DenseV[A, Mutable], A], val ctA: ClassTag[A]) extends VecMutable[DenseV[A, Mutable], A] {
+  type V = DenseV[A, Mutable]
+  def update(v: V, k: Int, a: A): Unit = { v.array(k) = a }
+  def copy(v: V): V = new DenseV[A, Mutable](v.array.clone)
+}
+
+/*
 trait DenseVec[@sp(Double, Long) A, M <: Mutability] extends Any
     with VecBuilder[DenseV[A, M], A] { self =>
 //  implicit def V: Vec[DenseV[A, M], A] = self
@@ -43,7 +74,6 @@ trait DenseVec[@sp(Double, Long) A, M <: Mutability] extends Any
   type V = DenseV[A, M]
   def length(v: V): Int = v.array.length
   def apply(v: V, k: Int): A = v.array(k)
-  def tabulate(n: Int)(f: Int => A): V = new DenseV[A, M](Array.tabulate(n)(f))
 }
 
 trait DenseVecInRing[@sp(Double, Long) A, M <: Mutability] extends Any with DenseVec[A, M] with VecInRing[DenseV[A, M], A] {
@@ -56,17 +86,9 @@ trait DenseVecInRing[@sp(Double, Long) A, M <: Mutability] extends Any with Dens
     new DenseV(std.ArraySupport.timesl(x, y.array))
 }
 
-trait DenseVecMutable[@sp(Double, Long) A] extends Any 
-    with VecMutable[DenseV[A, Mutable], A] { self =>
-  implicit def ctA: ClassTag[A]
-  type V = DenseV[A, Mutable]
-  def update(v: V, k: Int, a: A): Unit = { v.array(k) = a }
-  def copy(v: V): V = new DenseV[A, Mutable](v.array.clone)
-}
-
 object DenseV {
-  def seed = 0x5EED5EED
 
+  /*
   object longInstance extends DenseVecInRing[Long, Mutability] with VecInEuclideanRing[DenseV[Long, Mutability], Long] {
     def ctA = classTag[Long]
     def A = EuclideanRing[Long]
@@ -115,5 +137,6 @@ object DenseV {
     type UV = DenseV[Long, Mutable]
     def unsafeToIV(v: UV): IV = v.asInstanceOf[IV]
     def unsafeToUV(v: IV): UV = v.asInstanceOf[UV]
-  }
+  }*/
 }
+ */

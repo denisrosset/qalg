@@ -27,16 +27,18 @@ trait AlgUMVR[M0, V0, @sp(Double, Long) A] extends Any with AlgMVR[M0, V0, A] wi
   implicit def VShift: MutableVecShift[V]
 }
 
+/*
 trait AlgMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgMVR[M0, V0, A] { self =>
-  object MFactory extends MatFactoryImpl[M, A] { def M = self.M }
-  object VFactory extends VecFactoryImpl[V, A] { def V = self.V }
   object MKron extends MatKronImpl[M, A] { def M = self.M }
   object VKron extends VecKronImpl[V, A] { def V = self.V }
   object MCat extends MatCatImpl[M, A] { def M1 = self.M }
   object VCat extends VecCatImpl[V, A] { def V1 = self.V }
-  lazy val MShift = new MatShiftImpl[M, A] { def M: MatInRing[M, A] = self.M }
-  lazy val VShift = new VecShiftImpl[V, A] { def V: VecInRing[V, A] = self.V }
   object MTrace extends TraceImpl[M, A] { def M = self.M }
+}
+
+trait AlgIMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgMVR[M0, V0, A] { self =>
+  object MShift = new MatShiftImpl[M, A] { def M: MatInRing[M, A] = self.M }
+  object VShift = new VecShiftImpl[V, A] { def V: VecInRing[V, A] = self.V }
 }
 
 trait AlgUMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgUMVR[M0, V0, A] with AlgMVRImpl[M0, V0, A] { self =>
@@ -57,3 +59,4 @@ trait AlgUMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgUMVR[M0, V0, A] with A
     def MM = self.UM
  }
 }
+ */

@@ -84,8 +84,8 @@ trait GramSchmidtRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
 }
 
 trait GramSchmidtEuclidean[M, @sp(Long) A] extends Any with MutableGramSchmidt[M] {
-  implicit def M: MatInEuclideanRing[M, A]
-  implicit def A: EuclideanRing[A] = M.A
+  implicit def M: MatInRing[M, A]
+  implicit def A: EuclideanRing[A]
   implicit def MM: MatMutable[M, A]
 
   def gramSchmidt(m: M): M = {

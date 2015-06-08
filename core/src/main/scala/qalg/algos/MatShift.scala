@@ -28,9 +28,7 @@ trait MutableMatShift[M] extends Any with MatShift[M] {
   def colsPermuteInverse(m: M, colInversePerm: Array[Int]): Unit
 }
 
-trait MatShiftImpl[M, @sp(Double, Long) A] extends Any with MatShift[M] {
-  implicit def M: MatBuilder[M, A]
-
+final class MatShiftImpl[M, @sp(Double, Long) A](implicit M: MatBuilder[M, A]) extends MatShift[M] {
   def circShifted(m: M, rowShift: Int, colShift: Int): M = {
     val nR = M.nRows(m)
     val nC = M.nCols(m)
@@ -58,8 +56,33 @@ trait MatShiftImpl[M, @sp(Double, Long) A] extends Any with MatShift[M] {
     M.tabulate(M.nRows(m), M.nCols(m)) { (r, c) => M.apply(m, r, colPerm(c)) }
 }
 
-trait MutableMatShiftImpl[M, @sp(Double, Long) A] extends Any with MutableMatShift[M] with MatShiftImpl[M, A] {
-  implicit def MM: MatMutable[M, A]
+final class MutableMatShiftImpl[M, @sp(Double, Long) A](implicit M: MatBuilder[M, A], MM: MatMutable[M, A]) extends MutableMatShift[M] {
+  // TODO optimize and remove tabulate
+  def circShifted(m: M, rowShift: Int, colShift: Int): M = {
+    val nR = M.nRows(m)
+    val nC = M.nCols(m)
+    M.tabulate(nR, nC) { (r, c) => M.apply(m, (r + rowShift) % nR, (c + colShift) % nC) }
+  }
+
+  def rowsPermuted(m: M, r1: Int, r2: Int): M =
+    M.tabulate(M.nRows(m), M.nCols(m)) { (r, c) =>
+      if (r == r1) M.apply(m, r2, c)
+      else if (r == r2) M.apply(m, r1, c)
+      else M.apply(m, r, c)
+    }
+
+  def rowsPermuted(m: M, rowPerm: Array[Int]): M =
+    M.tabulate(M.nRows(m), M.nCols(m)) { (r, c) => M.apply(m, rowPerm(r), c) }
+
+  def colsPermuted(m: M, c1: Int, c2: Int): M =
+    M.tabulate(M.nRows(m), M.nCols(m)) { (r, c) =>
+      if (c == c1) M.apply(m, r, c2)
+      else if (c == c2) M.apply(m, r, c1)
+      else M.apply(m, r, c)
+    }
+
+  def colsPermuted(m: M, colPerm: Array[Int]): M =
+    M.tabulate(M.nRows(m), M.nCols(m)) { (r, c) => M.apply(m, r, colPerm(c)) }
 
   def circShift(m: M, rowShift: Int, colShift: Int): Unit = ??? // TODO
 

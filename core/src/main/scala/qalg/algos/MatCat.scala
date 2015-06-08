@@ -13,36 +13,12 @@ import algebra._
 import syntax.all._
 import util._
 
-trait VecCat[V1, @sp(Double, Long) A] extends Any {
-  def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1
-}
-
-trait VecCatImpl[V1, @sp(Double, Long) A] extends Any with VecCat[V1, A] {
-  implicit def V1: VecBuilder[V1, A]
-
-  def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1 = {
-    val startIndices = (first.length +: rest.map(_.length)).scanLeft(0)(_ + _)
-    val ranges = (startIndices zip startIndices.tail).zipWithIndex map {
-      case ((start, nextStart), i) => (start until nextStart) -> i
-    }
-    val map = RangeMap(ranges: _*)
-    V1.tabulate(startIndices.last) { k =>
-      val vec = map(k)
-      if (vec == 0) first(k) else {
-        val vecK = k - startIndices(vec)
-        rest(vec - 1)(vecK)
-      }
-    }
-  }
-}
-
 trait MatCat[M1, @sp(Double, Long) A] extends Any {
   def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1
   def horzcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1
 }
 
-trait MatCatImpl[M1, @sp(Double, Long) A] extends Any with MatCat[M1, A] {
-  implicit def M1: MatBuilder[M1, A]
+final class MatCatImpl[M1, @sp(Double, Long) A](implicit M1: MatBuilder[M1, A]) extends MatCat[M1, A] {
 
   def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1 = {
     val ncols = first.nCols

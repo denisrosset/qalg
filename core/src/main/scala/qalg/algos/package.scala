@@ -66,4 +66,8 @@ package object algos {
   implicit class TraceOps[M, @sp(Double, Long) A](m: M)(implicit M: Trace[M, A]) {
     def trace: A = M.trace(m)
   }
+  implicit class PrimeOps[L, @sp(Double, Long) A](l: L)(implicit L: Prime[L, A]) {
+    def commonFactor: A = L.commonFactor(l)
+    def withPrimes: L = L.withPrimes(l)
+  }
 }

@@ -12,8 +12,7 @@ trait Trace[M, @sp(Double, Long) A] extends Any {
   def trace(m: M): A
 }
 
-trait TraceImpl[M, @sp(Double, Long) A] extends Any with Trace[M, A] {
-  implicit def M: MatInRing[M, A]
+final class TraceImpl[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]) extends Trace[M, A] {
   implicit def A: Ring[A] = M.A
   def trace(m: M): A = {
     val n = spire.math.min(M.nRows(m), M.nCols(m))

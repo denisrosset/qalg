@@ -16,21 +16,17 @@ trait Determinant[M, @sp(Double, Long) A] extends Any {
   def determinant(m: M): A
 }
 
-trait DeterminantMutableRingImpl[M, @sp(Double, Long) A] extends Any with Determinant[M, A] {
-  implicit def M: MatInRing[M, A]
-  implicit def MF: MatFactory[M]
-  implicit def MM: MatMutable[M, A]
+final class DeterminantMutableRingImpl[M: MatFactory: ClassTag, @sp(Double, Long) A](implicit M: MatInRing[M, A], MM: MatMutable[M, A]) extends Determinant[M, A] {
   implicit def A: Ring[A] = M.A
-  implicit def classTagM: ClassTag[M]
 
   def determinant(a: M): A = {
     val n = a.nRows
     require(a.nCols == n)
     var current = new Array[M](2)
     val b = n % 2
-    current(b) = MF.eye(n)
-    current(1 - b) = MF.zeros(n, n)
-    var next = Array(MF.zeros(n, n), MF.zeros(n, n))
+    current(b) = eye[M](n)
+    current(1 - b) = zeros[M](n, n)
+    var next = Array(zeros[M](n, n), zeros[M](n, n))
     cforRange(0 to n - 2) { i =>
       cforRange(0 until n) { v =>
         cforRange(0 to v) { u =>

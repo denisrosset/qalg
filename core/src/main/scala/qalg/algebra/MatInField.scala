@@ -8,7 +8,7 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait MatInField[M, @sp(Double, Long) A] extends Any with MatInEuclideanRing[M, A] with VectorSpace[M, A] {
+trait MatInField[M, @sp(Double, Long) A] extends Any with MatInRing[M, A] with VectorSpace[M, A] {
   implicit def A: Field[A]
   override def scalar = A
 }

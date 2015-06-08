@@ -15,6 +15,7 @@ trait AlgUMVF[M, V, @sp(Double, Long) A] extends Any with AlgUMVE[M, V, A] with 
   implicit def MLU: MutableLU[M, V, A]
 }
 
+/*
 trait AlgUMVFImpl[M, V, @sp(Double, Long) A] extends AlgMVF[M, V, A] with AlgUMVRImpl[M, V, A] { self =>
   implicit def pivotA: Pivot[A]
 
@@ -44,6 +45,7 @@ trait AlgUMVFImpl[M, V, @sp(Double, Long) A] extends AlgMVF[M, V, A] with AlgUMV
     def determinant(m: M) = MLU.lu(m).determinant
   }
 }
+ */
 
 /*
   implicit object MLU extends LU[M, V, A] {

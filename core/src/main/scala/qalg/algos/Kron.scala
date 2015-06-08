@@ -16,8 +16,7 @@ trait Kron[L] extends Any {
   def kron(x: L, y: L): L
 }
 
-trait VecKronImpl[V, @sp(Double, Long) A] extends Any with Kron[V] {
-  implicit def V: VecInRing[V, A]
+final class VecKronImpl[V, @sp(Double, Long) A](implicit V: VecInRing[V, A]) extends Kron[V] {
   implicit def A: Ring[A] = V.A
 
   def kron(x: V, y: V): V = {
@@ -31,8 +30,7 @@ trait VecKronImpl[V, @sp(Double, Long) A] extends Any with Kron[V] {
   }
 }
 
-trait MatKronImpl[M, @sp(Double, Long) A] extends Any with Kron[M] {
-  implicit def M: MatInRing[M, A]
+final class MatKronImpl[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]) extends Kron[M] {
   implicit def A: Ring[A] = M.A
 
   def kron(x: M, y: M): M = {

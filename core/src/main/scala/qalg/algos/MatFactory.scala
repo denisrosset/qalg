@@ -19,8 +19,7 @@ trait MatFactory[M] extends Any {
   def eye(n: Int): M
 }
 
-trait MatFactoryImpl[M, @sp(Double, Long) A] extends Any with MatFactory[M] {
-  implicit def M: MatInRing[M, A]
+final class MatFactoryImpl[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]) extends MatFactory[M] {
   implicit def A: Ring[A] = M.A
 
   def zeros(nRows: Int, nCols: Int): M = M.fill(nRows, nCols)(A.zero)
@@ -29,17 +28,4 @@ trait MatFactoryImpl[M, @sp(Double, Long) A] extends Any with MatFactory[M] {
     (r, c) => if (r == c) A.one else A.zero
   )
   def eye(n: Int): M = eye(n, n)
-}
-
-trait VecFactory[V] extends Any {
-  def zeros(n: Int): V
-  def ones(n: Int): V
-}
-
-trait VecFactoryImpl[V, @sp(Double, Long) A] extends Any with VecFactory[V] {
-  implicit def V: VecInRing[V, A]
-  implicit def A: Ring[A] = V.A
-
-  def zeros(n: Int): V = V.fill(n)(A.zero)
-  def ones(n: Int): V = V.fill(n)(A.one)
 }
