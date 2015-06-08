@@ -19,6 +19,10 @@ trait MatFactory[M] extends Any {
   def eye(n: Int): M
 }
 
+object MatFactory {
+  implicit def fromAlg[M](implicit ev: AlgMVR[M, _, _]): MatFactory[M] = ev.MFactory
+}
+
 final class MatFactoryImpl[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]) extends MatFactory[M] {
   implicit def A: Ring[A] = M.A
 

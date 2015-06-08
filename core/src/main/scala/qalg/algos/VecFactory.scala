@@ -17,6 +17,10 @@ trait VecFactory[V] extends Any {
   def ones(n: Int): V
 }
 
+object VecFactory {
+  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgMVR[M, V, A]): VecFactory[V] = ev.VFactory
+}
+
 final class VecFactoryImpl[V, @sp(Double, Long) A](implicit V: VecInRing[V, A]) extends VecFactory[V] {
   implicit def A: Ring[A] = V.A
 

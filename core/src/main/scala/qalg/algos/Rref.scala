@@ -25,6 +25,10 @@ trait Rref[M] extends Any {
   def rref(m: M): RrefDecomposition[M]
 }
 
+object Rref {
+  implicit def fromAlg[M](implicit ev: AlgMVF[M, _, _]): Rref[M] = ev.MRref
+}
+
 trait MutableRref[M] extends Any with Rref[M] {
   implicit def MM: MatMutable[M, _]
 
@@ -32,12 +36,13 @@ trait MutableRref[M] extends Any with Rref[M] {
   def rref(m: M): RrefDecomposition[M] = unsafeRref(MM.copy(m))
 }
 
-trait MutableRrefImpl[M, @sp(Double, Long) A] extends Any with MutableRref[M] {
-  implicit def M: MatInField[M, A]
+object MutableRref {
+  implicit def fromAlg[M](implicit ev: AlgUMVF[M, _, _]): MutableRref[M] = ev.MRref
+}
+
+final class MutableRrefImpl[M, @sp(Double, Long) A](implicit M: MatInField[M, A], val MM: MatMutable[M, A], pivotA: Pivot[A]) extends MutableRref[M] {
   implicit def A: Field[A] = M.A
   implicit def eqA: Eq[A] = M.eqA
-  implicit def MM: MatMutable[M, A]
-  implicit def pivotA: Pivot[A]
 
   def unsafeRref(m: M): RrefDecomposition[M] = {
     val used = collection.mutable.ArrayBuilder.make[Int]

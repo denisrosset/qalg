@@ -16,7 +16,17 @@ trait Determinant[M, @sp(Double, Long) A] extends Any {
   def determinant(m: M): A
 }
 
-final class DeterminantMutableRingImpl[M: MatFactory: ClassTag, @sp(Double, Long) A](implicit M: MatInRing[M, A], MM: MatMutable[M, A]) extends Determinant[M, A] {
+object Determinant {
+  implicit def fromAlg[M, @sp(Double, Long) A](implicit ev: AlgMVR[M, _, A]): Determinant[M, A] = ev.MDeterminant
+}
+
+/** Matrix-in-ring determinant algorithm from Mahajan and Vinay, see
+  * http://cjtcs.cs.uchicago.edu/articles/1997/5/cj97-05.pdf
+  * 
+  * TODO: implement optimizations present in
+  * https://github.com/gap-system/gap/blob/master/lib/matrix.gi
+  */
+final class DeterminantMahajanVinay[M: ClassTag, @sp(Double, Long) A](implicit M: MatInRing[M, A], MM: MatMutable[M, A], MF: MatFactory[M]) extends Determinant[M, A] {
   implicit def A: Ring[A] = M.A
 
   def determinant(a: M): A = {

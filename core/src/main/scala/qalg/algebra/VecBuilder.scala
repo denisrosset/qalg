@@ -20,7 +20,6 @@ trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] with LinBuil
   def fill(n: Int)(a: A): V = tabulate(n)(k => a)
   def map(v: V)(f: A => A) =
     tabulate(length(v))( k => f(apply(v, k)) )
-
 }
 
 object VecBuilder {

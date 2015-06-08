@@ -27,36 +27,30 @@ trait AlgUMVR[M0, V0, @sp(Double, Long) A] extends Any with AlgMVR[M0, V0, A] wi
   implicit def VShift: MutableVecShift[V]
 }
 
-/*
-trait AlgMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgMVR[M0, V0, A] { self =>
-  object MKron extends MatKronImpl[M, A] { def M = self.M }
-  object VKron extends VecKronImpl[V, A] { def V = self.V }
-  object MCat extends MatCatImpl[M, A] { def M1 = self.M }
-  object VCat extends VecCatImpl[V, A] { def V1 = self.V }
-  object MTrace extends TraceImpl[M, A] { def M = self.M }
+final class AlgUMVRImpl[M0: ClassTag, V0, A](implicit val M: MatInRing[M0, A], val UM: MatMutable[M0, A], val V: VecInRing[V0, A], val UV: VecMutable[V0, A], val MVProduct: MatVecProduct[M0, V0], val MVSlicer: MatSlicer[M0, V0]) extends AlgUMVR[M0, V0, A] { // no @sp
+  val MCat: MatCat[M, A] = new MatCatImpl[M, A]
+  implicit val MFactory: MatFactory[M] = new MatFactoryImpl[M, A]
+  val MKron: Kron[M] = new MatKronImpl[M, A]
+  val MShift: MutableMatShift[M] = new MutableMatShiftImpl[M, A]
+  val MTrace: Trace[M, A] = new TraceImpl[M, A]
+  val MDeterminant: Determinant[M, A] = new DeterminantMahajanVinay[M, A]
+  implicit val VFactory: VecFactory[V] = new VecFactoryImpl[V, A]
+  val VCat: VecCat[V, A] = new VecCatImpl[V, A]
+  val VKron: Kron[V] = new VecKronImpl[V, A]
+  val VShift: MutableVecShift[V] = new MutableVecShiftImpl[V, A]
 }
 
-trait AlgIMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgMVR[M0, V0, A] { self =>
-  object MShift = new MatShiftImpl[M, A] { def M: MatInRing[M, A] = self.M }
-  object VShift = new VecShiftImpl[V, A] { def V: VecInRing[V, A] = self.V }
-}
-
-trait AlgUMVRImpl[M0, V0, @sp(Double, Long) A] extends AlgUMVR[M0, V0, A] with AlgMVRImpl[M0, V0, A] { self =>
-  implicit def classTagM: ClassTag[M]
-
-  override lazy val MShift = new MutableMatShiftImpl[M, A] {
-    def M: MatInRing[M, A] = self.M
-    def MM: MatMutable[M, A] = self.UM
+final class AlgMVRImpl[M0, V0, A, UM](implicit val M: MatInRing[M0, A], val V: VecInRing[V0, A], val MVProduct: MatVecProduct[M0, V0], val MVSlicer: MatSlicer[M0, V0], U: AlgUMVR[UM, _, A], CM: ConvM[M0, UM, A]) extends AlgMVR[M0, V0, A] { // no @sp
+  val MCat: MatCat[M, A] = new MatCatImpl[M, A]
+  implicit val MFactory: MatFactory[M] = new MatFactoryImpl[M, A]
+  val MKron: Kron[M] = new MatKronImpl[M, A]
+  val MShift: MatShift[M] = new MatShiftImpl[M, A]
+  val MTrace: Trace[M, A] = new TraceImpl[M, A]
+  val MDeterminant: Determinant[M, A] = new Determinant[M, A] {
+    def determinant(m: M): A = U.MDeterminant.determinant(CM.unsafeToUM(m))
   }
-  override lazy val VShift = new MutableVecShiftImpl[V, A] {
-    def V: VecInRing[V, A] = self.V
-    def VM: VecMutable[V, A] = self.UV
-  }
-  lazy val MDeterminant: Determinant[M, A] = new DeterminantMutableRingImpl[M, A] {
-    def classTagM = self.classTagM
-    def M = self.M
-    def MF = self.MFactory
-    def MM = self.UM
- }
+  implicit val VFactory: VecFactory[V] = new VecFactoryImpl[V, A]
+  val VCat: VecCat[V, A] = new VecCatImpl[V, A]
+  val VKron: Kron[V] = new VecKronImpl[V, A]
+  val VShift: VecShift[V] = new VecShiftImpl[V, A]
 }
- */

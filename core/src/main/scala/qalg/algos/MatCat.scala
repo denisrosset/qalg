@@ -18,6 +18,10 @@ trait MatCat[M1, @sp(Double, Long) A] extends Any {
   def horzcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1
 }
 
+object MatCat {
+  implicit def fromAlg[M, @sp(Double, Long) A](implicit ev: AlgMVR[M, _, A]): MatCat[M, A] = ev.MCat
+}
+
 final class MatCatImpl[M1, @sp(Double, Long) A](implicit M1: MatBuilder[M1, A]) extends MatCat[M1, A] {
 
   def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1 = {

@@ -17,6 +17,10 @@ trait VecCat[V1, @sp(Double, Long) A] extends Any {
   def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1
 }
 
+object VecCat {
+  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgMVR[M, V, A]): VecCat[V, A] = ev.VCat
+}
+
 final class VecCatImpl[V1, @sp(Double, Long) A](implicit V1: VecBuilder[V1, A]) extends VecCat[V1, A] {
 
   def cat[V2](first: V1, rest: V2*)(implicit V2: Vec[V2, A]): V1 = {

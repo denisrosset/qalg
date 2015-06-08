@@ -50,24 +50,24 @@ trait LU[M, V, @sp(Double) A] extends Any { // not @sp(Long)
   def lu(m: M): LUDecomposition[M, V, A]
 }
 
+object LU {
+  implicit def fromAlg[M, V, @sp(Double, Long) A](implicit ev: AlgMVF[M, V, A]): LU[M, V, A] = ev.MLU
+}
+
 trait MutableLU[M, V, @sp(Double) A] extends Any with LU[M, V, A] { // not @sp(Long)
   def unsafeLU(m: M): LUDecomposition[M, V, A]
 }
+
+object MutableLU {
+  implicit def fromAlg[M, V, @sp(Double, Long) A](implicit ev: AlgUMVF[M, V, A]): MutableLU[M, V, A] = ev.MLU
+}
+
 /** Implementation taken from the JAMA library (NIST), in the public domain, and
   * translated to Scala.
   */
-trait MutableLUImpl[M, V, @sp(Double, Long) A] extends Any with MutableLU[M, V, A] {
-  implicit def M: MatInField[M, A]
-  implicit def V: VecInField[V, A]
+final class MutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatInField[M, A], V: VecInField[V, A], MM: MatMutable[M, A], VM: VecMutable[V, A], MF: MatFactory[M], VF: VecFactory[V], MS: MutableMatShift[M], VS: MutableVecShift[V], pivotA: Pivot[A]) extends MutableLU[M, V, A] {
   implicit def A: Field[A] = M.A
   implicit def eqA: Eq[A] = M.eqA
-  implicit def MM: MatMutable[M, A]
-  implicit def VM: VecMutable[V, A]
-  implicit def MF: MatFactory[M]
-  implicit def VF: VecFactory[V]
-  implicit def MS: MutableMatShift[M]
-  implicit def VS: MutableVecShift[V]
-  implicit def pivotA: Pivot[A]
   
   def lu(m: M): LUDecomposition[M, V, A] = unsafeLU(MM.copy(m))
 

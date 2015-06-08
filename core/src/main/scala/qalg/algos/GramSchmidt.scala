@@ -15,14 +15,20 @@ trait GramSchmidt[M] extends Any {
   def gramSchmidt(m: M): M
 }
 
+object GramSchmidt {
+  implicit def fromAlg[M](implicit ev: AlgMVE[M, _, _]): GramSchmidt[M] = ev.MGramSchmidt
+}
+
 trait MutableGramSchmidt[M] extends Any with GramSchmidt[M] {
   def gramSchmidt(m: M): M
   def unsafeGramSchmidt(m: M): Unit
 }
 
-trait GramSchmidtNoRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
-  implicit def M: MatInField[M, A]
-  implicit def MM: MatMutable[M, A]
+object MutableGramSchmidt {
+  implicit def fromAlg[M](implicit ev: AlgUMVE[M, _, _]): MutableGramSchmidt[M] = ev.MGramSchmidt
+}
+
+final class GramSchmidtNonNorm[M, @sp(Double) A](implicit M: MatInField[M, A], MM: MatMutable[M, A]) extends MutableGramSchmidt[M] {
   implicit def A: Field[A] = M.A
   implicit def eqA: Eq[A] = M.eqA
 
@@ -83,10 +89,7 @@ trait GramSchmidtRoot[M, @sp(Double) A] extends Any with MutableGramSchmidt[M] {
   }
 }
 
-trait GramSchmidtEuclidean[M, @sp(Long) A] extends Any with MutableGramSchmidt[M] {
-  implicit def M: MatInRing[M, A]
-  implicit def A: EuclideanRing[A]
-  implicit def MM: MatMutable[M, A]
+final class GramSchmidtE[M, @sp(Long) A](implicit M: MatInRing[M, A], MM: MatMutable[M, A], A: EuclideanRing[A]) extends MutableGramSchmidt[M] {
 
   def gramSchmidt(m: M): M = {
     val res = MM.copy(m)

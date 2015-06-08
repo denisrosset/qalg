@@ -18,10 +18,18 @@ trait VecShift[V] extends Any {
   def permuted(v: V, perm: Array[Int]): V
 }
 
+object VecShift {
+  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgMVR[M, V, A]): VecShift[V] = ev.VShift
+}
+
 trait MutableVecShift[V] extends Any with VecShift[V] {
   def circShift(v: V, shift: Int): Unit
   def permute(v: V, k1: Int, k2: Int): Unit
   def permuteInverse(v: V, inversePerm: Array[Int]): Unit
+}
+
+object MutableVecShift {
+  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgUMVR[M, V, A]): MutableVecShift[V] = ev.VShift
 }
 
 final class VecShiftImpl[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A]) extends VecShift[V] {

@@ -13,8 +13,18 @@ trait Prime[L, @sp(Double, Long) A] extends Any {
   def commonFactor(l: L): A
 }
 
+object Prime {
+  implicit def matPrimeFromAlg[M, @sp(Double, Long) A](implicit ev: AlgMVE[M, _, A]): Prime[M, A] = ev.MPrime
+  implicit def vecPrimeFromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgMVE[M, V, A]): Prime[V, A] = ev.VPrime
+}
+
 trait MutablePrime[L, @sp(Double, Long) A] extends Any with Prime[L, A] {
   def replaceByPrimes(l: L): Unit
+}
+
+object MutablePrime {
+  implicit def matPrimeFromAlg[M, @sp(Double, Long) A](implicit ev: AlgUMVE[M, _, A]): MutablePrime[M, A] = ev.MPrime
+  implicit def vecPrimeFromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgUMVE[M, V, A]): MutablePrime[V, A] = ev.VPrime
 }
 
 final class PrimeImpl[L, @sp(Double, Long) A: Eq](implicit L: LinBuilder[L, A], A: EuclideanRing[A]) extends Prime[L, A] {
@@ -34,7 +44,7 @@ final class PrimeImpl[L, @sp(Double, Long) A: Eq](implicit L: LinBuilder[L, A], 
   }
 }
 
-final class VecMutablePrimeImpl[V, @sp(Double, Long) A: Eq](implicit V: VecBuilder[V, A], VM: VecMutable[V, A], A: EuclideanRing[A]) extends Prime[V, A] {
+final class VecMutablePrimeImpl[V, @sp(Double, Long) A: Eq](implicit V: VecBuilder[V, A], VM: VecMutable[V, A], A: EuclideanRing[A]) extends MutablePrime[V, A] {
   def commonFactor(v: V): A = {
     var cumGcd = A.zero
     cforRange(0 until V.length(v)) { k =>
@@ -56,7 +66,7 @@ final class VecMutablePrimeImpl[V, @sp(Double, Long) A: Eq](implicit V: VecBuild
   }
 }
 
-final class MatMutablePrimeImpl[M, @sp(Double, Long) A: Eq](implicit M: MatBuilder[M, A], MM: MatMutable[M, A], A: EuclideanRing[A]) extends Prime[M, A] {
+final class MatMutablePrimeImpl[M, @sp(Double, Long) A: Eq](implicit M: MatBuilder[M, A], MM: MatMutable[M, A], A: EuclideanRing[A]) extends MutablePrime[M, A] {
   def commonFactor(m: M): A = {
     var cumGcd = A.zero
     cforRange(0 until M.nRows(m)) { r =>

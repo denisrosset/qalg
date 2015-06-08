@@ -20,6 +20,11 @@ trait MatShift[M] extends Any {
   def colsPermuted(m: M, colPerm: Array[Int]): M
 }
 
+object MatShift {
+  implicit def fromAlg[M](implicit ev: AlgMVR[M, _, _]): MatShift[M] = ev.MShift
+}
+
+
 trait MutableMatShift[M] extends Any with MatShift[M] {
   def circShift(m: M, rowShift: Int, colShift: Int): Unit
   def rowsPermute(m: M, r1: Int, r2: Int): Unit // TODO optimize

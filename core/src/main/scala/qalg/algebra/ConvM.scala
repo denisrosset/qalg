@@ -3,10 +3,9 @@ package algebra
 
 import scala.{specialized => sp}
 
-trait ConvM[IM, UM] extends Any {
-  implicit def UM: MatMutable[UM, _]
-  def toUM(m: IM): UM = UM.copy(unsafeToUM(m))
-  def toIM(m: UM): IM = unsafeToIM(UM.copy(m))
+trait ConvM[IM, UM, @sp(Double, Long) A] extends Any {
+  def toUM(m: IM): UM
+  def toIM(m: UM): IM
   def unsafeToUM(m: IM): UM
   def unsafeToIM(m: UM): IM
 }
