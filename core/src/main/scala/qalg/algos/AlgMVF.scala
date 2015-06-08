@@ -8,12 +8,12 @@ import spire.algebra._
 
 import algebra._
 
-trait AlgMVF[M, V, @sp(Double, Long) A] extends Any with AlgMVE[M, V, A] with PackMVF[M, V, A] {
+trait AlgMVF[M, V, @sp(Double, Long) A] extends Any with AlgMVE[M, V, A] with PackMVF[M, V, A] with AlgVF[V, A] {
   implicit def MRref: Rref[M]
   implicit def MLU: LU[M, V, A]
 }
 
-trait AlgUMVF[M, V, @sp(Double, Long) A] extends Any with AlgUMVE[M, V, A] with AlgMVF[M, V, A] with PackMVF[M, V, A] {
+trait AlgUMVF[M, V, @sp(Double, Long) A] extends Any with AlgUMVE[M, V, A] with AlgMVF[M, V, A] with PackMVF[M, V, A] with AlgUVF[V, A] {
   implicit def MRref: MutableRref[M]
   implicit def MLU: MutableLU[M, V, A]
 }
