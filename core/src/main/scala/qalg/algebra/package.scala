@@ -16,7 +16,7 @@ trait ConversionsLowerPriority {
 package object algebra extends ConversionsLowerPriority {
   implicit def packMatMSG[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): MultiplicativeSemigroup[M] = ev.M
   implicit def packMatVectorSpace[M, @sp(Double, Long) A](implicit ev: PackMF[M, A]): VectorSpace[M, A] = ev.M
-  implicit def packVecVectorSpace[V, @sp(Double, Long) A](implicit ev: PackVF[V, A]): VectorSpace[V, A] = ev.V
+  implicit def packVecIPS[V, @sp(Double, Long) A](implicit ev: PackVF[V, A]): InnerProductSpace[V, A] = ev.V
   implicit def packMatEq[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): Eq[M] = ev.M
   implicit def packVecEq[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): Eq[V] = ev.V
 }
