@@ -11,7 +11,7 @@ import algos._
 import math._
 import syntax.all._
 
-class RrefSuite[M0, V0](val pack: AlgMVField[M0, V0, Rational]) extends FunSuite with NonImplicitAssertions {
+class RrefSuite[M0, V0](implicit val pack: AlgMVF[M0, V0, Rational]) extends FunSuite with NonImplicitAssertions {
   import pack._
   test("1x1 identity matrix") {
     val mA = M.build(1,1, 1)
@@ -40,4 +40,4 @@ class RrefSuite[M0, V0](val pack: AlgMVField[M0, V0, Rational]) extends FunSuite
   }
 }
 
-final class DenseRrefSuite extends RrefSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]](DenseM.rationalPack)
+final class DenseRrefSuite extends RrefSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]]

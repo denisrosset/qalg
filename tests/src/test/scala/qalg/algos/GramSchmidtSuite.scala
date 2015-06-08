@@ -13,7 +13,7 @@ import syntax.all._
 
 class GramSchmidtSuite extends FunSuite with NonImplicitAssertions {
   test("Rational Gram Schmidt") {
-    import DenseM.rationalPack._
+    val M = MatBuilder[DenseM[Rational, Immutable], Rational]
     val m = M.build(2, 3,
       3, 1, 1,
       2, 2, 1)

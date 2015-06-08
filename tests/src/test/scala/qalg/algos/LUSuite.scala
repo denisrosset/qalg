@@ -11,7 +11,7 @@ import algos._
 import math._
 import syntax.all._
 
-class LUSuite[M, V](val pack: AlgMVField[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
+class LUSuite[M, V](implicit val pack: AlgMVF[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
   import pack._
   test("Linear solver") {
     val mA = M.build(3, 3,
@@ -28,4 +28,4 @@ class LUSuite[M, V](val pack: AlgMVField[M, V, Rational]) extends FunSuite with 
   }
 }
 
-final class DenseLUSuite extends LUSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]](DenseM.rationalPack)
+final class DenseLUSuite extends LUSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]]
