@@ -22,14 +22,15 @@ trait DeterminantMutableRingImpl[M, @sp(Double, Long) A] extends Any with Determ
   implicit def MM: MatMutable[M, A]
   implicit def A: Ring[A] = M.A
   implicit def classTagM: ClassTag[M]
+
   def determinant(a: M): A = {
     val n = a.nRows
     require(a.nCols == n)
     var current = new Array[M](2)
     val b = n % 2
-    current(b) = eye[M](n)
-    current(1 - b) = zeros[M](n, n)
-    var next = Array(zeros[M](n, n), zeros[M](n, n))
+    current(b) = MF.eye(n)
+    current(1 - b) = MF.zeros(n, n)
+    var next = Array(MF.zeros(n, n), MF.zeros(n, n))
     cforRange(0 to n - 2) { i =>
       cforRange(0 until n) { v =>
         cforRange(0 to v) { u =>

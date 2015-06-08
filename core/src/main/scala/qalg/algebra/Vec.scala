@@ -31,5 +31,4 @@ trait Vec[V, @sp(Double, Long) A] extends Any with Lin[V, A] { self =>
 
 object Vec {
   def apply[V, @sp(Double, Long) A](implicit V: Vec[V, A]): Vec[V, A] = V
-  implicit def fromPack[V, @sp(Double, Long) A](implicit pack: PackVRing[V, A]): Vec[V, A] = pack.V
 }

@@ -146,21 +146,21 @@ trait DenseMatInField[@sp(Double, Long) A, M <: Mutability] extends Any
 object DenseM {
   def seed = 0x3EED4E43
 
-  object longInstance extends DenseMatInRing[Long, Mutability] {
+  lazy val longInstance = new DenseMatInRing[Long, Mutability] {
     def ctA = classTag[Long]
     def eqA = Eq[Long]
     def A = Ring[Long]
     def V = DenseV.longInstance
   }
 
-  object doubleInstance extends DenseMatInField[Double, Mutability] {
+  lazy val doubleInstance = new DenseMatInField[Double, Mutability] {
     def ctA = classTag[Double]
     def eqA = Eq[Double]
     def A = Field[Double]
     def V = DenseV.doubleInstance
   }
 
-  object rationalInstance extends DenseMatInField[Rational, Mutability] {
+  lazy val rationalInstance = new DenseMatInField[Rational, Mutability] {
     def ctA = classTag[Rational]
     def eqA = Eq[Rational]
     def A = Field[Rational]
@@ -176,21 +176,21 @@ object DenseM {
   implicit def rational[M <: Mutability]: DenseMatInField[Rational, M] =
     rationalInstance.asInstanceOf[DenseMatInField[Rational, M]]
 
-  implicit object longMutInstance extends DenseMatMutable[Long] {
+  implicit lazy val longMutable = new DenseMatMutable[Long] {
     def M = long[Mutable]
     def ctA = classTag[Long]
   }
 
-  implicit object doubleMutInstance extends DenseMatMutable[Double] {
+  implicit lazy val doubleMutable = new DenseMatMutable[Double] {
     def M = double[Mutable]
     def ctA = classTag[Double]
   }
 
-  implicit object rationalMutInstance extends DenseMatMutable[Rational] {
+  implicit lazy val rationalMutable = new DenseMatMutable[Rational] {
     def M = rational[Mutable]
     def ctA = classTag[Rational]
   }
-
+/*
   implicit object rationalPack extends AlgMVFieldImpl[DenseM[Rational, Immutable], DenseV[Rational, Immutable], Rational] {
     type MutM = DenseM[Rational, Mutable]
     type MutV = DenseV[Rational, Mutable]
@@ -211,24 +211,35 @@ object DenseM {
     def MVSlicer = rational[Immutable]
     def MutSlicer = rational[Mutable]
   }
+ */
+  class DenseMConv[@sp(Double, Long) A](implicit val UM: MatMutable[DenseM[A, Mutable], A]) extends ConvM[DenseM[A, Immutable], DenseM[A, Mutable]] {
+    type IM = DenseM[A, Immutable]
+    type UM = DenseM[A, Mutable]
+    def unsafeToIM(m: UM): IM = m.asInstanceOf[IM]
+    def unsafeToUM(m: IM): UM = m.asInstanceOf[UM]
+  }
 
-  implicit object longPack extends AlgMVRingImpl[DenseM[Long, Immutable], DenseV[Long, Immutable], Long] {
-    type MutM = DenseM[Long, Mutable]
-    def classTagMutM = classTag[MutM]
-    type MutV = DenseV[Long, Mutable]
-    def unsafeFromMutM(m: MutM): DenseM[Long, Immutable] = m.asInstanceOf[DenseM[Long, Immutable]]
-    def unsafeFromMutV(v: MutV): DenseV[Long, Immutable] = v.asInstanceOf[DenseV[Long, Immutable]]
-    def unsafeToMutM(m: DenseM[Long, Immutable]): MutM = m.asInstanceOf[MutM]
-    def unsafeToMutV(v: DenseV[Long, Immutable]): MutV = v.asInstanceOf[MutV]
-    def M: MatInRing[DenseM[Long, Immutable], Long] = long[Immutable]
-    def V: VecInRing[DenseV[Long, Immutable], Long] = DenseV.long[Immutable]
-    def MutMutM: MatMutable[DenseM[Long, Mutable], Long] = longMutInstance
-    def MutMutV: VecMutable[DenseV[Long, Mutable], Long] = DenseV.longMutInstance
-    def MutM: MatInRing[DenseM[Long, Mutable], Long] = long[Mutable]
-    def MutV: VecInRing[DenseV[Long, Mutable], Long] = DenseV.long[Mutable]
+  implicit lazy val longConv = new DenseMConv[Long]
+  implicit lazy val doubleConv = new DenseMConv[Double]
+  implicit lazy val rationalConv = new DenseMConv[Rational]
+  implicit lazy val longMutableAlg: AlgUMVR[DenseM[Long, Mutable], DenseV[Long, Mutable], Long] = new AlgUMVRImpl[DenseM[Long, Mutable], DenseV[Long, Mutable], Long] {
+    def classTagM = classTag[M]
+    type A = Long
+    def M = long[Mutable]
+    def V = DenseV.long[Mutable]
+    def UM: MatMutable[M, A] = longMutable
+    def UV: VecMutable[V, A] = DenseV.longMutable
+    def MVProduct = long[Mutable]
+    def MVSlicer = long[Mutable]
+  }
+  implicit lazy val longImmutableAlg: AlgMVR[DenseM[Long, Immutable], DenseV[Long, Immutable], Long] = new AlgMVRImpl[DenseM[Long, Immutable], DenseV[Long, Immutable], Long] {
+    type A = Long
+    def M = long[Immutable]
+    def V = DenseV.long[Immutable]
     def MVProduct = long[Immutable]
-    def MutProduct = long[Mutable]
     def MVSlicer = long[Immutable]
-    def MutSlicer = long[Mutable]
+    lazy val MDeterminant = new Determinant[M, A] {
+      def determinant(m: M): A = longMutableAlg.MDeterminant.determinant(longConv.unsafeToUM(m))
+    }
   }
 }

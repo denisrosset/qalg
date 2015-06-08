@@ -94,22 +94,26 @@ object DenseV {
   implicit def rational[M <: Mutability]: VecInField[DenseV[Rational, M], Rational] =
     rationalInstance.asInstanceOf[VecInField[DenseV[Rational, M], Rational]]
 
-  implicit object longMutInstance extends DenseVecMutable[Long] {
+  implicit object longMutable extends DenseVecMutable[Long] {
     def V = long[Mutable]
     def ctA = classTag[Long]
   }
 
-  implicit object doubleMutInstance extends DenseVecMutable[Double] {
+  implicit object doubleMutable extends DenseVecMutable[Double] {
     def V = double[Mutable]
     def ctA = classTag[Double]
   }
 
-  implicit object rationalMutInstance extends DenseVecMutable[Rational] {
+  implicit object rationalMutable extends DenseVecMutable[Rational] {
     def V = rational[Mutable]
     def ctA = classTag[Rational]
   }
 
-  implicit def rationalPack: PackVField[DenseV[Rational, Immutable], Rational] = DenseM.rationalPack
-
-  implicit def matType[@sp(Double, Long) A, M <: Mutability]: MatType[A, DenseV[A, M], DenseM[A, M]] = new MatType[A, DenseV[A, M], DenseM[A, M]] { }
+  implicit object longConv extends ConvV[DenseV[Long, Immutable], DenseV[Long, Mutable]] {
+    def UV = longMutable
+    type IV = DenseV[Long, Immutable]
+    type UV = DenseV[Long, Mutable]
+    def unsafeToIV(v: UV): IV = v.asInstanceOf[IV]
+    def unsafeToUV(v: IV): UV = v.asInstanceOf[UV]
+  }
 }

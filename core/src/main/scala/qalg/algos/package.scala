@@ -60,4 +60,10 @@ package object algos {
   implicit class MutableGramSchmidtOps[M](m: M)(implicit M: MutableGramSchmidt[M]) {
     def unsafeGramSchmidt: Unit = M.unsafeGramSchmidt(m)
   }
+  implicit class DeterminantOps[M, @sp(Double, Long) A](m: M)(implicit M: Determinant[M, A]) {
+    def determinant: A = M.determinant(m)
+  }
+  implicit class TraceOps[M, @sp(Double, Long) A](m: M)(implicit M: Trace[M, A]) {
+    def trace: A = M.trace(m)
+  }
 }

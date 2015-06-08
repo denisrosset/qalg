@@ -3,7 +3,7 @@ package algebra
 
 import scala.{specialized => sp}
 
-trait Rank[M, @sp(Double, Long) A] extends Any {
+trait Rank[M] extends Any {
   /** Computes the rank of the given matrix. */
-  def rank(m: M): A
+  def rank(m: M): Int
 }
