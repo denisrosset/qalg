@@ -15,4 +15,5 @@ trait MatInField[M, @sp(Double, Long) A] extends Any with MatInRing[M, A] with V
 
 object MatInField {
   def apply[M, @sp(Double, Long) A](implicit M: MatInField[M, A]): MatInField[M, A] = M
+  implicit def fromPack[M, @sp(Double, Long) A](implicit ev: PackMF[M, A]): MatInField[M, A] = ev.M
 }

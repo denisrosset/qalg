@@ -24,4 +24,5 @@ trait VecBuilder[V, @sp(Double, Long) A] extends Any with Vec[V, A] with LinBuil
 
 object VecBuilder {
   def apply[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A]): VecBuilder[V, A] = V
+  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): VecBuilder[V, A] = ev.V
 }

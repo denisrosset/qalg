@@ -45,4 +45,5 @@ trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] with LinBuil
 
 object MatBuilder {
   def apply[M, @sp(Double, Long) A](implicit M: MatBuilder[M, A]): MatBuilder[M, A] = M
+  implicit def fromPack[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): MatBuilder[M, A] = ev.M
 }

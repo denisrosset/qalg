@@ -66,4 +66,5 @@ trait Mat[M, @sp(Double, Long) A] extends Any with Lin[M, A] { self =>
 
 object Mat {
   def apply[M, @sp(Double, Long) A](implicit M: Mat[M, A]): Mat[M, A] = M
+  implicit def fromPack[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): Mat[M, A] = ev.M
 }

@@ -24,3 +24,9 @@ trait Lin[LA, @sp(Double, Long) A] extends Any with Eq[LA] { self =>
       i == n
     }
 }
+
+object Lin {
+  def apply[LA, @sp(Double, Long) A](implicit ev: Lin[LA, A]): Lin[LA, A] = ev
+  implicit def fromMatPack[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): Lin[M, A] = ev.M
+  implicit def fromVecPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): Lin[V, A] = ev.V
+}

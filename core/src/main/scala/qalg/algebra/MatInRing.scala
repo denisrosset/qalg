@@ -43,4 +43,5 @@ trait MatInRing[M, @sp(Double, Long) A] extends Any with MatBuilder[M, A] with M
 
 object MatInRing {
   def apply[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]): MatInRing[M, A] = M
+  implicit def fromPack[M, @sp(Double, Long) A](implicit ev: PackMR[M, A]): MatInRing[M, A] = ev.M
 }

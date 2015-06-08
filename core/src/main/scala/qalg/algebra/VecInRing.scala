@@ -34,4 +34,5 @@ trait VecInRing[V, @sp(Double, Long) A] extends Any with VecBuilder[V, A] with M
 
 object VecInRing {
   def apply[V, @sp(Double, Long) A](implicit V: VecInRing[V, A]): VecInRing[V, A] = V
+  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): VecInRing[V, A] = ev.V
 }

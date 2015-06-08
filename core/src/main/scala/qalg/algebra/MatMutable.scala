@@ -104,4 +104,5 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
 
 object MatMutable {
   def apply[M, @sp(Double, Long) A](implicit M: MatMutable[M, A]): MatMutable[M, A] = M
+  implicit def fromPack[M, @sp(Double, Long) A](implicit ev: PackUM[M, A]): MatMutable[M, A] = ev.UM
 }

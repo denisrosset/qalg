@@ -24,4 +24,5 @@ trait VecInField[V, @sp(Double, Long) A] extends Any with VecInRing[V, A] with I
 
 object VecInField {
   def apply[V, @sp(Double, Long) A](implicit V: VecInField[V, A]): VecInField[V, A] = V
+  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVF[V, A]): VecInField[V, A] = ev.V
 }

@@ -35,3 +35,8 @@ trait VecMutable[V, @sp(Double, Long) A] extends Any { self =>
   def update[V1](v: V, at: ::.type, v1: V1)(implicit V1: Vec[V1, A]): Unit =
     update(v, AtRange1(0 until V.length(v)), v1)
 }
+
+object VecMutable {
+  def apply[V, @sp(Double, Long) A](implicit V: VecMutable[V, A]): VecMutable[V, A] = V
+  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackUV[V, A]): VecMutable[V, A] = ev.UV
+}

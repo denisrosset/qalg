@@ -12,6 +12,11 @@ trait MatVecProduct[M, V] extends Any { self =>
   def timesr2(m: M, v: V): V
 }
 
+object MatVecProduct {
+  def apply[M, V](implicit P: MatVecProduct[M, V]): MatVecProduct[M, V] = P
+  implicit def fromPack[M, V](implicit ev: PackMVR[M, V, _]): MatVecProduct[M, V] = ev.MVProduct
+}
+
 trait MatVecProductImpl[M, V, @sp(Double, Long) A] extends Any with MatVecProduct[M, V] { self =>
   implicit def M: Mat[M, A]
   implicit def V: VecInRing[V, A]
@@ -36,8 +41,4 @@ trait MatVecProductImpl[M, V, @sp(Double, Long) A] extends Any with MatVecProduc
       acc
     }
   }
-}
-
-object MatVecProduct {
-  def apply[M, V](implicit P: MatVecProduct[M, V]): MatVecProduct[M, V] = P
 }
