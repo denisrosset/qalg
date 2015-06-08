@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 import algebra._
 
-trait AlgMVR[M0, V0, @sp(Double, Long) A] extends Any with PackMVR[M0, V0, A] {
+trait AlgMVR[M0, V0, @sp(Double, Long) A] extends Any with PackMVR[M0, V0, A] with AlgVR[V0, A] {
   type M = M0
   type V = V0
   implicit def MFactory: MatFactory[M]
@@ -22,7 +22,7 @@ trait AlgMVR[M0, V0, @sp(Double, Long) A] extends Any with PackMVR[M0, V0, A] {
   implicit def MTrace: Trace[M, A]
 }
 
-trait AlgUMVR[M0, V0, @sp(Double, Long) A] extends Any with AlgMVR[M0, V0, A] with PackUM[M0, A] with PackUV[V0, A] {
+trait AlgUMVR[M0, V0, @sp(Double, Long) A] extends Any with AlgMVR[M0, V0, A] with PackUM[M0, A] with PackUV[V0, A] with AlgUVR[V0, A] {
   implicit def MShift: MutableMatShift[M]
   implicit def VShift: MutableVecShift[V]
 }
