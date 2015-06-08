@@ -15,7 +15,7 @@ trait Prime[L, @sp(Double, Long) A] extends Any {
 
 object Prime {
   implicit def matPrimeFromAlg[M, @sp(Double, Long) A](implicit ev: AlgMVE[M, _, A]): Prime[M, A] = ev.MPrime
-  implicit def vecPrimeFromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgMVE[M, V, A]): Prime[V, A] = ev.VPrime
+  implicit def vecPrimeFromAlg[V, @sp(Double, Long) A](implicit ev: AlgVE[V, A]): Prime[V, A] = ev.VPrime
 }
 
 trait MutablePrime[L, @sp(Double, Long) A] extends Any with Prime[L, A] {
@@ -24,7 +24,7 @@ trait MutablePrime[L, @sp(Double, Long) A] extends Any with Prime[L, A] {
 
 object MutablePrime {
   implicit def matPrimeFromAlg[M, @sp(Double, Long) A](implicit ev: AlgUMVE[M, _, A]): MutablePrime[M, A] = ev.MPrime
-  implicit def vecPrimeFromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgUMVE[M, V, A]): MutablePrime[V, A] = ev.VPrime
+  implicit def vecPrimeFromAlg[V, @sp(Double, Long) A](implicit ev: AlgUVE[V, A]): MutablePrime[V, A] = ev.VPrime
 }
 
 final class PrimeImpl[L, @sp(Double, Long) A: Eq](implicit L: LinBuilder[L, A], A: EuclideanRing[A]) extends Prime[L, A] {

@@ -18,7 +18,7 @@ trait VecFactory[V] extends Any {
 }
 
 object VecFactory {
-  implicit def fromAlg[V, @sp(Double, Long) A](ev: AlgVR[V, A]): VecFactory[V] = ev.VFactory
+  implicit def fromAlg[V, @sp(Double, Long) A](implicit ev: AlgVR[V, A]): VecFactory[V] = ev.VFactory
 }
 
 final class VecFactoryImpl[V, @sp(Double, Long) A](implicit V: VecInRing[V, A]) extends VecFactory[V] {
