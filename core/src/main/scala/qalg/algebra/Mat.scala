@@ -45,7 +45,7 @@ trait Mat[M, @sp(Double, Long) A] extends Any with Lin[M, A] { self =>
     def len: Int = self.nRows(m)
     def f(r: Int): A = self.apply(m, r, c)
   }
-  def view(m: M, rows: At1, c: Int): FunV[A] =new FunV[A] {
+  def view(m: M, rows: At1, c: Int): FunV[A] = new FunV[A] {
     def len: Int = rows.length
     def f(r: Int): A = self.apply(m, rows(r), c)
   }

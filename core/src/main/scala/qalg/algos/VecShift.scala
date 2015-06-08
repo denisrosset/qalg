@@ -19,7 +19,7 @@ trait VecShift[V] extends Any {
 }
 
 object VecShift {
-  implicit def fromAlg[V, @sp(Double, Long) A](ev: AlgVR[V, A]): VecShift[V] = ev.VShift
+  implicit def fromAlg[V, @sp(Double, Long) A](implicit ev: AlgVR[V, A]): VecShift[V] = ev.VShift
 }
 
 trait MutableVecShift[V] extends Any with VecShift[V] {
