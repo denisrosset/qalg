@@ -20,7 +20,7 @@ trait AlgUMVF[M, V, @sp(Double, Long) A] extends Any with AlgUMVE[M, V, A] with 
 
 final class AlgUMVFImpl[M0: ClassTag, V0, @sp(Double) A: Eq: Pivot](implicit val M: MatInField[M0, A], val UM: MatMutable[M0, A], val V: VecInField[V0, A], val UV: VecMutable[V0, A], val MVProduct: MatVecProduct[M0, V0], val MVSlicer: MatSlicer[M0, V0]) extends AlgUMVF[M0, V0, A] { // no @sp
   implicit def A: Field[A] = M.A
-  lazy val MCat: MatCat[M, A] = new MatCatImpl[M, A]
+  implicit lazy val MCat: MatCat[M, A] = new MatCatImpl[M, A]
   implicit lazy val MFactory: MatFactory[M] = new MatFactoryImpl[M, A]
   lazy val MKron: Kron[M] = new MatKronImpl[M, A]
   implicit lazy val MShift: MutableMatShift[M] = new MutableMatShiftImpl[M, A]
@@ -30,7 +30,8 @@ final class AlgUMVFImpl[M0: ClassTag, V0, @sp(Double) A: Eq: Pivot](implicit val
   lazy val VCat: VecCat[V, A] = new VecCatImpl[V, A]
   lazy val VKron: Kron[V] = new VecKronImpl[V, A]
   implicit lazy val VShift: MutableVecShift[V] = new MutableVecShiftImpl[V, A]
-  lazy val MGramSchmidt: MutableGramSchmidt[M] = new GramSchmidtNonNorm[M, A]
+  lazy val VGramSchmidt: VGramSchmidt[V, A] = new MGramSchmidtF[M, V, A]
+  lazy val MGramSchmidt: MutableMGramSchmidt[M] = new MGramSchmidtF[M, V, A]
   lazy val MPrime: MutablePrime[M, A] = new MatMutablePrimeImpl[M, A]
   lazy val VPrime: MutablePrime[V, A] = new VecMutablePrimeImpl[V, A]
   lazy val MLU: MutableLU[M, V, A] = new MutableLUImpl[M, V, A]
@@ -49,8 +50,13 @@ final class AlgMVFImpl[M0, V0, @sp(Double) A: Eq, UM, UV](implicit val M: MatInF
   lazy val MDeterminant: Determinant[M, A] = new Determinant[M, A] {
     def determinant(m: M): A = U.MDeterminant.determinant(convM.unsafeToUM(m))
   }
-  lazy val MGramSchmidt: GramSchmidt[M] = new GramSchmidt[M] {
-    def gramSchmidt(m: M): M = convM.unsafeToIM(U.MGramSchmidt.gramSchmidt(convM.toUM(m)))
+  lazy val MGramSchmidt: MGramSchmidt[M] = new MGramSchmidt[M] {
+    def orthogonalized(m: M): M = convM.unsafeToIM(U.MGramSchmidt.orthogonalized(convM.toUM(m)))
+  }
+  lazy val VGramSchmidt: VGramSchmidt[V, A] = new VGramSchmidt[V, A] {
+    def orthogonalized[V1](v: V, other: V1*)(implicit V1: Vec[V1, A]): V = convV.unsafeToIV(U.VGramSchmidt.orthogonalized(convV.toUV(v), other: _*))
+    def orthogonalBasis(vs: Seq[V]): Seq[V] = U.VGramSchmidt.orthogonalBasis(vs.map(convV.unsafeToUV)).map(convV.unsafeToIV)
+    def orthogonalComplement(vs: Seq[V], d: Int): Seq[V] = U.VGramSchmidt.orthogonalComplement(vs.map(convV.unsafeToUV), d).map(convV.unsafeToIV)
   }
   lazy val MLU: LU[M, V, A] = new LU[M, V, A] {
     def lu(m: M): LUDecomposition[M, V, A] = U.MLU.unsafeLU(convM.toUM(m)).map(convM.unsafeToIM, convM.unsafeToUM, convV.unsafeToIV, convV.unsafeToUV)

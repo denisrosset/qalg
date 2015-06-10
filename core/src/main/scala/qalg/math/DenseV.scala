@@ -98,8 +98,6 @@ object DenseV extends DenseV0 {
 
   def tabulate[@sp(Double, Long) A: ClassTag, M <: Mutability](n: Int)(f: Int => A): DenseV[A, M] = new DenseV[A, M](Array.tabulate(n)(f))
 
-  implicit def matType[@sp(Double, Long) A, M <: Mutability]: MatType[DenseV[A, M], DenseM[A, M], A] = null
-
   val longInstance: VecInRing[DenseV[Long, Mutability], Long] = new DenseVInRing[Long, Mutability]
   val doubleInstance: VecInField[DenseV[Double, Mutability], Double] = new DenseVInField[Double, Mutability]
   val rationalInstance: VecInField[DenseV[Rational, Mutability], Rational] = new DenseVInField[Rational, Mutability]

@@ -29,7 +29,7 @@ trait MutableVecShift[V] extends Any with VecShift[V] {
 }
 
 object MutableVecShift {
-  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit mt: MatType[V, M, A], ev: AlgUMVR[M, V, A]): MutableVecShift[V] = ev.VShift
+  implicit def fromAlg[V, M, @sp(Double, Long) A](implicit ev: AlgUMVR[M, V, A]): MutableVecShift[V] = ev.VShift
 }
 
 final class VecShiftImpl[V, @sp(Double, Long) A](implicit V: VecBuilder[V, A]) extends VecShift[V] {

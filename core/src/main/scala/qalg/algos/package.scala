@@ -54,11 +54,18 @@ package object algos {
   implicit class MutableLUOps[M, V, @sp(Double) A](m: M)(implicit M: MutableLU[M, V, A]) { // not @sp(Long)
     def unsafeLU(m: M): LUDecomposition[M, V, A] = M.unsafeLU(m)
   }
-  implicit class GramSchmidtOps[M](m: M)(implicit M: GramSchmidt[M]) {
-    def gramSchmidt: M = M.gramSchmidt(m)
+  implicit class MGramSchmidtOps[M](m: M)(implicit M: MGramSchmidt[M]) {
+    def orthogonalized: M = M.orthogonalized(m)
   }
-  implicit class MutableGramSchmidtOps[M](m: M)(implicit M: MutableGramSchmidt[M]) {
-    def unsafeGramSchmidt: Unit = M.unsafeGramSchmidt(m)
+  implicit class VGramSchmidtOps[V, @sp(Double, Long) A](v: V)(implicit V: VGramSchmidt[V, A]) {
+    def orthogonalized[V1](other: V1*)(implicit V1: Vec[V1, A]): V = V.orthogonalized(v, other: _*)
+  }
+  implicit class SeqVGramSchmidtOps[V](vs: Seq[V])(implicit V: VGramSchmidt[V, _]) {
+    def orthogonalBasis: Seq[V] = V.orthogonalBasis(vs)
+    def orthogonalComplement(d: Int): Seq[V] = V.orthogonalComplement(vs, d)
+  }
+  implicit class MutableMGramSchmidtOps[M](m: M)(implicit M: MutableMGramSchmidt[M]) {
+    def orthogonalize: Unit = M.orthogonalize(m)
   }
   implicit class DeterminantOps[M, @sp(Double, Long) A](m: M)(implicit M: Determinant[M, A]) {
     def determinant: A = M.determinant(m)

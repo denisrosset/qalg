@@ -11,6 +11,7 @@ import spire.syntax.additiveGroup._
 import algebra._
 
 trait AlgVE[V, @sp(Double, Long) A] extends Any with AlgVR[V, A] {
+  implicit def VGramSchmidt: VGramSchmidt[V, A]
   implicit def VPrime: Prime[V, A]
 }
 
