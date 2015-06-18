@@ -11,6 +11,16 @@ trait LinSyntax {
   implicit def linBuilderSyntax[LA, A](l: LA)(implicit ev: LinBuilder[LA, A]): LinBuilderOps[LA, A] = new LinBuilderOps(l)
 }
 
+trait IndexSyntax {
+  implicit def index1Syntax[T, A](t: T)(implicit ev: Index1[T, A]): Index1Ops[T, A] = new Index1Ops[T, A](t)
+  implicit def index2Syntax[T, A](t: T)(implicit ev: Index2[T, A]): Index2Ops[T, A] = new Index2Ops[T, A](t)
+}
+
+trait UpdateSyntax {
+  implicit def update1Syntax[T, A](t: T)(implicit ev: Update1[T, A]): Update1Ops[T, A] = new Update1Ops[T, A](t)
+  implicit def update2Syntax[T, A](t: T)(implicit ev: Update2[T, A]): Update2Ops[T, A] = new Update2Ops[T, A](t)
+}
+
 trait VecSyntax extends LinSyntax {
   implicit def vecSyntax[V, A](v: V)(implicit ev: Vec[V, A]): VecOps[V, A] = new VecOps(v)
   implicit def vecMutableSyntax[V, A](v: V)(implicit ev: VecMutable[V, A]): VecMutableOps[V, A] = new VecMutableOps(v)
@@ -24,6 +34,8 @@ trait MatSyntax extends LinSyntax {
 }
 
 trait AllSyntax
-    extends LinSyntax
+    extends IndexSyntax
+    with UpdateSyntax
+    with LinSyntax
     with VecSyntax
     with MatSyntax

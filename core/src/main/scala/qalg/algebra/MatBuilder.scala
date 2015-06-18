@@ -11,10 +11,11 @@ import util._
 trait MatBuilder[M, @sp(Double, Long) A] extends Any with Mat[M, A] with LinBuilder[M, A] { self =>
   implicit def A: AdditiveMonoid[A]
 
-  def apply(m: M, rows: At1, cols: At1): M = tabulate(rows.length, cols.length)( (r, c) => apply(m, rows(r), cols(c)) )
-  def apply(m: M, rows: ::.type, cols: ::.type): M = m
-  def apply(m: M, rows: ::.type, cols: At1): M = tabulate(nRows(m), cols.length)( (r, c) => apply(m, r, cols(c)) )
-  def apply(m: M, rows: At1, cols: ::.type): M = tabulate(rows.length, nCols(m)) ( (r, c) => apply(m, rows(r), c) )
+  def apply(m: M, genRows: At1, genCols: At1): M = {
+    val rows = genRows.forRowsOf(m)(self)
+    val cols = genCols.forColsOf(m)(self)
+    tabulate(rows.length, cols.length)( (r, c) => apply(m, rows(r), cols(c)) )
+  }
 
   def t(m: M): M = tabulate(nCols(m), nRows(m))( (r, c) => apply(m, c, r) )
 

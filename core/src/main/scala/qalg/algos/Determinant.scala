@@ -42,7 +42,7 @@ final class DeterminantMahajanVinay[M: ClassTag, @sp(Double, Long) A](implicit M
         cforRange(0 to v) { u =>
           cforRange(0 to 1) { p =>
             cforRange(u + 1 until n) { w =>
-              next(p)(u,w) = next(p)(u,w) + current(p)(u,v) * a(v,w)
+              next(p)(u,w) = next(p)(u, w) + current(p)(u, v) * a(v, w)
               next(1-p)(w,w) = next(1-p)(w,w) + current(p)(u,v) * a(v,u)
             }
           }

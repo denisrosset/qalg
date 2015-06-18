@@ -8,18 +8,15 @@ import spire.syntax.cfor._
 import spire.syntax.eq._
 import util._
 
-trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
+trait MatMutable[M, @sp(Double, Long) A] extends Any with Update2[M, A] { self =>
   implicit def M: Mat[M, A]
 
   def copy(m: M): M
 
-  // scalar
-
-  def update(m: M, r: Int, c: Int, a: A): Unit
-
   // (sub)vector
 
-  def update[V](m: M, rows: At1, c: Int, v: V)(implicit V: Vec[V, A]): Unit = {
+  def update[V](m: M, genRows: At1, c: Int, v: V)(implicit V: Vec[V, A]): Unit = {
+    val rows = genRows.forRowsOf(m)(M)
     val nR = rows.length
     require(nR == V.length(v))
     cforRange(0 until nR) { r =>
@@ -27,7 +24,8 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
     }
   }
 
-  def update[V](m: M, r: Int, cols: At1, v: V)(implicit V: Vec[V, A]): Unit = {
+  def update[V](m: M, r: Int, genCols: At1, v: V)(implicit V: Vec[V, A]): Unit = {
+    val cols = genCols.forColsOf(m)(M)
     val nC = cols.length
     require(nC == V.length(v))
     cforRange(0 until nC) { c =>
@@ -35,34 +33,26 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
     }
   }
 
-  def update[V](m: M, rows: ::.type, c: Int, v: V)(implicit V: Vec[V, A]): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), c, v)
-
-  def update[V](m: M, r: Int, cols: ::.type, v: V)(implicit V: Vec[V, A]): Unit =
-    update(m, r, AtRange1(0 until M.nCols(m)), v)
-
-  def update(m: M, rows: At1, c: Int, a: A): Unit = {
+  def update(m: M, genRows: At1, c: Int, a: A): Unit = {
+    val rows = genRows.forRowsOf(m)(M)
     val nR = rows.length
     cforRange(0 until nR) { r =>
       update(m, rows(r), c, a)
     }
   }
 
-  def update(m: M, r: Int, cols: At1, a: A): Unit = {
+  def update(m: M, r: Int, genCols: At1, a: A): Unit = {
+    val cols = genCols.forColsOf(m)(M)
     val nC = cols.length
     cforRange(0 until nC) { c =>
       update(m, r, cols(c), a)
     }
   }
 
-  def update(m: M, rows: ::.type, c: Int, a: A): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), c, a)
-
-  def update(m: M, r: Int, cols: ::.type, a: A): Unit =
-    update(m, r, AtRange1(0 until M.nCols(m)), a)
-
   // submatrix
-  def update[M1](m: M, rows: At1, cols: At1, m1: M1)(implicit M1: Mat[M1, A]): Unit = {
+  def update[M1](m: M, genRows: At1, genCols: At1, m1: M1)(implicit M1: Mat[M1, A]): Unit = {
+    val rows = genRows.forRowsOf(m)(M)
+    val cols = genCols.forColsOf(m)(M)
     val nR = rows.length
     val nC = cols.length
     require(nR == M1.nRows(m1))
@@ -74,16 +64,9 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
     }
   }
 
-  def update[M1](m: M, rows: ::.type, cols: ::.type, m1: M1)(implicit M1: Mat[M1, A]): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), AtRange1(0 until M.nCols(m)), m1)
-
-  def update[M1](m: M, rows: ::.type, cols: At1, m1: M1)(implicit M1: Mat[M1, A]): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), cols, m1)
-
-  def update[M1](m: M, rows: At1, cols: ::.type, m1: M1)(implicit M1: Mat[M1, A]): Unit =
-    update(m, rows, AtRange1(0 until M.nCols(m)), m1)
-
-  def update(m: M, rows: At1, cols: At1, a: A): Unit = {
+  def update(m: M, genRows: At1, genCols: At1, a: A): Unit = {
+    val rows = genRows.forRowsOf(m)(M)
+    val cols = genCols.forColsOf(m)(M)
     val nR = rows.length
     val nC = cols.length
     cforRange(0 until nR) { r =>
@@ -92,14 +75,6 @@ trait MatMutable[M, @sp(Double, Long) A] extends Any { self =>
       }
     }
   }
-  def update(m: M, rows: ::.type, cols: ::.type, a: A): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), AtRange1(0 until M.nCols(m)), a)
-
-  def update(m: M, rows: ::.type, cols: At1, a: A): Unit =
-    update(m, AtRange1(0 until M.nRows(m)), cols, a)
-
-  def update(m: M, rows: At1, cols: ::.type, a: A): Unit =
-    update(m, rows, AtRange1(0 until M.nCols(m)), a)
 }
 
 object MatMutable {
