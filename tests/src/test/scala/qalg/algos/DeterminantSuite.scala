@@ -10,11 +10,12 @@ import algebra._
 import algos._
 import math._
 import syntax.all._
+import algos.syntax.all._
 
-class DeterminantSuite[M, V](implicit val pack: AlgMVR[M, V, Long]) extends FunSuite with NonImplicitAssertions {
+class DeterminantSuite[M, V](implicit val pack: PackRing.ForMV[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
   import pack._
   test("Linear solver") {
-    val mA = M.build(3, 3,
+    val mA = M.rowMajor(3, 3)(
       -2, 2, -3,
       -1, 1, 3,
       2, 0, -1)
@@ -22,4 +23,4 @@ class DeterminantSuite[M, V](implicit val pack: AlgMVR[M, V, Long]) extends FunS
   }
 }
 
-final class DenseDeterminantSuite extends DeterminantSuite[DenseM[Long, Immutable], DenseV[Long, Immutable]]
+final class DenseDeterminantSuite extends DeterminantSuite[Matrix[Rational, Imm], Vector[Rational, Imm]]

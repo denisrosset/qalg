@@ -1,100 +1,48 @@
 package com.faacets.qalg
 package std
 
-import scala.{specialized => sp}
-import scala.reflect.{classTag, ClassTag}
-
-import spire.algebra._
-import spire.math.Rational
-import spire.std.double._
-import spire.std.long._
-import spire.syntax.ring._
-
 import algebra._
-import syntax.vec._
+import impl._
 
-object ArraySupport {
-  def plus[@sp(Double, Long) A: ClassTag: AdditiveMonoid](x: Array[A], y: Array[A]): Array[A] = {
-    val z = new Array[A](spire.math.max(x.length, y.length))
-    var i = 0
-    while (i < x.length && i < y.length) { z(i) = x(i) + y(i); i += 1 }
-    while (i < x.length) { z(i) = x(i); i += 1 }
-    while (i < y.length) { z(i) = y(i); i += 1 }
-    z
-  }
-  def negate[@sp(Double, Long) A: ClassTag: AdditiveGroup](x: Array[A]): Array[A] = {
-    val y = new Array[A](x.length)
-    var i = 0
-    while (i < x.length) {
-      y(i) = -x(i)
-      i += 1
-    }
-    y
-  }
-  def minus[@sp(Double, Long) A: ClassTag: AdditiveGroup](x: Array[A], y: Array[A]): Array[A] = {
-    val z = new Array[A](spire.math.max(x.length, y.length))
-    var i = 0
-    while (i < x.length && i < y.length) { z(i) = x(i) - y(i); i += 1 }
-    while (i < x.length) { z(i) = x(i); i += 1 }
-    while (i < y.length) { z(i) = -y(i); i += 1 }
-    z
-  }
-  def timesl[@sp(Double, Long) A: ClassTag: MultiplicativeSemigroup](r: A, x: Array[A]): Array[A] = {
-    val y = new Array[A](x.length)
-    var i = 0
-    while (i < y.length) { y(i) = r * x(i); i += 1 }
-    y
-  }
+import indup.algebra._
 
-  def timesr[@sp(Double, Long) A: ClassTag: MultiplicativeSemigroup](x: Array[A], r: A): Array[A] = {
-    val y = new Array[A](x.length)
-    var i = 0
-    while (i < y.length) { y(i) = x(i) * r; i += 1 }
-    y
-  }
+import scala.{specialized => sp}
 
+import scala.reflect.ClassTag
+
+trait ArrayTag
+
+final class ArrayBuilder[@sp(Double, Long) A: ClassTag: Zero](val size: Int) extends VecBuilder[Array[A], A] {
+  val array: Array[A] = Array.fill[A](size)(Zero[A].zero)
+  def add(i: Int, a: A): Unit = {
+    array(i) = a
+  }
+  def result(): Array[A] = array
 }
 
-trait ArrayVec[@sp(Double, Long) A] extends Any
-    with VecBuilder[Array[A], A]
-    with VecMutable[Array[A], A] {
+trait ArrayVecBuild[@sp(Double, Long) A] extends Any
+    with VecBuild[Array[A], A] with Dense1[Array[A], Array[A], A] { self =>
+
+  type Options = Unit
+  def defaultOptions: Unit = ()
+  def options(t: Array[A]): Unit = ()
+
   implicit def classTagA: ClassTag[A]
-  type V = Array[A]
-  def V: Vec[V, A] = this
-  def apply(v: V, k: Int): A = v(k)
-  def length(v: V): Int = v.length
-  def update(v: V, k: Int, a: A): Unit = { v(k) = a }
-  def tabulate(n: Int)(f: Int => A): Array[A] = Array.tabulate(n)(f)
-  def copy(v: V): V = v.clone
+  implicit def zeroA: Zero[A]
+  implicit def index1: Index1[Array[A], Array[A], A] = self
+  def update(t: Array[A], i: Int, a: A): Unit = { t(i) = a }
+  def size(t: Array[A]): Int = t.length
+  def apply(t: Array[A], i: Int): A = t(i)
+  def builder(size: Int, options: Unit): ArrayBuilder[A] = new ArrayBuilder[A](size)
+  def copy(v: Array[A]): Array[A] = v.clone
+  override def apply(v: Array[A], at: At): Array[A] = (self: VecBuild[Array[A], A]).apply(v, at)
+  def feedTo(v: Array[A], b: VecBuilder[_, A]): Unit = VecDense.feedTo(v, b)(self)
 }
-
-trait ArrayVecInRing[@sp(Double, Long) A] extends Any
-    with ArrayVec[A]
-    with VecInRing[Array[A], A] {
-  override def negate(v: Array[A]): Array[A] = ArraySupport.negate(v)
-  override def plus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.plus(x, y)
-  override def minus(x: Array[A], y: Array[A]): Array[A] = ArraySupport.minus(x, y)
-  override def timesl(r: A, v: Array[A]): Array[A] = ArraySupport.timesl(r, v)
-}
-
-trait ArrayVecInField[@sp(Double, Long) A] extends Any
-    with ArrayVecInRing[A]
-    with VecInField[Array[A], A]
 
 trait ArrayInstances {
-  implicit val ArrayDouble = new ArrayVecInField[Double] {
-    def classTagA = classTag[Double]
-    def eqA = Eq[Double]
-    def A = Field[Double]
+  implicit def ArrayVecBuild[@sp(Double, Long) A: ClassTag: Zero]: VecBuild[Array[A], A] = new ArrayVecBuild[A] {
+    def classTagA = implicitly[ClassTag[A]]
+    def zeroA = implicitly[Zero[A]]
   }
-  implicit val ArrayRational = new ArrayVecInField[Rational] {
-    def classTagA = classTag[Rational]
-    def eqA = Eq[Rational]
-    def A = Field[Rational]
-  }
-  implicit val ArrayLong = new ArrayVecInRing[Long] {
-    def classTagA = classTag[Long]
-    def eqA = Eq[Long]
-    def A = Ring[Long]
-  }
+  implicit def ArrayMapper[@sp(Double, Long) A: ClassTag: Zero, @sp(Double, Long) B: ClassTag: Zero](implicit A: VecBuild[Array[A], A], B: VecBuild[Array[B], B]): Mapper[A, B, Array[A], Array[B]] = new VecDense.MapperImpl[A, B, Array[A], Array[B]](v => B.builder(A.length(v)))
 }

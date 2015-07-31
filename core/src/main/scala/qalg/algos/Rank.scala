@@ -9,5 +9,5 @@ trait Rank[M] extends Any {
 }
 
 object Rank {
-  implicit def fromAlg[M](implicit ev: AlgMVF[M, _, _]): Rank[M] = ev.MRank
+  implicit def fromPack[M](implicit pack: PackEuclideanRing.ForM[M, _]): Rank[M] = pack.MRank
 }

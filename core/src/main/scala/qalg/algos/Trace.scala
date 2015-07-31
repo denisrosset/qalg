@@ -15,17 +15,5 @@ trait Trace[M, @sp(Double, Long) A] extends Any {
 }
 
 object Trace {
-  implicit def fromAlg[M, @sp(Double, Long) A](implicit ev: AlgMVR[M, _, A]): Trace[M, A] = ev.MTrace
-}
-
-final class TraceImpl[M, @sp(Double, Long) A](implicit M: MatInRing[M, A]) extends Trace[M, A] {
-  implicit def A: Ring[A] = M.A
-  def trace(m: M): A = {
-    val n = spire.math.min(M.nRows(m), M.nCols(m))
-    var sumDiag = A.zero
-    cforRange(0 until n) { i =>
-      sumDiag = sumDiag + M.apply(m, i, i)
-    }
-    sumDiag
-  }
+  implicit def fromPack[M, @sp(Double, Long) A](implicit pack: PackRing.ForM[M, A]): Trace[M, A] = pack.MTrace
 }

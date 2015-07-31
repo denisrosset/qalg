@@ -1,0 +1,11 @@
+  lazy val MRank: Rank[M] = new Rank[M] {
+    def rank(m: M): Int = {
+      val res = MGramSchmidt.orthogonalized(m)
+      cforRange(M.nRows(m) - 1 to 0 by -1) { r =>
+        cforRange(0 until M.nCols(m)) { c =>
+          if (!M.apply(m, r, c).isZero) return r + 1
+        }
+      }
+      0
+    }
+  }

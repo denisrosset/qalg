@@ -13,17 +13,11 @@ import algebra._
 import syntax.all._
 
 trait VecFactory[V] extends Any {
-  def zeros(n: Int): V
-  def ones(n: Int): V
+  implicit val V: VecRing[V, _]
+  def zeros(n: Int, options: V.Options = V.defaultOptions): V
+  def ones(n: Int, options: V.Options = V.defaultOptions): V
 }
 
 object VecFactory {
-  implicit def fromAlg[V, @sp(Double, Long) A](implicit ev: AlgVR[V, A]): VecFactory[V] = ev.VFactory
-}
-
-final class VecFactoryImpl[V, @sp(Double, Long) A](implicit V: VecInRing[V, A]) extends VecFactory[V] {
-  implicit def A: Ring[A] = V.A
-
-  def zeros(n: Int): V = V.fill(n)(A.zero)
-  def ones(n: Int): V = V.fill(n)(A.one)
+  implicit def fromPack[V, @sp(Double, Long) A](implicit pack: PackRing.ForV[V, _]): VecFactory[V] = pack.VFactory
 }

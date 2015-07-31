@@ -28,7 +28,7 @@ object MyBuild extends Build {
   override lazy val settings = super.settings ++ Seq(
     organization := "com.faacets",
 
-    scalaVersion := "2.11.6",
+    scalaVersion := "2.11.7",
 
     licenses := Seq("BSD-style" -> url("http://opensource.org/licenses/MIT")),
     homepage := Some(url("https://github.com/denisrosset/qalg")),
@@ -42,7 +42,7 @@ object MyBuild extends Build {
       "-Yinline-warnings",
       "-deprecation",
       "-unchecked",
-      "-optimize",
+//      "-optimize",
       "-language:experimental.macros",
       "-language:higherKinds",
       "-language:implicitConversions",
@@ -83,20 +83,65 @@ object MyBuild extends Build {
   // Main
 
   lazy val qalg = Project("qalg", file(".")).
-    aggregate(core, scalacheckBinding, tests, benchmark).
+    aggregate(macros, indup, core, scalacheckBinding, tests, benchmark).
     settings(qalgSettings: _*)
 
   lazy val qalgSettings = Seq(
     name := "qalg-aggregate"
   ) ++ noPublish
 
+    // Macros
+
+  lazy val macros = Project("macros", file("macros")).
+    settings(macroSettings: _*)
+
+  lazy val macroSettings = Seq(
+    name := "qalg-macros",
+    libraryDependencies ++= Seq(machinist, spire, scalaTest % "test", scalaCheck % "test"),
+    unmanagedSourceDirectories in Compile += (sourceDirectory in Compile).value / s"scala_${scalaBinaryVersion.value}"
+  )
+
+  // Indup
+
+  lazy val indup = Project("indup", file("indup")).
+    settings(indupSettings: _*).
+    dependsOn(macros)
+
+  lazy val indupSettings = Seq(
+    name := "qalg-indup",
+    libraryDependencies ++= Seq(
+      spire,
+      machinist,
+      scalaCheck % "test",
+      scalaTest % "test"
+    )
+  )
+
   // Core
 
   lazy val core = Project("core", file("core")).
-    settings(coreSettings: _*)
+    settings(coreSettings: _*).
+    dependsOn(indup)
 
   lazy val coreSettings = Seq(
-    name := "qalg",
+    name := "qalg-core",
+    libraryDependencies ++= Seq(
+      spire,
+      jscience,
+      commonsMath,
+      scalaCheck % "test",
+      scalaTest % "test"
+    ),
+    unmanagedBase := baseDirectory.value / "../lib"
+  )
+
+  // Extras
+
+  lazy val extras = Project("extras", file("extras")).
+    settings(extrasSettings: _*)
+
+  lazy val extrasSettings = Seq(
+    name := "qalg-extras",
     libraryDependencies ++= Seq(
       spire,
       jscience,
@@ -127,7 +172,7 @@ object MyBuild extends Build {
 
   lazy val tests = Project("tests", file("tests")).
     settings(testsSettings: _*).
-    dependsOn(core, scalacheckBinding)
+    dependsOn(indup, core) //, scalacheckBinding)
 
   lazy val testsSettings = Seq(
     name := "qalg-tests",
@@ -143,7 +188,7 @@ object MyBuild extends Build {
 
   lazy val benchmark: Project = Project("benchmark", file("benchmark")).
     settings(benchmarkSettings: _*).
-    dependsOn(core)
+    dependsOn(indup, core)
 
   lazy val benchmarkSettings = Seq(
     name := "qalg-benchmark",

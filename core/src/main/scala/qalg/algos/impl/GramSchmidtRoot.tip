@@ -1,0 +1,30 @@
+/*
+trait MGramSchmidtRoot[M, @sp(Double) A] extends Any with MutableMGramSchmidt[M] {
+  implicit def sourceGS: MutableMGramSchmidt[M]
+  implicit def M: MatField[M, A]
+  implicit def A: Field[A] = M.scalar
+  implicit def eqA: Eq[A]
+  implicit def nrootA: NRoot[A]
+  implicit def MM: MatMut[M, A]
+
+  /*
+  def orthonormalized(m: M): M = {
+    val res = M.copy(m)
+    unsafeGramSchmidt(res)
+    res
+  }*/
+
+  def orthonormalize(res: M): Unit = {
+    sourceGS.unsafeGramSchmidt(res)
+    cforRange(0 until res.nRows) { r =>
+      var norm2 = Field[A].zero
+      cforRange(0 until res.nCols) { c =>
+        norm2 = norm2 + res(r, c) * res(r, c)
+      }
+      val normInv = spire.math.sqrt(norm2).reciprocal
+      cforRange(0 until res.nCols) { c =>
+        res(r, c) = res(r, c) * normInv
+      }
+    }
+  }
+}*/

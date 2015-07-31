@@ -1,0 +1,24 @@
+package com.faacets.qalg.index
+
+import algebra._
+import std.array._
+import syntax.all._
+
+import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.prop.Checkers
+
+class SyntaxTest extends FunSuite with Checkers {
+  def accessAndUpdate[T](t: T)(implicit T: IndexAt1[T, Int] with Update1[T, Int]): Unit = {
+    t(0) = 1
+    t(1) = 2
+    assert(t(0) === 1)
+    assert(t(1) === 2)
+    assert(t((0, 1)) === t(0 to 1))
+    t(::) = 0
+    assert(t(1) === 0)
+  }
+
+  test("Array access") {
+    accessAndUpdate(Array(0, 0))
+  }
+}
