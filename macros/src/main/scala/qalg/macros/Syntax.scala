@@ -11,16 +11,10 @@ object Ops extends machinist.Ops {
   def uesc(c: Char): String = "$u%04X".format(c.toInt)
 
   val operatorNames: Map[String, String] =
-    machinist.DefaultOps.operatorNames /* ++ Map(
-      "indexApply" -> "apply",
-      "indexUpdate" -> "update"
-    )*/
-
-  def unopWithEv2[Ev1, R](c: Context)(ev1: c.Expr[Ev1]): c.Expr[R] = {
-    import c.universe._
-    val (ev, lhs) = unpack(c)
-    c.Expr[R](Apply(Apply(Select(ev, findMethodName(c)), List(lhs)), List(ev1.tree)))
-  }
+    machinist.DefaultOps.operatorNames ++ Map(
+      "$colon$colon$times" -> "timesr2",
+      "$times$colon$colon" -> "timesl2"
+    )
 
   def binopUsingEv2[A, Ev1, R](c: Context)(rhs: c.Expr[A])(ev1: c.Expr[Ev1]): c.Expr[R] = {
     import c.universe._

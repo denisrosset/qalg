@@ -25,7 +25,7 @@ final class MatBuildOps[M, A](lhs: M)(implicit val ev: MatBuild[M, A]) {
   def options(): ev.Options = macro Ops.unop[ev.Options]
 }
 
-final class MatVecProductOps[M](x: M) {
-  def *::[V](lhs: V)(implicit ev: MatVecProduct[M, V]): V = macro Ops.rbinopWithEv[V, MatVecProduct[M, V], M]
-  def ::*[V](rhs: V)(implicit ev: MatVecProduct[M, V]): V = macro Ops.binopWithEv[V, MatVecProduct[M, V], M]
+final class MatVecProductOps[M](lhs: M) {
+  def ::*[V](rhs: V)(implicit ev: MatVecProduct[M, V]): V = macro Ops.binopWithEv[V, MatVecProduct[M, V], V]
+  def *::[V](lhs: V)(implicit ev: MatVecProduct[M, V]): V = macro Ops.rbinopWithEv[V, MatVecProduct[M, V], V]
 }

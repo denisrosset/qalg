@@ -10,10 +10,12 @@ import algebra._
 import algos._
 import math._
 import syntax.all._
-import algos.syntax.all._
+import syntax.algos.all._
+import Matrix.packs._
+import optional.vecProductOrder._
 
 class DeterminantSuite[M, V](implicit val pack: PackRing.ForMV[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
-  import pack._
+  def M = pack.M
   test("Linear solver") {
     val mA = M.rowMajor(3, 3)(
       -2, 2, -3,

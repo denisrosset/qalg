@@ -9,12 +9,15 @@ import spire.std.long._
 import algebra._
 import algos._
 import math._
-import syntax.all._
+import syntax.algos.all._
+import Matrix.packs._
+import optional.vecProductOrder._
 
-class LUSuite[M, V](implicit val pack: AlgMVF[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
-  import pack._
+class LUSuite[M, V](implicit val pack: PackField.ForMV[M, V, Rational]) extends FunSuite with NonImplicitAssertions {
+  implicit def M = pack.M
+  implicit def V = pack.V
   test("Linear solver") {
-    val mA = M.build(3, 3,
+    val mA = M.rowMajor(3, 3)(
        3,  2, -1,
        2, -2,  4,
       -1, Rational(1, 2), -1)
@@ -23,9 +26,9 @@ class LUSuite[M, V](implicit val pack: AlgMVF[M, V, Rational]) extends FunSuite 
     assert(mA.lu.solveV(vb) === res)
   }
   test("Determinant") {
-    val mA = M.build(3,3, -2,2,-3, -1,1,3, 2,0,-1)
+    val mA = M.rowMajor(3,3)(-2,2,-3, -1,1,3, 2,0,-1)
     assert(mA.lu.determinant === 18)
   }
 }
 
-final class DenseLUSuite extends LUSuite[DenseM[Rational, Immutable], DenseV[Rational, Immutable]]
+final class DenseLUSuite extends LUSuite[Matrix[Rational, Imm], Vector[Rational, Imm]]

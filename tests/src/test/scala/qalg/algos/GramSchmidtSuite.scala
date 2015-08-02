@@ -10,17 +10,20 @@ import algebra._
 import algos._
 import math._
 import syntax.all._
+import syntax.algos.all._
+import Matrix.packs._
+import optional.matProductOrder._
 
-class GramSchmidtSuite extends FunSuite with NonImplicitAssertions {
+class GramSchmidtSuite(implicit val pack: PackField.ForMV[Matrix[Rational, Imm], Vector[Rational, Imm], Rational]) extends FunSuite with NonImplicitAssertions {
+  def M = pack.M
   test("Rational Gram Schmidt") {
-    val M = MatBuilder[DenseM[Rational, Immutable], Rational]
-    val m = M.build(2, 3,
+    val m = M.rowMajor(2, 3)(
       3, 1, 1,
       2, 2, 1)
-    val res = M.build(2, 3,
+    val res = M.rowMajor(2, 3)(
       3, 1, 1,
       Rational(-5, 11), Rational(13, 11), Rational(2, 11))
-    assert(m.gramSchmidt === res)
+    assert(m.orthogonalized === res)
   }
   /*
   test("Integer Gram Schmidt") {
