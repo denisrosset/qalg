@@ -2,6 +2,7 @@ package com.faacets.qalg.indup
 package algebra
 
 class IntInt(val encoding: Long) extends AnyVal {
+  override def toString = (_1, _2).toString
   import IntInt._
   def _1: Int = lowInt(encoding)
   def _2: Int = highInt(encoding)
