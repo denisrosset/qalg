@@ -12,6 +12,71 @@ import algebra._
 import indup.algebra._
 
 object VecDense {
+  val seed = 0xFAACE73
+
+  @inline def hash[@sp(Double, Long) A: Zero](v: math.Vector[A, _]): Int = {
+    import scala.util.hashing.MurmurHash3._
+    var a = 0
+    var b = 1L
+    var n = 0
+    cforRange(0 until v.size) { k =>
+      val x = v(k)
+      if (Zero[A].canBeNonZero(x)) {
+        val h = k * 41 + x.##
+        a += h
+        if (h != 0) b *= h
+        n += 1
+      }
+    }
+    var h = seed
+    h = mix(h, v.size)
+    h = mix(h, a)
+    h = mix(h, b.toInt)
+    h = mixLast(h, (b >> 32).toInt)
+    finalizeHash(h, n)
+  }
+
+  @inline def hash[V, @sp(Double, Long) A](v: V)(implicit V: Vec[V, A]): Int = {
+    import V._
+    import scala.util.hashing.MurmurHash3._
+    var a = 0
+    var b = 1L
+    var n = 0
+    cforRange(0 until length(v)) { k =>
+        val x = apply(v, k)
+      if (zeroA.canBeNonZero(x)) {
+        val h = k * 41 + x.##
+        a += h
+        if (h != 0) b *= h
+        n += 1
+      }
+    }
+    var h = seed
+    h = mix(h, length(v))
+    h = mix(h, a)
+    h = mix(h, b.toInt)
+    h = mixLast(h, (b >> 32).toInt)
+    finalizeHash(h, n)
+  }
+
+  @inline def equal[@sp(Double, Long) A](lhs: math.Vector[A, _], rhs: math.Vector[A, _]): Boolean = {
+    val n = lhs.size
+    if (rhs.size != n) return false
+    cforRange(0 until n) { k =>
+      if (lhs(k) != rhs(k)) return false
+    }
+    true
+  }
+
+  @inline def eqv[V, @sp(Double, Long) A: Eq](lhs: V, rhs: V)(implicit V: Vec[V, A]): Boolean = {
+    val n = V.length(lhs)
+    if (V.length(rhs) != n) return false
+    cforRange(0 until n) { k =>
+      if (Eq[A].neqv(V.apply(lhs, k), V.apply(rhs, k))) return false
+    }
+    true
+  }
+
   final class MapperImpl[@sp(Double, Long) A, @sp(Double, Long) B, V, W](val builder: V => VecBuilder[W, B])(implicit val V: VecBuild[V, A], val W: VecBuild[W, B]) extends Mapper[A, B, V, W] {
     def map(v: V)(f: A => B): W = {
       val d = V.length(v)
@@ -22,16 +87,6 @@ object VecDense {
       b.result()
     }
   }
-/*  def map[B, Tag, N](m: M)(f: A => B)(implicit ev: Base[M, A, Tag], ev1: Refine[Tag, B, N], N: MatBuild[N, B] { type Options = self.Options }): N = {
-    val b = N.builder(size0(m), size1(m), options(m))
-    @tailrec def iter(offset: Offset[IsValid]): Unit = offset match {
-      case Valid(valid) =>
-        b.add(offsetX0(m, valid), offsetX1(m, valid), f(offsetValue(m, valid)))
-        iter(offsetNext(m, valid))
-      case _ =>
-    }
-    b.result()
-  }*/
 
   @inline def feedTo[V, @sp(Double, Long) A](v: V, b: VecBuilder[_, A])(implicit V: VecBuild[V, A]): Unit = {
     import V._

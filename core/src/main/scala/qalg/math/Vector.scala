@@ -12,11 +12,16 @@ import indup.algebra._
 
 import algebra._
 
-sealed trait Vector[@sp(Double, Long) A, IM <: ImmMut] {
+sealed trait Vector[@sp(Double, Long) A, IM <: ImmMut] { self =>
   implicit def classTagA: ClassTag[A]
   implicit def zeroA: Zero[A]
   override def toString = impl.Print.print(1, size, (r, c) => apply(c).toString)
-//  def sparse: SparseVector[A, IM]
+  //  def sparse: SparseVector[A, IM]
+  override def hashCode = impl.VecDense.hash(self)
+  override def equals(rhs: Any): Boolean = rhs match {
+    case that: Vector[A, _] => impl.VecDense.equal(self, that)
+    case _ => false
+  }
   def dense: DenseVector[A, IM]
 
   def apply(i: Int): A

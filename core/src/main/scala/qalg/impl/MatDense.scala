@@ -13,6 +13,32 @@ import indup.algebra._
 
 object MatDense {
   val seed = 0xFAACE73
+  @inline def hash[@sp(Double, Long) A: Zero](m: math.Matrix[A, _]): Int = {
+    import scala.util.hashing.MurmurHash3._
+    var a = 0
+    var b = 1L
+    var n = 0
+    cforRange(0 until m.nRows) { r =>
+      cforRange(0 until m.nCols) { c =>
+        val x = m(r, c)
+        if (Zero[A].canBeNonZero(x)) {
+          val h = (r + c * 41) * 41 + x.##
+          a += h
+          if (h != 0) b *= h
+          n += 1
+
+        }
+      }
+    }
+    var h = seed
+    h = mix(h, m.nRows)
+    h = mix(h, m.nCols)
+    h = mix(h, a)
+    h = mix(h, b.toInt)
+    h = mixLast(h, (b >> 32).toInt)
+    finalizeHash(h, n)
+  }
+
   @inline def hash[M, @sp(Double, Long) A](m: M)(implicit M: Mat[M, A]): Int = {
     import M._
     import scala.util.hashing.MurmurHash3._
@@ -38,6 +64,30 @@ object MatDense {
     h = mix(h, b.toInt)
     h = mixLast(h, (b >> 32).toInt)
     finalizeHash(h, n)
+  }
+
+  @inline def equal[@sp(Double, Long) A](lhs: math.Matrix[A, _], rhs: math.Matrix[A, _]): Boolean = {
+    val nR = lhs.nRows
+    val nC = lhs.nCols
+    if (rhs.nRows != nR || rhs.nCols != nC) return false
+    cforRange(0 until nR) { r =>
+      cforRange(0 until nC) { c =>
+        if (lhs(r, c) != rhs(r, c)) return false
+      }
+    }
+    true
+  }
+
+  @inline def eqv[M, @sp(Double, Long) A: Eq](lhs: M, rhs: M)(implicit M: Mat[M, A]): Boolean = {
+    val nR = M.nRows(lhs)
+    val nC = M.nCols(lhs)
+    if (M.nRows(rhs) != nR || M.nCols(rhs) != nC) return false
+    cforRange(0 until nR) { r =>
+      cforRange(0 until nC) { c =>
+        if (Eq[A].neqv(M.apply(lhs, r, c), M.apply(rhs, r, c))) return false
+      }
+    }
+    true
   }
 
   @inline def feedTo[M, @sp(Double, Long) A](m: M, b: MatBuilder[_, A])(implicit M: MatBuild[M, A]): Unit = {

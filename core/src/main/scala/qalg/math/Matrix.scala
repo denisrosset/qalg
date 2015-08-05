@@ -12,10 +12,15 @@ import indup.algebra._
 
 import algebra._
 
-sealed trait Matrix[@sp(Double, Long) A, IM <: ImmMut] {
+sealed trait Matrix[@sp(Double, Long) A, IM <: ImmMut] { self =>
   implicit def classTagA: ClassTag[A]
   implicit def zeroA: Zero[A]
   override def toString = impl.Print.print(nRows, nCols, (r, c) => apply(r, c).toString)
+  override def hashCode = impl.MatDense.hash(self)
+  override def equals(rhs: Any): Boolean = rhs match {
+    case that: Matrix[A, _] => impl.MatDense.equal(self, that)
+    case _ => false
+  }
   def dense: DenseMatrix[A, IM]
 
   def apply(r: Int, c: Int): A
