@@ -80,7 +80,6 @@ final class DenseMutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatField[M
         throw new RuntimeException("Matrix is singular.")
       // Copy right hand side with pivoting
       val x = b.permuted(pivots)
-
       // Solve L*Y = B(piv,:)
       cforRange(0 until n) { k =>
         cforRange(k + 1 until n) { i =>
@@ -197,7 +196,7 @@ final class DenseMutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatField[M
       if (p != j) {
         lu.rowsPermute(p, j)
         val t = piv(p)
-        piv(p) = j
+        piv(p) = piv(j)
         piv(j) = t
         pCount += 1
       }

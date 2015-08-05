@@ -26,5 +26,4 @@ trait VecRing[V, @sp(Double, Long) A] extends Any with VecBuild[V, A] with Modul
 
 object VecRing {
   def apply[V, @sp(Double, Long) A](implicit V: VecRing[V, A]): VecRing[V, A] = V
-//  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): VecRing[V, A] = ev.V
 }

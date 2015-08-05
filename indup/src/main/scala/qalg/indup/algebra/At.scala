@@ -43,6 +43,7 @@ final case class AtFirst(size: Int) extends AtSized {
 }
 
 object At {
+  implicit def atFromSeq(seq: Seq[Int]): At = AtSeq(seq)
   implicit def atFromDoubleColon(all: ::.type): At = AtAll
   def apply(array: Array[Int]): AtSized = AtArray(array)
   def apply(indices: Int*): AtSized = AtSeq(indices)

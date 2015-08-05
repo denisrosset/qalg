@@ -83,5 +83,4 @@ trait VecBuild[V, @sp(Double, Long) A] extends Any with Vec[V, A] with WithOptio
 object VecBuild {
   type WithOptions[V, @sp(Double, Long) A, O] = VecBuild[V, A] { type Options = O }
   def apply[V, @sp(Double, Long) A](implicit V: VecBuild[V, A]): VecBuild[V, A] = V
-  //  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): VecBuild[V, A] = ev.V
 }

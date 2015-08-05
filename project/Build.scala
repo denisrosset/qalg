@@ -5,11 +5,11 @@ object MyBuild extends Build {
 
   // Dependencies
 
-  lazy val machinist = "org.typelevel" %% "machinist" % "0.4.1"
-  lazy val discipline = "org.typelevel" %% "discipline" % "0.4"
+  lazy val machinist = "org.typelevel" %% "machinist" % "0.3.0"
+  lazy val discipline = "org.typelevel" %% "discipline" % "0.2.1"
   lazy val scalaMeter = "com.storm-enroute" %% "scalameter" % "0.6"
 
-  lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.4"
+  lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.2"
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4"
   lazy val spireScalaCheckBindings = "org.spire-math" %% "spire-scalacheck-binding" % "0.10.1"
 

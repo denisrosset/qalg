@@ -139,6 +139,6 @@ trait MatBuild[M, @sp(Double, Long) A] extends Any with Mat[M, A] with WithOptio
 }
 
 object MatBuild {
+  type WithOptions[M, @sp(Double, Long) A, O] = MatBuild[M, A] { type Options = O }
   def apply[M, @sp(Double, Long) A](implicit M: MatBuild[M, A]): MatBuild[M, A] = M
-//  implicit def fromPack[V, @sp(Double, Long) A](implicit ev: PackVR[V, A]): VecBuild[V, A] = ev.V
 }

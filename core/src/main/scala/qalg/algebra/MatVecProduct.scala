@@ -14,5 +14,4 @@ trait MatVecProduct[M, V] extends Any { self =>
 
 object MatVecProduct {
   def apply[M, V](implicit P: MatVecProduct[M, V]): MatVecProduct[M, V] = P
-//  implicit def fromPack[M, V](implicit ev: PackMVR[M, V, _]): MatVecProduct[M, V] = ev.MVProduct
 }

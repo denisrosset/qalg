@@ -28,7 +28,7 @@ trait MGramSchmidt[M] extends Any {
 }
 
 object MGramSchmidt {
-  implicit def fromPack[M](implicit pack: PackEuclideanRing.ForM[M, _]): MGramSchmidt[M] = pack.MGramSchmidt
+  implicit def fromPack[M, @sp(Double, Long) A](implicit pack: PackEuclideanRing.ForM[M, A]): MGramSchmidt[M] = pack.MGramSchmidt
 }
 
 trait MutableMGramSchmidt[M] extends Any with MGramSchmidt[M] {
