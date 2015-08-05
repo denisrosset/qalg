@@ -64,23 +64,34 @@ final class DenseGramSchmidtE[M, V, @sp(Long) A](implicit M: MatRing[M, A] with 
   }
 
   def orthogonalize(res: M): Unit = {
+    val zeroRows = scala.collection.mutable.BitSet.empty
     val nR = res.nRows
     val nC = res.nCols
     cforRange(0 until nR) { i =>
-      cforRange(i + 1 until nR) { j =>
-        var uv = A.zero
-        var uu = A.zero
-        cforRange(0 until nC) { c =>
-          uv = uv + res(i, c) * res(j, c)
-          uu = uu + res(i, c) * res(i, c)
-        }
-        var g = A.zero
-        cforRange(0 until nC) { c =>
-          res(j, c) = uu * res(j, c) - uv * res(i, c)
-          g = A.gcd(res(j, c), g)
-        }
-        cforRange(0 until nC) { c =>
-          res(j, c) = res(j, c) /~ g
+      if (!zeroRows.contains(i)) {
+        cforRange(i + 1 until nR) { j =>
+          if (!zeroRows.contains(j)) {
+            var uv = A.zero
+            var uu = A.zero
+            cforRange(0 until nC) { c =>
+              uv = uv + res(i, c) * res(j, c)
+              uu = uu + res(i, c) * res(i, c)
+            }
+            var g = A.zero
+            var rowIsZero = true
+            cforRange(0 until nC) { c =>
+              res(j, c) = uu * res(j, c) - uv * res(i, c)
+              val rhs = res(j, c)
+              if (!rhs.isZero) rowIsZero = false
+              g = if (g.isZero) rhs else if (rhs.isZero) g else A.gcd(res(j, c), g)
+            }
+            if (rowIsZero) zeroRows += j
+            if (g =!= A.zero) {
+              cforRange(0 until nC) { c =>
+                res(j, c) = res(j, c) /~ g
+              }
+            }
+          }
         }
       }
     }
