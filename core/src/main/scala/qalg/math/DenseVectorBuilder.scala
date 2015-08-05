@@ -12,7 +12,7 @@ import indup.algebra._
 import algebra._
 
 final class DenseVectorBuilder[@sp(Double, Long) A: ClassTag: Zero, IM <: ImmMut](val size: Int)(implicit V: VecBuild[Vector[A, IM], A]) extends VecBuilder[Vector[A, IM], A] {
-  val data = new Array[A](size)
+  val data = Array.fill[A](size)(Zero[A].zero)
   def add(i: Int, a: A): Unit = { data(i) = a }
   def result(): DenseVector[A, IM] = new DenseVector[A, IM](data)
 }

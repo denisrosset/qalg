@@ -15,7 +15,7 @@ final class DenseMatrixBuilder[@sp(Double, Long) A: ClassTag: Zero, IM <: ImmMut
   def size0: Int = nRows
   def size1: Int = nCols
   def size: IntInt = IntInt(nRows, nCols)
-  val data = new Array[A](nRows * nCols)
+  val data = Array.fill[A](nRows * nCols)(Zero[A].zero)
   def add(r: Int, c: Int, a: A): Unit = { data(c * nRows + r) = a }
   def result(): DenseMatrix[A, IM] = new DenseMatrix[A, IM](nRows, nCols, data)
 }
