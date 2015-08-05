@@ -11,7 +11,6 @@ import spire.syntax.monoid._
 import spire.syntax.vectorSpace._
 import spire.syntax.cfor._
 
-import syntax.indup.all._
 import algebra._
 import syntax.all._
 

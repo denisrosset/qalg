@@ -10,7 +10,6 @@ import algebra._
 import algos._
 import math._
 import syntax.all._
-import syntax.algos.all._
 import Matrix.packs._
 import optional.matProductOrder._
 import optional.vecProductOrder._

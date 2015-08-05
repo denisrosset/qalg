@@ -12,9 +12,7 @@ import spire.syntax.vectorSpace._
 import spire.syntax.cfor._
 
 import algebra._
-import syntax.indup.all._
 import syntax.all._
-import syntax.algos.all._
 
 final class DenseVecCatImpl[V1, @sp(Double, Long) A](implicit val V1: VecBuild[V1, A]) extends VecCat[V1, A] {
 

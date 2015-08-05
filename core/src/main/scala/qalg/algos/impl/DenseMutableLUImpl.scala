@@ -9,9 +9,7 @@ import spire.math._
 import spire.syntax.all._
 
 import algebra._
-import syntax.indup.all._
 import syntax.all._
-import syntax.algos.all._
 
 /** Implementation taken from the JAMA library (NIST), in the public domain, and
   * translated to Scala.

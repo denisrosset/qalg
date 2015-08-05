@@ -9,8 +9,6 @@ import spire.math._
 import spire.syntax.all._
 
 import algebra._
-import syntax.indup.all._
-import syntax.algos.all._
 import syntax.all._
 import util._
 

@@ -1,8 +1,5 @@
 package com.faacets.qalg
-package syntax
-
-import scala.language.higherKinds
-import scala.language.implicitConversions
+package syntax.core
 
 import algebra._
 
@@ -40,6 +37,3 @@ trait MatSyntax extends LinSyntax {
   implicit def matMutableSyntax[M, A](m: M)(implicit ev: MatMutable[M, A]): MatMutableOps[M, A] = new MatMutableOps(m)
 }
  */
-trait AllSyntax
-    extends VecSyntax
-    with MatSyntax

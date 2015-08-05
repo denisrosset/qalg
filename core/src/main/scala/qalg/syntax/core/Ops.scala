@@ -1,5 +1,5 @@
 package com.faacets.qalg
-package syntax
+package syntax.core
 
 import algebra._
 import com.faacets.qalg.macros.Ops
@@ -23,6 +23,7 @@ final class MatOps[M, A](lhs: M)(implicit ev: Mat[M, A]) {
 final class MatBuildOps[M, A](lhs: M)(implicit val ev: MatBuild[M, A]) {
   def copy(): M = macro Ops.unop[M]
   def options(): ev.Options = macro Ops.unop[ev.Options]
+  def t(): M = macro Ops.unop[M]
 }
 
 final class MatVecProductOps[M](lhs: M) {

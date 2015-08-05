@@ -11,9 +11,7 @@ import spire.syntax.all._
 
 import algebra._
 import algos._
-import syntax.indup.all._
 import syntax.all._
-import syntax.algos.all._
 
 /** Matrix-in-ring determinant algorithm from Mahajan and Vinay, see
   * http://cjtcs.cs.uchicago.edu/articles/1997/5/cj97-05.pdf

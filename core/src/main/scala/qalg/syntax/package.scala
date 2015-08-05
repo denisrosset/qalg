@@ -1,8 +1,5 @@
 package com.faacets.qalg
 
-package object syntax {
-  object vec extends VecSyntax
-  object mat extends MatSyntax
-  
-  object all extends AllSyntax
+package object syntax extends algos.Instances with core.Instances with indup.Instances {
+  object all extends algos.AllSyntax with core.AllSyntax with indup.AllSyntax
 }

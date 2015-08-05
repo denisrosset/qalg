@@ -1,8 +1,5 @@
 package com.faacets.qalg.syntax
 
-package object indup {
-  object index extends IndexSyntax
-  object update extends UpdateSyntax
-
+package object indup extends indup.Instances {
   object all extends AllSyntax
 }

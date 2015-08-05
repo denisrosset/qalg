@@ -9,9 +9,7 @@ import spire.math._
 import spire.syntax.all._
 
 import algebra._
-import syntax.indup.all._
 import syntax.all._
-import syntax.algos.all._
 
 final class DenseMutableRrefImpl[M, @sp(Double, Long) A](implicit val M: MatField[M, A], val MM: MatMut[M, A], pivotA: Pivot[A], eqA: Eq[A]) extends MutableRref[M] {
   implicit def A: Field[A] = M.scalar

@@ -13,7 +13,6 @@ import spire.syntax.cfor._
 
 import algebra._
 import syntax.all._
-import syntax.indup.all._
 
 final class DenseMatCatImpl[M1, @sp(Double, Long) A](implicit val M1: MatBuild[M1, A]) extends MatCat[M1, A] {
 

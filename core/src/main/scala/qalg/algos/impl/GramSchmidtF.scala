@@ -9,9 +9,7 @@ import spire.math._
 import spire.syntax.all._
 
 import algebra._
-import syntax.indup.all._
 import syntax.all._
-import syntax.algos.all._
 
 final class MGramSchmidtF[M, V, @sp(Double) A](implicit M: MatField[M, A] with MatSlice[M, V, A], MM: MatMut[M, A], MF: MatFactory[M], MC: MatCat[M, A], V: VecField[V, A], eqA: Eq[A]) extends MutableMGramSchmidt[M] with VGramSchmidt[V, A] {
   implicit def A: Field[A] = M.scalar
