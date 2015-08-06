@@ -8,6 +8,7 @@ import spire.algebra._
 import spire.math._
 import spire.syntax.all._
 
+import indup.algebra._
 import algebra._
 import syntax.all._
 
@@ -72,6 +73,7 @@ final class DenseMutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatField[M
       d
     }
     def solveV(b: V): V = {
+      require(lu.nCols <= lu.nRows)
       if (b.length != m)
         throw new IllegalArgumentException("Matrix row dimensions must agree.")
       if (isSingular)
@@ -92,10 +94,11 @@ final class DenseMutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatField[M
           x(i) = x(i) - x(k) * lu(i, k)
         }
       }
-      x
+      if (x.length > lu.nCols) x(0 until lu.nCols: At) else x
     }
 
     def solveM(b: M): M = {
+      require(lu.nCols <= lu.nRows)
       if (b.nRows != m)
         throw new IllegalArgumentException("Matrix row dimensions must agree.")
       if (isSingular)
@@ -124,7 +127,7 @@ final class DenseMutableLUImpl[M, V, @sp(Double, Long) A](implicit M: MatField[M
           }
         }
       }
-      x
+      if (x.nRows > lu.nCols) x(0 until lu.nCols: At, ::) else x
     }
     def inverse: M = {
       require(m == n)
