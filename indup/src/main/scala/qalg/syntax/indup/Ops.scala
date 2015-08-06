@@ -44,13 +44,13 @@ final class Index2Ops[T2, R2, R1, A](lhs: T2)(implicit ev: Index2[T2, R2, R1, A]
   type IA21 = IndexAt2To1[T2, R2, R1, A]
   def apply(rhs1: At, rhs2: At)(implicit ev1: IA2): R2 = macro Ops.triopUsingEv2[At, At, IA2, R2]
   def apply(rhs1: At, rhs2: Int)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[At, Int, IA21, R1]
-  def apply[T1](rhs1: Int, rhs2: At)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[Int, At, IA21, R1]
+  def apply(rhs1: Int, rhs2: At)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[Int, At, IA21, R1]
 
   def apply(rhs1: ::.type, rhs2: ::.type)(implicit ev1: IA2): R2 = macro Ops.triopUsingEv2[At, At, IA2, R2]
   def apply(rhs1: ::.type, rhs2: At)(implicit ev1: IA2): R2 = macro Ops.triopUsingEv2[At, At, IA2, R2]
   def apply(rhs1: At, rhs2: ::.type)(implicit ev1: IA2): R2 = macro Ops.triopUsingEv2[At, At, IA2, R2]
-  def apply[T1](rhs1: ::.type, rhs2: Int)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[At, Int, IA21, R1]
-  def apply[T1](rhs1: Int, rhs2: ::.type)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[Int, At, IA21, R1]
+  def apply(rhs1: ::.type, rhs2: Int)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[At, Int, IA21, R1]
+  def apply(rhs1: Int, rhs2: ::.type)(implicit ev1: IA21): R1 = macro Ops.triopUsingEv2[Int, At, IA21, R1]
   def apply(rhs1: Int, rhs2: Int): A = macro Ops.triop[Int, Int, A]
 }
 
