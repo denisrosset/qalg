@@ -10,6 +10,7 @@ trait AllSyntax
     with KronSyntax
     with LUSyntax
     with PrimeSyntax
+    with RankSyntax
     with RrefSyntax
     with ShiftSyntax
     with TraceSyntax

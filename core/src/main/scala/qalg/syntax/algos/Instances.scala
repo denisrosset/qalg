@@ -8,6 +8,7 @@ trait Instances {
   object kron extends KronSyntax
   object lu extends LUSyntax
   object prime extends PrimeSyntax
+  object rank extends RankSyntax
   object rref extends RrefSyntax
   object shift extends ShiftSyntax
   object trace extends TraceSyntax
