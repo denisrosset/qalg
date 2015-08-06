@@ -29,7 +29,10 @@ final class DenseVecCatImpl[V1, @sp(Double, Long) A](implicit val V1: VecBuild[V
         }
         fill(start + v2.length, it)
       }
-    fill(0, rest.iterator)
+    cforRange(0 until first.length) { i =>
+      b.add(i, first(i))
+    }
+    fill(first.length, rest.iterator)
     b.result()
   }
 }

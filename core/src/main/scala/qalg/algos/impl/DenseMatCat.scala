@@ -15,7 +15,6 @@ import algebra._
 import syntax.all._
 
 final class DenseMatCatImpl[M1, @sp(Double, Long) A](implicit val M1: MatBuild[M1, A]) extends MatCat[M1, A] {
-
   def vertcat[M2](first: M1, rest: M2*)(implicit M2: Mat[M2, A]): M1 = {
     val ncols = first.nCols
     @tailrec def computeNRows(acc: Int, it: Iterator[M2]): Int =
@@ -36,7 +35,12 @@ final class DenseMatCatImpl[M1, @sp(Double, Long) A](implicit val M1: MatBuild[M
         }
         fill(startRow + m2.nRows, it)
       }
-    fill(0, rest.iterator)
+    cforRange(0 until first.nRows) { r =>
+      cforRange(0 until first.nCols) { c =>
+        b.add(r, c, first(r, c))
+      }
+    }
+    fill(first.nRows, rest.iterator)
     b.result()
   }
 
@@ -60,7 +64,12 @@ final class DenseMatCatImpl[M1, @sp(Double, Long) A](implicit val M1: MatBuild[M
         }
         fill(startCol + m2.nCols, it)
       }
-    fill(0, rest.iterator)
+    cforRange(0 until first.nRows) { r =>
+      cforRange(0 until first.nCols) { c =>
+        b.add(r, c, first(r, c))
+      }
+    }
+    fill(first.nCols, rest.iterator)
     b.result()
   }
 }
